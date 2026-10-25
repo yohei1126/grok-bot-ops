@@ -18,6 +18,11 @@ to English Markdown.
 6. Do not merge your own PR unless maintainers ask you to. Review may refine
    wording for a wider audience.
 
+Monthly audits that change shared rules follow the same PR path. After merge,
+operators update private shared assistant notes and tag a `YYMMDD` GitHub
+Release. The post-merge checklist lives in
+[`docs/monthly-audit.md`](docs/monthly-audit.md).
+
 ## Review English prose before every PR
 
 Every pull request that adds or changes English Markdown in this repo needs two
@@ -61,7 +66,7 @@ Contributors must keep examples generic. Prefer:
 - "document worker", "cloud coding agent"
 - "shared durable notes", "shared workspace status files"
 - "collaborative docs suite", "task app", "calendar"
-- "monthly ops audit"
+- "monthly ops audit", "operator's shared assistant notes"
 - the name pattern `Domain｜Role` (placeholders, not real display names)
 
 Do not include:

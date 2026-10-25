@@ -1,7 +1,11 @@
 # Monthly ops audit checklist
 
-Run this audit about once a month. It proposes changes. The operator chooses
-what to apply and then instructs the bots.
+Run this audit about once a month. After the review, open a PR for accepted
+rule changes, merge it, update the operator's private shared assistant notes,
+and tag a GitHub Release.
+
+The audit proposes changes. The operator chooses what to apply and then
+instructs the bots.
 
 When the audit leads to a PR, the diff must stay generalized. Leave out
 personal facts, billing amounts, customer names, and bot display names that
@@ -10,7 +14,21 @@ identify an individual.
 Use generic labels in notes and PRs: operator, domain bot, progress bot,
 cost/ops bot, document worker, cloud coding agent, shared durable notes,
 shared workspace status files, collaborative docs suite, task app, calendar,
-monthly ops audit.
+monthly ops audit, operator's shared assistant notes.
+
+## Monthly cycle at a glance
+
+1. Review agent, routine, and subscription ops. Draft improvements to the
+   shared rules.
+2. Open a pull request on this repo for human review. Follow
+   [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+3. After merge, copy the accepted rules into the operator's private shared
+   assistant notes.
+4. Tag a GitHub Release whose tag is `YYMMDD` (six digits for the merge date
+   in the operator's local calendar).
+
+The numbered sections below are the checklist for step 1. Steps 2 through 4
+are sections 6 through 8.
 
 ## 1. Billing and usage trend
 
@@ -98,6 +116,7 @@ Proposal: a short PR against this docs repo or your fork that updates
 ## 6. Open a PR with generalized diffs only
 
 Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
+[`AGENTS.md`](../AGENTS.md) only points agents at that file.
 
 - [ ] Include only generalized best-practice changes: rules, checklist items,
   and CONTRIBUTING clarifications.
@@ -108,8 +127,37 @@ Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
   person.
 - [ ] English prose reviewed (structure + humanizer) before open.
 - [ ] Open a pull request into `main` with an English title and body.
-- [ ] After the operator merges, instruct the affected bots with the new
-  rules. Bots do not read the PR automatically.
+- [ ] Do not merge your own PR unless maintainers ask you to.
+
+## 7. Reflect accepted rules into private shared assistant notes
+
+Do this only after the PR merges.
+
+- [ ] Copy the accepted rule changes into the operator's private shared
+  assistant notes so bots and the operator use the same updated rules.
+- [ ] Instruct the affected bots with the new rules. Bots do not read the PR
+  automatically.
+- [ ] Keep environment-specific detail in those private notes. Do not commit
+  it back into this public repo.
+
+## 8. Tag a GitHub Release as YYMMDD
+
+After merge and after the private notes update:
+
+- [ ] Create an annotated git tag named with six digits `YYMMDD` for the merge
+  date in the operator's local calendar (example: `251025` for 25 October
+  2025).
+- [ ] Publish a GitHub Release on that annotated tag.
+- [ ] Write short English release notes that state what changed. Keep them
+  generalized, with no personal identifiers.
+
+Example:
+
+```bash
+git tag -a 251025 -m "Monthly ops audit: clarify bot-to-bot priority defaults"
+git push origin 251025
+gh release create 251025 --title "251025" --notes "Clarify bot-to-bot priority defaults and retire idle progress routines."
+```
 
 ## Operator decision log (optional template)
 
@@ -124,6 +172,8 @@ Proposals deferred:
 - …
 Bots/rooms deleted:
 - …
+Shared assistant notes updated: yes/no
+Release tag: YYMMDD
 Follow-ups for next month:
 - …
 ```
