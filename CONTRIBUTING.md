@@ -11,12 +11,20 @@ to English Markdown.
    or [`docs/monthly-audit.md`](docs/monthly-audit.md).
 3. Keep the change generalized: useful to other operators and not tied to one
    person's setup.
-4. Run the English prose review on every file you changed (see
+4. Keep every Markdown file at 500 lines or fewer (see
+   [Keep Markdown files at 500 lines or fewer](#keep-markdown-files-at-500-lines-or-fewer)).
+5. Run the English prose review on every file you changed (see
    [Review English prose before every PR](#review-english-prose-before-every-pr)).
-5. Open a pull request against `main` with an English title and body that
+6. Open a pull request against `main` with an English title and body that
    explain why the change helps ops hygiene or token cost.
-6. Do not merge your own PR unless maintainers ask you to. Review may refine
+7. Do not merge your own PR unless maintainers ask you to. Review may refine
    wording for a wider audience.
+
+Monthly audits that change shared rules follow the same PR path. After that
+monthly-audit PR merges, operators update private shared assistant notes and
+tag one `YYMMDD` GitHub Release for the cycle. Mid-cycle PRs may update docs
+or rules without a release tag. The post-merge checklist lives in
+[`docs/monthly-audit.md`](docs/monthly-audit.md).
 
 ## Review English prose before every PR
 
@@ -61,7 +69,7 @@ Contributors must keep examples generic. Prefer:
 - "document worker", "cloud coding agent"
 - "shared durable notes", "shared workspace status files"
 - "collaborative docs suite", "task app", "calendar"
-- "monthly ops audit"
+- "monthly ops audit", "operator's shared assistant notes"
 - the name pattern `Domain｜Role` (placeholders, not real display names)
 
 Do not include:
@@ -78,6 +86,18 @@ Do not include:
 If your draft needs a concrete illustration, invent a clearly fictional
 placeholder such as `Domain｜Role` or `articles/YYYY-MM-DD-slug.md`. Do not
 copy from a private workspace.
+
+## Keep Markdown files at 500 lines or fewer
+
+No Markdown file in this repository may exceed 500 lines.
+
+If a change would push a file over 500 lines, or if you find a file already
+over the limit, split it into smaller topic files in the same PR. Update every
+cross-link (README, docs, CONTRIBUTING, and in-doc anchors) so nothing points
+at a removed path or heading.
+
+Count lines with a plain line count on the file on disk (for example
+`wc -l path/to/file.md`). Include blank lines and fenced code.
 
 ## Style
 
