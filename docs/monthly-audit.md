@@ -134,6 +134,9 @@ rules PRs use the same contribution rules, without sections 7 and 8.
   bot display names, internal home paths, email addresses, city or move plans,
   Drive folder IDs, and GitHub usernames or repositories that identify one
   person.
+- [ ] Every Markdown file is 500 lines or fewer. Split any file over the limit
+  and update cross-links in the same PR (see
+  [`CONTRIBUTING.md`](../CONTRIBUTING.md)).
 - [ ] English prose reviewed (structure + humanizer) before open.
 - [ ] Open a pull request into `main` with an English title and body.
 - [ ] Do not merge your own PR unless maintainers ask you to.
