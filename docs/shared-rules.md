@@ -227,12 +227,14 @@ A cost/ops bot (or the [monthly audit checklist](monthly-audit.md)) proposes
 inventory and cleanup. It does not apply the cleanup itself.
 
 1. The cost/ops bot or the monthly audit proposes changes only.
-2. The operator selects what to apply and opens a generalized PR to this docs
-   repo or a fork. Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md).
-3. After merge, the operator copies accepted rules into private shared
-   assistant notes, then instructs the affected bots.
-4. The operator tags a GitHub Release as `YYMMDD` for the merge date (see the
-   monthly audit checklist).
+2. The operator selects what to apply and opens a generalized monthly-audit
+   PR to this docs repo or a fork. Follow
+   [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+3. After that monthly-audit PR merges, the operator copies accepted rules into
+   private shared assistant notes, then instructs the affected bots.
+4. The operator tags one `YYMMDD` GitHub Release for that cycle (see the
+   monthly audit checklist). Mid-cycle docs or rules PRs do not get a release
+   tag.
 5. Bots cannot delete sidebar bots or rooms. The operator does that in the UI
    (see
    [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).

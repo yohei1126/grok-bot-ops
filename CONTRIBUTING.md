@@ -18,9 +18,10 @@ to English Markdown.
 6. Do not merge your own PR unless maintainers ask you to. Review may refine
    wording for a wider audience.
 
-Monthly audits that change shared rules follow the same PR path. After merge,
-operators update private shared assistant notes and tag a `YYMMDD` GitHub
-Release. The post-merge checklist lives in
+Monthly audits that change shared rules follow the same PR path. After that
+monthly-audit PR merges, operators update private shared assistant notes and
+tag one `YYMMDD` GitHub Release for the cycle. Mid-cycle PRs may update docs
+or rules without a release tag. The post-merge checklist lives in
 [`docs/monthly-audit.md`](docs/monthly-audit.md).
 
 ## Review English prose before every PR

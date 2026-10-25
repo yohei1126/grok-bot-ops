@@ -25,8 +25,9 @@ Operators who:
   ops proposals, and retiring finished bots.
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
-  cross-bot practice; open a PR; after merge, update the operator's private
-  shared assistant notes; tag a GitHub Release as `YYMMDD`.
+  cross-bot practice; open the monthly-audit PR; after that PR merges, update
+  the operator's private shared assistant notes; tag one `YYMMDD` GitHub
+  Release for the cycle (not for mid-cycle PRs).
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) holds all contribution rules: how to
   propose changes by pull request, the English prose review every PR needs,
   and the generic-examples policy.
@@ -43,8 +44,9 @@ Operators who:
    workflows. Do not copy personal details into bot prompts.
 3. Run [`docs/monthly-audit.md`](docs/monthly-audit.md) once a month. A
    cost/ops bot or the audit proposes cleanups. The operator chooses what to
-   apply, merges the PR, updates private shared assistant notes, and tags a
-   `YYMMDD` GitHub Release. Bots cannot delete sidebar bots or rooms.
+   apply, merges the monthly-audit PR, updates private shared assistant notes,
+   and tags one `YYMMDD` GitHub Release for that cycle. Mid-cycle docs PRs do
+   not get a release tag. Bots cannot delete sidebar bots or rooms.
 4. Suggest generalized improvements by pull request. Read and follow
    [`CONTRIBUTING.md`](CONTRIBUTING.md) first. It holds every contribution
    rule, including the English prose review each PR needs.

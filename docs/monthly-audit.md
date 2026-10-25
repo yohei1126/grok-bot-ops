@@ -1,8 +1,13 @@
 # Monthly ops audit checklist
 
-Run this audit about once a month. After the review, open a PR for accepted
-rule changes, merge it, update the operator's private shared assistant notes,
-and tag a GitHub Release.
+Run this audit about once a month. After the review, open the monthly-audit
+PR for accepted rule changes. When that PR merges, update the operator's
+private shared assistant notes, then tag one `YYMMDD` GitHub Release for the
+cycle.
+
+Mid-cycle PRs may still update docs or rules. They do not get a release tag.
+Only the monthly audit cycle cuts `YYMMDD`, once per month, after that
+audit's PR merges.
 
 The audit proposes changes. The operator chooses what to apply and then
 instructs the bots.
@@ -20,15 +25,16 @@ monthly ops audit, operator's shared assistant notes.
 
 1. Review agent, routine, and subscription ops. Draft improvements to the
    shared rules.
-2. Open a pull request on this repo for human review. Follow
+2. Open the monthly-audit pull request on this repo for human review. Follow
    [`CONTRIBUTING.md`](../CONTRIBUTING.md).
-3. After merge, copy the accepted rules into the operator's private shared
-   assistant notes.
-4. Tag a GitHub Release whose tag is `YYMMDD` (six digits for the merge date
-   in the operator's local calendar).
+3. After that monthly-audit PR merges, copy the accepted rules into the
+   operator's private shared assistant notes.
+4. Then tag one GitHub Release as `YYMMDD` (six digits for that merge date in
+   the operator's local calendar).
 
 The numbered sections below are the checklist for step 1. Steps 2 through 4
-are sections 6 through 8.
+are sections 6 through 8. Other PRs during the month follow
+[`CONTRIBUTING.md`](../CONTRIBUTING.md) only. They skip sections 7 and 8.
 
 ## 1. Billing and usage trend
 
@@ -113,10 +119,13 @@ Proposal: a short PR against this docs repo or your fork that updates
   the operator. Sources meant for pasting into LinkedIn-style surfaces stayed
   plain Markdown.
 
-## 6. Open a PR with generalized diffs only
+## 6. Open the monthly-audit PR with generalized diffs only
 
 Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
 [`AGENTS.md`](../AGENTS.md) only points agents at that file.
+
+This section is the monthly-audit PR that closes the cycle. Mid-cycle docs or
+rules PRs use the same contribution rules, without sections 7 and 8.
 
 - [ ] Include only generalized best-practice changes: rules, checklist items,
   and CONTRIBUTING clarifications.
@@ -131,7 +140,8 @@ Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
 
 ## 7. Reflect accepted rules into private shared assistant notes
 
-Do this only after the PR merges.
+Do this only after the monthly-audit PR from section 6 merges. Skip this
+section for mid-cycle PRs.
 
 - [ ] Copy the accepted rule changes into the operator's private shared
   assistant notes so bots and the operator use the same updated rules.
@@ -142,14 +152,15 @@ Do this only after the PR merges.
 
 ## 8. Tag a GitHub Release as YYMMDD
 
-After merge and after the private notes update:
+Cut this tag once per monthly audit cycle, after the monthly-audit PR merges
+and after the private notes update. Do not tag mid-cycle docs or rules PRs.
 
-- [ ] Create an annotated git tag named with six digits `YYMMDD` for the merge
-  date in the operator's local calendar (example: `251025` for 25 October
-  2025).
+- [ ] Create an annotated git tag named with six digits `YYMMDD` for that
+  monthly-audit merge date in the operator's local calendar (example:
+  `251025` for 25 October 2025).
 - [ ] Publish a GitHub Release on that annotated tag.
-- [ ] Write short English release notes that state what changed. Keep them
-  generalized, with no personal identifiers.
+- [ ] Write short English release notes that state what changed in the audit
+  cycle. Keep them generalized, with no personal identifiers.
 
 Example:
 
