@@ -19,8 +19,10 @@ This repo is documentation only.
 
 Contributors **must** keep examples generic. Prefer:
 
-- “operator”, “domain bot”, “progress bot”
-- “status files on a shared workspace”
+- “operator”, “domain bot”, “progress bot”, “cost/ops bot”
+- “document worker”, “cloud coding agent”
+- “shared durable notes”, “shared workspace status files”
+- “collaborative docs suite”, “task app”, “calendar”
 - “monthly ops audit”
 - Name pattern `Domain｜Role` (placeholders, not real display names)
 
@@ -30,10 +32,13 @@ Do **not** include:
 - Billing amounts or subscription tiers
 - Customer or project names
 - Bot display names that identify an individual
-- Internal paths (e.g. home directories), email addresses, or city/move plans
+- Internal paths (for example home directories), email addresses, or city/move
+  plans
+- Drive folder IDs
+- GitHub usernames or repositories that identify one person
 
 If your draft needs a concrete illustration, invent a clearly fictional
-placeholder (`Domain｜Role`, `docs/status/domain-bot.md`) rather than copying
+placeholder (`Domain｜Role`, `articles/YYYY-MM-DD-slug.md`) rather than copying
 from a private workspace.
 
 ## Style
