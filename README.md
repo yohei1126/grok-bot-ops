@@ -16,11 +16,15 @@ Operators who:
 
 ## What’s in the repo
 
-- [`docs/shared-rules.md`](docs/shared-rules.md) — Living shared-rules: when
-  to create bots, rooms, coding vs document workers, priorities, progress
-  files, deliverables, monthly optimization
+- [`docs/shared-rules.md`](docs/shared-rules.md) — Living shared rules: where
+  ops rules live (shared durable notes and this repo, not Agent Skills), when
+  to create bots, talk to the responsible bot, rooms, fresh cloud coding
+  agents vs document workers, priorities and cross-domain signals, decisions,
+  weekly progress docs, tasks vs calendar, deliverables and publishing,
+  cost/ops proposals, retiring finished bots
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) — Checklist for a monthly
-  ops review (usage, inventory, drift, PR back to this repo)
+  ops review (usage, inventory, drift, cross-bot spot check, PR back to this
+  repo)
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — How to propose improvements via pull
   request
 
@@ -29,13 +33,17 @@ Operators who:
 1. Read [`docs/shared-rules.md`](docs/shared-rules.md) and adapt the patterns
    to your workspace.
 2. Point your bots (or a short operator note) at the rules that matter for
-   your setup—prefer durable shared notes over copying personal details into
-   bot prompts.
-3. Once a month, run [`docs/monthly-audit.md`](docs/monthly-audit.md). Propose
-   cleanups; the operator chooses what to apply, then instructs bots.
+   your setup. Cross-bot ops rules live in shared durable notes and/or this
+   repo—not as Agent Skills. Reserve Agent Skills for reusable procedures many
+   bots share (for example writing style or platform posting workflows). Do
+   not copy personal details into bot prompts.
+3. Once a month, run [`docs/monthly-audit.md`](docs/monthly-audit.md). A
+   cost/ops bot or the audit proposes cleanups; the operator chooses what to
+   apply, then instructs bots. Bots cannot delete sidebar bots or rooms.
 4. Suggest generalized improvements via PR (see
    [`CONTRIBUTING.md`](CONTRIBUTING.md)). Keep examples generic: “operator”,
-   “domain bot”, “progress bot”, “status files on a shared workspace”.
+   “domain bot”, “progress bot”, “cost/ops bot”, “document worker”,
+   “shared durable notes”, “collaborative docs suite”.
 
 ## Markdown linting
 
