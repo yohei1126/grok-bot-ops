@@ -1,0 +1,24 @@
+# Markdown lint configuration for documentation in this repository.
+# Tool: markdownlint-cli2 (https://github.com/DavidAnson/markdownlint-cli2)
+# Rules: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+#
+# Intent: keep docs readable without being absurdly strict.
+# - MD013: line length relaxed; tables and code blocks are exempt.
+# - Other default rules remain enabled (heading style, blank lines, lists, etc.).
+
+config:
+  default: true
+  # Long URLs and wide tables are common in docs; do not fail on line length alone.
+  MD013:
+    line_length: 120
+    code_blocks: false
+    tables: false
+  # Duplicate headings can appear across sections (e.g. repeated "Overview").
+  MD024:
+    siblings_only: true
+
+globs:
+  - "**/*.md"
+
+ignores:
+  - "**/node_modules/**"
