@@ -74,10 +74,16 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
 2. **Cursor cloud coding agents and local `agent` (plus Cursor IDE)**: own
    repository coding across interactive sessions, fresh cloud branches, and
    local headless runs (`agent -p`) for features, bug fixes, multi-file
-   refactors, and iterative test cycles.
+   refactors, and iterative test cycles. Prefer **Cursor cloud coding agents**
+   for standard repository coding; use local `agent -p` only when the job must
+   run on the workstation (local hardware, local-only files, or local-only
+   headless tooling), and keep its checkouts strictly under
+   `~/agent-work/<repo>` (`mkdir -p ~/agent-work`; never `~/work/...`).
 3. **Antigravity (`agy` and Remote Control)**: owns document drafting,
    repository documentation updates, and lighter repository tasks that belong on
-   the Google or Gemini authentication lane.
+   the Google or Gemini authentication lane. Keep all local `agy` checkouts
+   strictly under `~/agy-work/<repo>` (never `~/work/...`; see
+   [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
 4. **Local workstation hardware**: runs machine learning training, local model
    inference, heavy generation or comparison batches, local test suites, and
    local CLI workers (`agy` and `agent`). Enforce the one-writer rule across
@@ -147,8 +153,8 @@ the operator can see who was asked to do what without keeping a second backlog:
 - **Structured description fields**: keep four fields in the task description:
   1. **Assignee and lane**: which bot or worker owns the current step.
   2. **Target pull request or checkout path**: generic placeholders until bound,
-     such as `https://github.com/org/repo/pull/N` or `/path/to/project` on
-     branch `docs/topic-name`.
+     such as `https://github.com/org/repo/pull/N` or `~/agy-work/<repo>` (or
+     `~/agent-work/<repo>`) on branch `docs/topic-name`.
   3. **Progress notes**: short timestamped or step-level handoff updates.
   4. **Done criteria**: the verification check and expected deliverable (such as
      lint passing and the pull request updated without merging).
@@ -160,7 +166,7 @@ Title: [agent→agy] Document task-app visibility rules
 Labels: agy, running
 Description:
 - Assignee / lane: agy (document lane on registered workstation)
-- Target: /path/to/project (branch docs/topic-name, PR https://github.com/org/repo/pull/N)
+- Target: ~/agy-work/<repo> (branch docs/topic-name, PR https://github.com/org/repo/pull/N)
 - Progress: CLI check finished in agent; handed off to agy for Markdown edits
 - Done criteria: docs updated, <= 500 lines per file, markdownlint clean, PR body refreshed
 ```
@@ -210,10 +216,11 @@ Follow these channel rules on every handoff:
   operator-declared deadlines (see
   [Bot-to-bot messages](shared-rules.md#7-bot-to-bot-messages-default-to-low-priority)).
 - **Approved local shell on registered workstation (`agy -p` / `agent -p`)**:
-  invoke headless print mode only inside directories the operator has registered
-  and approved on the local workstation, and verify no other writer is active on
-  that checkout (see
-  [`workstation-handoffs.md`](workstation-handoffs.md#2-wire-grok-bot-to-antigravity-cli-and-local-cursor-agent-cli)).
+  invoke headless print mode only inside its fixed checkout root (`~/agy-work/<repo>`
+  for `agy` and `~/agent-work/<repo>` for `agent`; never `~/work/...`), state
+  the absolute checkout path in the brief, and verify no other writer is active
+  on that checkout (see
+  [`workstation-handoffs.md`](workstation-handoffs.md#fixed-checkout-roots)).
 - **Remote Control web UI (paste)**: keep Remote Control for human paste and
   supervision. Do not use browser automation to drive the Remote Control web UI
   as a primary handoff path.
@@ -252,14 +259,19 @@ transcript or guess repository policy (see
 
 Verify every item before launching a handoff:
 
-- [ ] **Match the job type to the right lane**: route repository coding to
-  Cursor cloud coding agents or local `agent`; route documentation and Google or
-  Gemini lane work to `agy` (or a document worker); route machine learning and
-  heavy compute to native workstation tools; keep connectors, routines, and
-  multi-bot orchestration in Grok Bot.
-- [ ] **Enforce one writer per checkout at a time**: never run parallel `agy` or
-  `agent` processes on the same local repository checkout or branch at the same
-  time (see
+- [ ] **Match the job type to the right lane**: route standard repository
+  coding to Cursor cloud coding agents; use local `agent -p` (under
+  `~/agent-work/<repo>`) only when the task must run on the workstation (local
+  hardware, local-only files, or local-only tooling); route documentation and
+  Google or Gemini lane work to `agy` (under `~/agy-work/<repo>`) or a document
+  worker; route machine learning and heavy compute to native workstation tools;
+  keep connectors, routines, and multi-bot orchestration in Grok Bot.
+- [ ] **Enforce fixed checkout roots and one writer per checkout**: run `agy`
+  only under `~/agy-work/<repo>` and local `agent` only under
+  `~/agent-work/<repo>` (never under `~/work/...`), state the absolute checkout
+  path in the brief, and never run parallel `agy` or `agent` processes on the
+  same checkout or branch at the same time (see
+  [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots) and
   [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
   Use separate clones, git worktrees, or sequential runs when two tasks touch
   the same repository.

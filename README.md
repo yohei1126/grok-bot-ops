@@ -33,10 +33,12 @@ Operators who:
   record with handoff visibility conventions, and provides a pre-launch routing
   checklist that includes card-style confirmation for heavy launches.
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
-  prepare a registered workstation, wire Grok Bot to Antigravity CLI (`agy`)
-  and the local Cursor Agent CLI (`agent` or `cursor-agent`), structure
-  self-contained briefs, enforce one-writer parallel-execution controls, and
-  prefer operator-facing choice cards over growing fine-grained Allow lists.
+  prepare a registered workstation, enforce fixed checkout roots (`~/agy-work`
+  for `agy` and `~/agent-work` for local `agent`) and cloud-versus-local coding
+  routing, wire Grok Bot to Antigravity CLI (`agy`) and the local Cursor Agent
+  CLI (`agent` or `cursor-agent`), structure self-contained briefs, enforce
+  one-writer parallel-execution controls, and prefer operator-facing choice
+  cards over growing fine-grained Allow lists.
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update
