@@ -68,7 +68,10 @@ before dispatching a batch of tasks:
 - **Separate Google or Gemini lane**: Antigravity CLI (`agy`) authenticates
   through a separate Google or Gemini lane. When the shared Grok or Cursor pool
   is tight, shift eligible documentation updates, prose reviews, and lighter
-  repository tasks to `agy`.
+  repository tasks to `agy`. Prefer `agy` for **unstructured and multimodal** understanding (images,
+  short video, PDF, long messy logs) so Grok Bot only routes paths and returns
+  a short summary (see
+  [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload)).
 - **Keep billing rules generic**: never state or invent subscription prices,
   dollar figures, or tier names in repository documentation, weekly progress
   docs, or status files (see

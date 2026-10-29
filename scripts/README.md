@@ -11,6 +11,9 @@ full workstation handoff rules.
 
 ## Run launch and collection in two workstation shell calls
 
+Write long briefs on the Grok box and `CopyFromBox` them into `$HOME/agy-inbox/`
+instead of a large Mac heredoc (see
+[Prepare agy docs briefs without long Mac heredocs](../docs/workstation-handoffs.md#prepare-agy-docs-briefs-without-long-mac-heredocs)).
 Call one workstation `Shell` per phase after the brief exists under
 `$HOME/agy-inbox/`:
 

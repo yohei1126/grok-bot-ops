@@ -201,6 +201,10 @@ the calendar:
   For local approval prompt reduction and headless `agy -p` soft-deny handling,
   see [Reduce local approval prompts](workstation-handoffs.md#reduce-local-approval-prompts)
   and [Headless agy soft-deny handling](workstation-handoffs.md#headless-agy-soft-deny-handling).
+  For fast brief prep (box → CopyFromBox; reuse inventory; split「brief 準備中」vs「agy 起動済み」),
+  see [Prepare agy docs briefs without long Mac heredocs](workstation-handoffs.md#prepare-agy-docs-briefs-without-long-mac-heredocs).
+  For images, short video, PDF, and messy-log understanding on `agy`, see
+  [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload).
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
   queue, serializes jobs that share a local checkout, and launches execution
   handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and low-priority
