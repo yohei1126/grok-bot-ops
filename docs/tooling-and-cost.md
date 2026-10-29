@@ -1,37 +1,50 @@
 # Tool routing, cost caps, and Antigravity CLI handoffs
 
-Split work across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
-workstation so usage stays within included plan limits and extra on-demand
-charges stay rare.
+Split work across four surfaces (Grok Bot, Cursor, Antigravity CLI (`agy`), and
+the local workstation) so usage stays within included plan limits and extra
+on-demand charges stay rare.
 
 Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
-## 1. Assign each tool a clear role
+## 1. Split work across four surfaces
 
-Route every task to the surface that fits its compute and token profile.
+Route every task to the surface that fits its compute, authentication pool, and
+token profile:
 
-- **Grok Bot**: mobile-friendly orchestration, connectors (mail, calendar,
-  collaborative docs, task app), multi-bot coordination, and scheduled
-  routines. Keep chats short. Avoid long machine learning runs, large PDF
-  comparison loops, and bulk regeneration loops inside Grok.
-- **Cursor** (IDE and cloud coding agents): repository coding, multi-file
-  refactors, and long iterative code and test cycles (see
-  [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)).
-- **Antigravity CLI (`agy`)**: document drafting and lighter coding that should
-  stay outside the shared Grok and Cursor usage pool when the operator wants
-  that separation. Run it in the interactive TUI (`agy`) or in headless print
-  mode (`agy -p`).
-- **Local workstation**: machine learning training, local inference, and heavy
-  generation or comparison jobs. Finish the heavy job on the workstation and
-  return only output paths or a short summary to Grok.
+1. **Grok Bot**: operator UI, mobile-friendly orchestration, connectors (mail,
+   calendar, collaborative docs, task app), scheduled routines, and multi-bot
+   coordination. Grok owns the goal, guardrails, success criteria, and handoff
+   launch. Keep chats short, and keep long machine learning runs, large PDF
+   comparison loops, and bulk regeneration loops out of Grok.
+2. **Cursor**: cost-effective repository coding agents and IDE coding loops for
+   multi-file refactors and iterative code-and-test cycles (see
+   [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)).
+3. **Antigravity CLI (`agy`)**: document drafting and lighter coding under
+   Google or Gemini authentication. It executes workstation briefs after Grok
+   hands off work, either in the interactive TUI (`agy`) or in headless print
+   mode (`agy -p`).
+4. **Local workstation (for example, an Apple Silicon laptop)**: machine
+   learning training, local model inference, and heavy generation or comparison
+   jobs. Run the compute on the workstation and return only short results or
+   output paths to Grok.
+
+Keep the orchestrator-versus-worker boundary strict when handing work from Grok
+Bot to Antigravity CLI:
+
+- **Grok Bot (orchestrator)** decides *what* needs to happen: the deliverable
+  goal, target repository and branch policy, guardrails, forbidden content, and
+  success criteria.
+- **Antigravity CLI (worker)** decides *how* to finish the job inside those
+  boundaries: which files to inspect, how to structure edits, and how to run
+  local checks before reporting back.
 
 Some subscriptions share a weekly usage pool across Grok Bot and Cursor. When
 product settings support an on-demand or additional-usage spend cap, the
 operator should set a monthly cap so usage stops at a known limit after the
 included pool runs out. Antigravity CLI usage stays separate from that shared
-pool when the operator runs `agy` under Antigravity's own authentication.
+pool because `agy` runs under its own Google or Gemini authentication.
 
 ## 2. Keep device posture aligned with tool roles
 
@@ -61,62 +74,153 @@ The operator decides what to adopt:
    fire on event triggers, rather than overnight schedules that pile up unread
    output.
 
-## 4. Hand work from Grok Bot to Antigravity CLI in three ways
+## 4. Prepare the workstation for Antigravity CLI handoffs
 
-Use one of three handoff paths when a Grok Bot (such as a domain bot or
-cost/ops bot) delegates drafting or light repository tasks to Antigravity CLI
-on the operator's workstation. Do not use browser automation against the Remote
-Control web UI as a primary path, because UI automation against that surface is
-fragile.
+Complete five one-time setup steps on the local workstation before wiring Grok
+Bot to Antigravity CLI (`agy`):
 
-### Path 1: headless print mode on the workstation (default for automation)
+1. **Install `agy` and configure the shell path**: install the Antigravity CLI
+   binary and run `agy install` if needed so `agy` is on `PATH` for both
+   interactive shells and non-interactive automation runners.
+2. **Complete one interactive login**: run `agy` once in a local terminal and
+   finish the Google or Gemini authentication prompt. Headless runs (`agy -p`)
+   rely on the stored session and fail if the workstation has never logged in.
+3. **Start the Remote Control daemon when mobile access is needed**: run
+   `agy remote-control start` (and verify with `agy remote-control status`) if
+   the operator plans to review or paste prompts from a phone or remote
+   browser. Stop it with `agy remote-control stop` when remote access is no
+   longer wanted.
+4. **Configure scoped `permissions.allow` rules**: edit the Antigravity CLI
+   `settings.json` file (or pass session settings via `--settings`) to allow
+   only the specific tools and commands that unattended runs need. In headless
+   print mode, tools that would normally ask for interactive confirmation are
+   soft-denied unless explicitly allowed in advance.
+5. **Register the workstation for Grok local execution**: when Grok Bot will
+   invoke `agy -p` or drop files onto the workstation directly, register the
+   workstation with Grok's local execution bridge and restrict command
+   approvals to the intended working directories.
 
-Run `agy` non-interactively in the target project directory when a Grok Bot can
-execute approved local shell commands on the registered workstation:
+## 5. Hand work from Grok Bot to Antigravity CLI through three paths
+
+Pick the handoff path that matches how much human supervision the task needs.
+
+### Path A: run headless print mode via an approved local shell
+
+Use headless print mode when a Grok Bot (`Domain｜Role`) can run approved local
+shell commands on the registered workstation:
 
 ```bash
-cd /path/to/project && agy -p "<task>"
+cd /path/to/project && agy -p "<brief>"
 ```
 
-You can also scope the workspace or project with flags from `agy --help`, such
-as `--project <project>` or `--add-dir <dir>`, and set `--print-timeout` when a
-bounded runtime is needed.
+When the brief is long or contains shell metacharacters, pipe it over standard
+input instead of embedding it in command arguments:
 
-Operational requirements for headless mode:
+```bash
+agy -p --project /path/to/project < /path/to/agy-inbox/current-brief.txt
+```
 
-- Complete interactive login (`agy`) on that workstation ahead of time.
-- Configure scoped `permissions.allow` rules in Antigravity CLI settings rather
-  than passing `--dangerously-skip-permissions`.
-- Add explicit allow rules before running unattended jobs, because tools that
-  require confirmation are soft-denied in headless print mode unless allowed in
-  advance.
+Useful flags from `agy --help` for scripted runs:
 
-### Path 2: draft prompt plus Remote Control (phone or away from desk)
+- `-p` or `--print`: run a single prompt non-interactively and print the
+  response.
+- `--project <project>` and `--add-dir <dir>`: scope the session to a project
+  or attach extra workspace directories.
+- `--mode <mode>`: set the execution mode (`accept-edits`, `auto`, or `plan`)
+  for the session.
+- `--model <model>` and `--effort <level>`: select the model and reasoning
+  effort (`low`, `medium`, `high`, `xhigh`, `max`).
+- `--print-timeout <duration>`: set a maximum runtime so a stalled command does
+  not block the caller indefinitely.
+- `--output-format <format>`: emit `text`, `json`, or `stream-json` when a
+  local wrapper parses the result.
+- `--sandbox`: enable terminal restrictions for untrusted or tightly scoped
+  tasks.
 
-Keep the Remote Control daemon running on the workstation with
-`agy remote-control start` (or start an interactive session with
-`agy --remote-control` or `/remote-control`).
+Prefer scoped `permissions.allow` rules in settings over
+`--dangerously-skip-permissions`. Because headless mode soft-denies any action
+that still needs interactive approval, test a new workflow once and add narrow
+allow rules for the exact tools it requires.
 
-1. Grok drafts a self-contained prompt with the goal, file paths, and
-   verification steps.
-2. The operator opens the Antigravity Remote Control UI in a mobile or laptop
-   browser, pastes the prompt, and approves tool actions in the loop.
+### Path B: draft the brief in Grok and paste it into Remote Control
 
-Use this path when the operator is away from the workstation and wants human
-review before edits or commands run.
+Use Remote Control when the operator is on a phone or away from the desk and
+wants to supervise tool calls in real time:
 
-### Path 3: watched inbox file plus LaunchAgent or cron (asynchronous)
+1. Keep the background daemon running on the workstation with
+   `agy remote-control start`, or open a single session with
+   `agy --remote-control` (or `/remote-control` inside the TUI).
+2. Ask the responsible Grok Bot to draft a self-contained brief in chat.
+3. Open the Antigravity Remote Control web view, paste the brief, and approve
+   or reject edits and shell commands as they appear.
 
-Use a watched inbox folder and a local scheduler for unattended handoffs that
-do not use a direct shell bridge:
+### Path C: drop a task file into a watched inbox folder
 
-1. Grok writes a plain-text or Markdown task file into a watched inbox folder
-   on the workstation (for example, `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md`).
-2. A macOS LaunchAgent (`WatchPaths`) or cron job runs a small local bridge
-   script whenever a task file appears.
-3. The bridge script passes the file contents to `agy -p`, writes the response
-   to an output file, and moves the task file to a processed folder so it does
-   not run twice.
+Use a watched inbox folder when Grok Bot should queue unattended work without
+holding a synchronous shell session open:
 
-Set up the bridge script once on the workstation and return only the output
-file path or a brief status note to Grok.
+1. Grok Bot writes a plain-text or Markdown brief into a watched directory on
+   the workstation, such as `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md`.
+2. A macOS LaunchAgent (`WatchPaths`) or cron entry invokes a local wrapper
+   script whenever a new file lands in `/path/to/agy-inbox/`.
+3. The wrapper moves the file into `/path/to/agy-inbox/processing/` first so a
+   second trigger cannot pick up the same file, feeds the file contents to
+   `agy -p`, writes the output to
+   `/path/to/agy-inbox/out/task-YYYYMMDD-HHMM.log`, and archives the input
+   under `/path/to/agy-inbox/done/`.
+4. Grok Bot reads only the short output summary or exit status on a later pass.
+
+## 6. Keep handoff briefs self-contained and free of secrets
+
+Write every Grok-to-`agy` brief so a fresh CLI session can finish the job
+without reading the Grok chat transcript. Keep the orchestrator-and-worker
+division clear: Grok specifies the target outcome and constraints, while
+Antigravity CLI determines the implementation steps inside the brief. Do not
+store concrete task prompts or project-specific briefs in shared public
+documentation.
+
+Structure each handoff brief around four fields:
+
+- **Goal**: one sentence naming the deliverable (for example, updating a
+  specific guide section or fixing a lint failure).
+- **Target paths and branch policy**: the repository directory, which branch to
+  update or create, and the exact files in scope.
+- **Constraints**: line limits, formatting rules, forbidden content (such as
+  personal identifiers, billing figures, or real display names), and whether the
+  worker must stop before merging.
+- **Verification and return format**: the exact check commands to run (such as
+  a Markdown linter or test suite) and what to report back (for example, the PR
+  URL and the list of changed files).
+
+Apply two extra hygiene rules on every handoff:
+
+- **Follow `CONTRIBUTING.md` on public docs repositories**: instruct the worker
+  to read `CONTRIBUTING.md` before changing files or updating a pull request,
+  and to run required structure and humanizer prose checks plus Markdown
+  linting.
+- **Keep secrets out of `argv`**: never pass API keys, tokens, or private URLs
+  inline inside `agy -p "..."`. Command-line arguments appear in local process
+  tables (`ps`) and shell history. Load secrets from workstation environment
+  variables or local secret stores, and pass long or sensitive prompts through
+  standard input or a local file with restricted permissions (`0600`).
+
+## 7. Avoid common orchestration anti-patterns
+
+Do not use fragile shortcuts that defeat tool isolation or human review:
+
+- **Do not browser-automate the Remote Control UI**: driving the Remote Control
+  web interface with a browser automation agent is brittle and breaks whenever
+  the web UI changes. Use Path A (`agy -p`) or Path C (`/path/to/agy-inbox/`)
+  for automated runs, and reserve Remote Control (Path B) for a human operator.
+- **Do not launch heavy jobs from the phone**: mobile chats are for short
+  prompts, triage, and approvals. Start long builds, batch evaluations, and
+  multi-file refactors on the workstation where power, network, and logs are
+  stable.
+- **Do not keep machine learning or bulk regeneration loops inside Grok Bot**:
+  iterative training, large document comparisons, and repeated generation loops
+  consume shared cloud tokens rapidly. Run those loops on the local workstation
+  and send only final metrics or output paths back to Grok.
+- **Do not treat `--dangerously-skip-permissions` as a default**: bypassing all
+  permission checks removes safety boundaries for shell commands and file
+  deletions. Use scoped `permissions.allow` rules and review them during the
+  [monthly ops audit](monthly-audit.md#1-billing-and-usage-trend).

@@ -243,7 +243,7 @@ inventory and cleanup. It does not apply the cleanup itself.
 
 See [`tooling-and-cost.md`](tooling-and-cost.md) for concrete cost and routing
 proposals, including weekly pool separation, on-demand spend caps, routine
-timing, and Grok-to-Antigravity CLI handoff paths.
+timing, and Grok-to-Antigravity CLI setup, handoff paths, and prompt hygiene.
 
 ## 15. Retire finished single-purpose rooms and bots
 
