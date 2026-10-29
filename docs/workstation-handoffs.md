@@ -436,6 +436,64 @@ allow rules:
   confirmation for destructive git operations, external sends, deletes outside
   the project directory, and purchases.
 
+### Prepare agy docs briefs without long Mac heredocs
+
+Long delays before an `agy` docs launch are often **brief preparation**, not the
+worker itself. Keep brief prep fast and low-approval with three rules that align
+with the `prepare` → `launch` → `collect-result` phases above:
+
+1. **Write long briefs on the Grok box, then copy them to the workstation**:
+   create the Markdown brief under a box path such as
+   `/workspace/agy-briefs/<brief>.md`, then use Grok's `CopyFromBox` into
+   `~/agy-inbox/` on the registered workstation. Do **not** put a large
+   heredoc (`cat <<'EOF' …`) into a workstation `Shell(machineId=…)` call.
+   Local-execution approval can refuse or stall payloads that are too long to
+   show for review.
+2. **Reuse parent-provided facts instead of re-scanning the Mac**: if the
+   parent chat or handoff already includes inventory, absolute path lists,
+   trial tables, or log excerpts, embed those facts in the brief. Re-scan the
+   workstation only for **missing** facts. Ideal prep before
+   [`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) is one or two
+   short Mac `Shell` calls plus `CopyFromBox`, not a chain of inventory
+   commands that each raise an approval card.
+3. **Split status language for brief prep versus worker launch**: say
+   **「brief 準備中」** while the brief is still being written or copied, and
+   **「agy 起動済み (PID=…, log=…)」** only after
+   `agy-docs-launch.sh` (or an equivalent launch) has recorded a PID and log
+   path. When the operator asks whether the worker started, answer from
+   PID/log presence, not a vague "working".
+
+After the brief file exists under `~/agy-inbox/`, prefer the launch and collect
+wrappers in [`scripts/README.md`](../scripts/README.md) so launch and result
+collection each stay one workstation `Shell` call.
+
+### Unstructured and multimodal offload
+
+Route **images, short videos, PDF understanding, and long messy logs** to
+Antigravity CLI (`agy`, Gemini multimodal) when the work is understanding or
+summarizing unstructured media. Grok Bot **routes** (absolute paths, brief,
+done criteria) and returns a short summary; do not spend Grok tokens on large
+binaries or OCR when `agy` can read the media directly.
+
+Verified headless pattern:
+
+```bash
+agy --add-dir <media-dir> --add-dir <other-dir> -p "… @/absolute/path/to/file …"
+```
+
+- Prefer `@` absolute paths plus `--add-dir` for the directories that hold the
+  media. Interactive Ctrl+V paste remains valid for official media types when
+  the operator is supervising a live session.
+- Read-only multimodal review may `--add-dir` media outside `~/agy-work`.
+  **Writes** still stay under path-scoped `~/agy-work/<repo>` only (see
+  [Fixed checkout roots](#fixed-checkout-roots)).
+- Keep the same safety boundaries as other docs-lane handoffs: card-style
+  launch confirmation, one `argv`-style command per `RunCommand`, soft-deny
+  stop-and-report, no mid-run allow widen, and no
+  `--dangerously-skip-permissions` (see
+  [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)
+  and [Headless agy soft-deny handling](#headless-agy-soft-deny-handling)).
+
 ### Headless agy soft-deny handling
 
 Stop immediately and report the exact command or tool when a headless `agy -p`
