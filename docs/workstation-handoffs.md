@@ -35,11 +35,51 @@ wiring Grok Bot to `agy` or `agent` (`cursor-agent`):
 4. **Configure scoped tool and command permissions**: edit the CLI settings
    (such as `permissions.allow` in Antigravity CLI `settings.json` or session
    `--settings`) to allow only the specific tools and commands that unattended
-   runs require. In headless print mode, tools that would normally ask for
-   interactive confirmation are soft-denied unless allowed in advance.
+   runs require. Scope write permissions to the fixed checkout root for each
+   CLI (`~/agy-work` for `agy` and `~/agent-work` for `agent`). In headless
+   print mode, tools that would normally ask for interactive confirmation are
+   soft-denied unless allowed in advance.
 5. **Register the workstation for Grok local execution**: connect the
    workstation to Grok's local execution bridge and restrict command approvals
-   to the target project directories.
+   to the fixed checkout roots (`~/agy-work` and `~/agent-work`).
+
+### Fixed checkout roots
+
+Isolate every local CLI worker inside its dedicated checkout root so
+directory-scoped `write_file` and command permissions match the workspace on
+disk:
+
+1. **Antigravity CLI (`agy` / `agy -p`) reads and writes only under
+   `~/agy-work/`**: clone or update every GitHub repository at
+   `~/agy-work/<repo>` before editing. Running `agy` against `~/work/...` or
+   any path outside `~/agy-work` is forbidden, because Antigravity write
+   permissions are scoped strictly to `~/agy-work`.
+2. **Local Cursor Agent CLI (`agent` / `cursor-agent` / `agent -p`) reads and
+   writes only under `~/agent-work/`**: create the root directory first if it
+   is missing (`mkdir -p ~/agent-work`), and clone or update the repository at
+   `~/agent-work/<repo>` before editing. Running `agent` against `~/work/...`
+   or any path outside `~/agent-work` is forbidden.
+3. **Require the absolute checkout path in every headless brief**: every brief
+   for `agy -p` or `agent -p` must state the exact absolute checkout path under
+   `~/agy-work/<repo>` or `~/agent-work/<repo>`. Never write "prefer `~/work`
+   if present" or point a headless CLI worker at `~/work`.
+
+### When to use Cursor cloud coding agents versus local `agent`
+
+Route repository coding and documentation across cloud and workstation lanes
+according to whether the work requires local machine access (see
+[Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)
+and
+[Match each role and surface to the right workload](cast-and-routing.md#2-match-each-role-and-surface-to-the-right-workload)):
+
+- **Repository coding (features, bug fixes, refactors)**: prefer **Cursor cloud
+  coding agents** on a fresh remote branch over local `agent -p`.
+- **Local `agent -p` (`~/agent-work/<repo>`)**: use only when the task **must**
+  run on the registered workstation, such as local hardware validation,
+  local-only files, or headless local tooling that cloud agents cannot reach.
+- **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: use for document
+  drafting, repository documentation updates, and prose reviews on the Google
+  or Gemini authentication lane.
 
 ## 2. Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI
 
@@ -52,25 +92,25 @@ task requires (see
 Use headless print mode when a Grok Bot (`Domain｜Role`) has approval to run
 local shell commands on the registered workstation.
 
-For documentation or Google and Gemini lane tasks with Antigravity CLI (`agy`):
+For documentation or Google and Gemini lane tasks with Antigravity CLI (`agy`) under `~/agy-work/<repo>`:
 
 ```bash
-cd /path/to/project && agy -p "<brief>"
+cd ~/agy-work/<repo> && agy -p "<brief>"
 ```
 
-For repository coding tasks with the local Cursor Agent CLI (`agent` or
-`cursor-agent`):
+For workstation-only repository coding tasks with the local Cursor Agent CLI (`agent` or `cursor-agent`) under `~/agent-work/<repo>`:
 
 ```bash
-cd /path/to/project && agent -p "<brief>"
+mkdir -p ~/agent-work
+cd ~/agent-work/<repo> && agent -p "<brief>"
 ```
 
 When a brief is long or contains shell metacharacters, pipe it over standard
 input instead of embedding it in command arguments:
 
 ```bash
-agy -p --project /path/to/project < /path/to/agy-inbox/current-brief.txt
-cd /path/to/project && agent -p < /path/to/cursor-inbox/current-brief.txt
+agy -p --project ~/agy-work/<repo> < /path/to/agy-inbox/current-brief.txt
+cd ~/agent-work/<repo> && agent -p < /path/to/cursor-inbox/current-brief.txt
 ```
 
 Useful flags from `agy --help` for scripted runs:
@@ -136,10 +176,12 @@ Include four required sections in every handoff brief:
 
 - **Goal**: one sentence naming the deliverable (for example, updating a
   specific guide section or fixing a failing test).
-- **Target paths, branch, and merge policy**: the repository directory, which
-  branch or pull request to update or create, the exact files in scope, and an
-  explicit merge rule (such as opening a draft PR or updating the branch without
-  merging).
+- **Target paths, branch, and merge policy**: the absolute repository checkout
+  path under the fixed root (`~/agy-work/<repo>` for `agy` or
+  `~/agent-work/<repo>` for `agent`; never `~/work/...`), which branch or pull
+  request to update or create, the exact files in scope, and an explicit merge
+  rule (such as opening a draft PR or updating the branch without merging). Do
+  not tell a worker to "prefer `~/work` if present".
 - **Constraints**: line limits, style rules, required reading (such as
   `CONTRIBUTING.md` and `AGENTS.md` on public docs repositories), and forbidden
   content (such as personal identifiers, billing amounts, subscription tiers, or
@@ -202,13 +244,17 @@ overlap:
 Allow at most one writer process per git checkout, branch, or shared working
 tree at any time:
 
+- Keep `agy` checkouts under `~/agy-work/<repo>` and local `agent` checkouts
+  under `~/agent-work/<repo>`, and state the absolute checkout path under the
+  matching root in every brief.
 - Do not run two `agy -p` jobs, two `agent -p` jobs, or an `agy` job and an
   `agent -p` job that edit the same branch or working directory concurrently.
-- Prefer git worktrees (`git worktree add`) or separate clone directories when
-  true parallel writes are needed on the same repository:
+- Prefer git worktrees (`git worktree add`) or separate clone directories under
+  the tool's fixed checkout root when true parallel writes are needed on the
+  same repository:
 
 ```bash
-git worktree add /path/to/worktrees/project-topic-b -b docs/topic-b main
+git worktree add ~/agy-work/<repo>-topic-b -b docs/topic-b main
 ```
 
 ### Control knobs
@@ -222,10 +268,11 @@ Use four operational controls to keep parallel runs from colliding:
    Hold follow-up jobs for that checkout in the queue until the current writer
    exits.
 2. **Grok orchestrator pre-launch PID and lock check**: before launching a
-   writer, Grok Bot (or the local wrapper script) checks the target project
-   directory for a running writer process ID (PID) or lock file. Use a simple
-   lock convention such as `/path/to/project/.agy-write.lock` recording the
-   writer `pid`, `tool`, `branch`, `started_at`, and `purpose`:
+   writer, Grok Bot (or the local wrapper script) checks the target checkout
+   (`~/agy-work/<repo>` or `~/agent-work/<repo>`) for a running writer process
+   ID (PID) or lock file. Use a simple lock convention such as
+   `~/agy-work/<repo>/.agy-write.lock` recording the writer `pid`, `tool`,
+   `branch`, `started_at`, and `purpose`:
 
    ```text
    pid=48210
