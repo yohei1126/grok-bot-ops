@@ -7,8 +7,12 @@ to English Markdown.
 ## How to suggest a change
 
 1. Fork the repository, or use a branch if you have write access.
-2. Edit the relevant docs, usually [`docs/shared-rules.md`](docs/shared-rules.md)
-   or [`docs/monthly-audit.md`](docs/monthly-audit.md).
+2. Edit the relevant topic file under `docs/`, such as
+   [`docs/shared-rules.md`](docs/shared-rules.md),
+   [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md),
+   [`docs/cast-and-routing.md`](docs/cast-and-routing.md),
+   [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md), or
+   [`docs/monthly-audit.md`](docs/monthly-audit.md).
 3. Keep the change generalized: useful to other operators and not tied to one
    person's setup.
 4. Keep every Markdown file at 500 lines or fewer (see

@@ -45,6 +45,15 @@ are sections 6 through 8. Other PRs during the month follow
   personal identifiers.
 - [ ] Note candidates to split, retire, or move to shorter-lived agents for
   cost control.
+- [ ] Review tool routing across Grok Bot, Cursor, Antigravity CLI (`agy`),
+  and the local workstation, verify on-demand monthly spend caps, and check
+  Antigravity Remote Control status, watched inbox jobs, stale `.agy-write.lock`
+  files or orphaned worktrees, and headless CLI (`agy` and `agent`) allow rules
+  for drift. Confirm that heavy launches still use operator-facing choice cards
+  while Allow lists stay narrow (see
+  [`tooling-and-cost.md`](tooling-and-cost.md),
+  [`cast-and-routing.md`](cast-and-routing.md), and
+  [`workstation-handoffs.md`](workstation-handoffs.md)).
 - [ ] Confirm that high-priority bot-to-bot traffic was rare and justified.
 
 Example proposals: retire idle bots, shorten default routines, and move heavy
@@ -112,8 +121,20 @@ Proposal: a short PR against this docs repo or your fork that updates
   notes. Decisions were not relayed through a chain of bots.
 - [ ] The weekly review used collaborative progress docs under a dated folder.
   Workspace status files, if any, served only as optional rollup input.
-- [ ] Todos live in the task app. The calendar is still the only schedule of
-  record.
+- [ ] Todos and the work-request queue of record live in the task app (Todoist
+  or an equivalent), and the calendar is the only schedule of record. Grok Bot
+  queued deferred or recurring items that surfaced mid-conversation instead of
+  dropping them, proposed the matching lane (`agy` versus `agent`; cloud versus
+  local) for immediate work, and confirmed heavy or consequential launches on a
+  choice card when no standing permission applied. Dispatched items carried
+  lane (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status
+  (`running`, `waiting`) labels, a lane or handoff-chain title prefix (`[agy]`,
+  `[agent→agy]`), and description fields for assignee, target PR or checkout
+  path, progress notes, and done criteria, and were completed (or commented
+  with the outcome) on finish (see
+  [`cast-and-routing.md`](cast-and-routing.md#format-task-items-so-handoff-ownership-is-visible-at-a-glance)).
+  Chat transcripts, watched inbox folders, and progress or status docs were not
+  used as a second backlog.
 - [ ] For long-form work, a document worker drafted the body and a coding
   agent committed only approved text. Nothing was published or merged without
   the operator. Sources meant for pasting into LinkedIn-style surfaces stayed
@@ -122,7 +143,8 @@ Proposal: a short PR against this docs repo or your fork that updates
 ## 6. Open the monthly-audit PR with generalized diffs only
 
 Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
-[`AGENTS.md`](../AGENTS.md) only points agents at that file.
+[`AGENTS.md`](../AGENTS.md) points agents at that file and the topic-file split
+rule for `docs/`.
 
 This section is the monthly-audit PR that closes the cycle. Mid-cycle docs or
 rules PRs use the same contribution rules, without sections 7 and 8.

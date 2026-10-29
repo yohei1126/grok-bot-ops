@@ -91,6 +91,11 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
+Cast roles, assignment channels, and the task-app queue of record are in
+[`cast-and-routing.md`](cast-and-routing.md). Tooling cost lanes are in
+[`tooling-and-cost.md`](tooling-and-cost.md), and workstation CLI handoffs,
+one-writer parallel controls, and card-style launch confirmation are in
+[`workstation-handoffs.md`](workstation-handoffs.md).
 
 ## 6. Start fresh agents to control token cost
 
@@ -162,10 +167,51 @@ rollup. They are not the canonical source for the review.
 
 ## 10. Todos go in the task app, schedules in the calendar
 
-- Use a dedicated task app for todos.
-- The calendar is the schedule source of truth.
-- Do not keep a second calendar of record in bot notes, progress docs, or
-  status files.
+Keep todos and work requests in the operator's task app, and keep schedules in
+the calendar:
+
+- **Task app as the todos and work-request source of truth**: the operator's
+  dedicated task app (Todoist or an equivalent) holds all todos and serves as
+  the queue of record for work requests.
+- **Proactive queueing over silent drops**: as the front door and orchestrator,
+  Grok Bot proactively proposes adding durable or deferred work to the task-app
+  queue of record, or adds it directly when the operator has already agreed to
+  that pattern. When a recurring or time-based item surfaces while the operator
+  is mid-conversation, Grok Bot queues it instead of letting the conversation
+  silently drop it.
+- **Launch proposals and card confirmation for immediate work**: when work
+  should run now, Grok Bot proposes launching on the matching lane (cloud versus
+  local; `agy` versus `agent`) with a short reason, then waits for an
+  operator-facing choice card (run with `agy`, run with `agent`, queue in the
+  task app, or cancel) unless standing permission or an explicit instruction to
+  run immediately covers that launch or send. Keep Auto-review Allow lists and
+  Antigravity `permissions.allow` entries narrow; the card is the launch gate
+  (see
+  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
+  and
+  [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
+- **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
+  queue, serializes jobs that share a local checkout, and launches execution
+  handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and low-priority
+  bot-to-bot messages; see
+  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
+  and
+  [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
+- **Handoff visibility in the task app**: label dispatched items with the lane
+  (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status (`running`,
+  `waiting`), prefix the title with the active lane or handoff chain (such as
+  `[agy]` or `[agent→agy]`), and record the assignee, target pull request or
+  checkout path, progress notes, and done criteria in the description. Mark the
+  item `running` on launch, `waiting` with the blocker when paused, and
+  complete (or commented with the outcome) on finish so the queue shows status
+  without chat archaeology (see
+  [Format task items so handoff ownership is visible at a glance](cast-and-routing.md#format-task-items-so-handoff-ownership-is-visible-at-a-glance)).
+- **No second backlog**: do not maintain a parallel work-request queue in chat
+  transcripts, watched inbox folders, weekly progress docs, or workspace status
+  files. Those surfaces serve as execution channels or status summaries only.
+- **Calendar as the schedule source of truth**: record dates and times in the
+  calendar. Do not keep a second calendar of record in bot notes, progress
+  docs, or status files.
 
 ## 11. Deliverable formats (examples)
 
@@ -238,6 +284,14 @@ inventory and cleanup. It does not apply the cleanup itself.
 5. Bots cannot delete sidebar bots or rooms. The operator does that in the UI
    (see
    [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).
+
+See [`tooling-and-cost.md`](tooling-and-cost.md),
+[`cast-and-routing.md`](cast-and-routing.md), and
+[`workstation-handoffs.md`](workstation-handoffs.md) for concrete cost,
+routing, and handoff rules, including plan pool separation, on-demand spend
+caps, routine timing, card-style launch confirmation, and Grok handoffs to
+Antigravity CLI (`agy`) and the local Cursor Agent CLI (`agent` or
+`cursor-agent`).
 
 ## 15. Retire finished single-purpose rooms and bots
 
