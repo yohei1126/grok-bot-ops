@@ -91,9 +91,9 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
-Cast roles, assignment channels, and tool routing across Grok Bot, Cursor,
-Antigravity CLI (`agy`), and the local workstation are in
-[`tooling-and-cost.md`](tooling-and-cost.md).
+Cast roles, assignment channels, one-writer parallel CLI controls, and tool
+routing across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
+workstation are in [`tooling-and-cost.md`](tooling-and-cost.md).
 
 ## 6. Start fresh agents to control token cost
 
@@ -172,9 +172,12 @@ the calendar:
   dedicated task app (Todoist or an equivalent) holds all todos and serves as
   the queue of record for work requests.
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
-  queue and launches execution handoffs (`agy -p`, `agent -p`, fresh cloud
-  coding agents, and low-priority bot-to-bot messages; see
-  [`tooling-and-cost.md`](tooling-and-cost.md#3-map-who-assigns-work-to-whom-and-over-which-channel)).
+  queue, serializes jobs that share a local checkout (marking the active item
+  in progress), and launches execution handoffs (`agy -p`, `agent -p`, fresh
+  cloud coding agents, and low-priority bot-to-bot messages; see
+  [`tooling-and-cost.md`](tooling-and-cost.md#3-map-who-assigns-work-to-whom-and-over-which-channel)
+  and
+  [Control parallel `agy` and `agent` runs](tooling-and-cost.md#9-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
 - **No second backlog**: do not maintain a parallel work-request queue in chat
   transcripts, watched inbox folders, weekly progress docs, or workspace status
   files. Those surfaces serve as execution channels or status summaries only.

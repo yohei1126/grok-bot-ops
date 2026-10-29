@@ -73,7 +73,9 @@ Assign each job to the surface built to execute and supervise it safely:
    the Google or Gemini authentication lane.
 4. **Local workstation hardware**: runs machine learning training, local model
    inference, heavy generation or comparison batches, local test suites, and
-   local CLI workers (`agy` and `agent`). Run heavy compute on the workstation
+   local CLI workers (`agy` and `agent`). Run heavy compute on the workstation,
+   enforce the one-writer rule across local checkouts (see
+   [Control parallel `agy` and `agent` runs](#9-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)),
    and return only short summaries, metrics, or output paths to Grok.
 5. **Phone**: handles short instructions, triage, and human approvals. Do not
    use the phone as a launch surface for long training runs, bulk regeneration
@@ -120,7 +122,9 @@ Follow these channel rules on every handoff:
   [Bot-to-bot messages](shared-rules.md#7-bot-to-bot-messages-default-to-low-priority)).
 - **Approved local shell on registered workstation (`agy -p` / `agent -p`)**:
   invoke headless print mode only inside directories the operator has registered
-  and approved on the local workstation.
+  and approved on the local workstation, and verify no other writer is active on
+  that checkout (see
+  [Control parallel `agy` and `agent` runs](#9-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
 - **Remote Control web UI (paste)**: keep Remote Control for human paste and
   supervision. Do not use browser automation to drive the Remote Control web UI
   as a primary handoff path.
@@ -349,32 +353,88 @@ bad handoffs:
 
 ## 9. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
-Enforce strict write isolation whenever multiple local CLI sessions (`agy` or
-`agent`) run on the workstation:
+Enforce strict write isolation whenever multiple local CLI sessions (`agy`,
+`agent`, or `cursor-agent`) run on the workstation.
 
-- **Allowed parallelism**:
-  - Running writers in different repositories or separate `git worktree`
-    directories is safe.
-  - Running read-only or planning sessions (such as `agy --mode plan`) alongside
-    a single active writer is safe.
-  - Keeping separate Antigravity Remote Control sessions open on different
-    project directories is safe.
-- **One-writer rule**: allow at most one writer process per git checkout,
-  branch, or shared working tree at any time. Never run two `agy -p` jobs, two
-  `agent -p` jobs, or `agy` and `agent -p` together when they edit the same
-  branch or checkout. Create a dedicated `git worktree` or a separate clone
-  directory whenever true parallel writes are needed.
-- **Control knobs**:
-  - **Queue of record (task app)**: serialize work items that target the same
-    checkout in the task app and mark the active item in progress before
-    dispatch.
-  - **Orchestrator lock and PID check**: before Grok Bot or a local wrapper
-    launches a writer, check for a running writer PID or a lock file in the
-    target directory (for example, `/path/to/project/.agy-write.lock` storing
-    `pid`, `started_at`, and `purpose`). Stop or clean up stale writer
-    processes before starting a new run on the same tree.
-  - **Scoped headless allow-lists**: keep `permissions.allow` and directory
-    approvals narrow so a headless worker cannot stray into sibling checkouts.
-- **Failure modes from parallel writers**: two processes fighting over the same
-  branch or pull request, dirty working trees that break commits or rebases,
-  overwritten edits and lost commits, and duplicate pull request noise.
+### Allowed parallelism
+
+Operators can run multiple sessions at the same time when write scopes do not
+overlap:
+
+- **Different repositories or separate git worktrees**: parallel writers are
+  safe when each job runs in a different repository or in its own
+  `git worktree` directory on a distinct branch.
+- **Read-only or plan-and-ask modes alongside a writer**: running an
+  inspection, research, or planning session (such as `agy --mode plan`) is safe
+  alongside a single active writer as long as the second session does not edit
+  tracked files or mutate git state.
+- **Separate Remote Control sessions on different projects**: multiple
+  Antigravity Remote Control sessions can run in parallel when each session
+  points at a different project directory or worktree.
+
+### One-writer rule
+
+Allow at most one writer process per git checkout, branch, or shared working
+tree at any time:
+
+- Do not run two `agy -p` jobs, two `agent -p` jobs, or an `agy` job and an
+  `agent -p` job that edit the same branch or working directory concurrently.
+- Prefer git worktrees (`git worktree add`) or separate clone directories when
+  true parallel writes are needed on the same repository:
+
+```bash
+git worktree add /path/to/worktrees/project-topic-b -b docs/topic-b main
+```
+
+### Control knobs
+
+Use four operational controls to keep parallel runs from colliding:
+
+1. **Queue of record (task app)**: serialize jobs that share a checkout or
+   branch in the operator's task app, and mark the active job in progress before
+   launching the worker (see
+   [Todos go in the task app, schedules in the calendar](shared-rules.md#10-todos-go-in-the-task-app-schedules-in-the-calendar)).
+   Hold follow-up jobs for that checkout in the queue until the current writer
+   exits.
+2. **Grok orchestrator pre-launch PID and lock check**: before launching a
+   writer, Grok Bot (or the local wrapper script) checks the target project
+   directory for a running writer process ID (PID) or lock file. Use a simple
+   lock convention such as `/path/to/project/.agy-write.lock` recording the
+   writer `pid`, `tool`, `branch`, `started_at`, and `purpose`:
+
+   ```text
+   pid=48210
+   tool=agy
+   branch=docs/topic-a
+   started_at=2026-10-29T16:50:00Z
+   purpose=Update routing section in docs/tooling-and-cost.md
+   ```
+
+   Ignore `.agy-write.lock` in `.git/info/exclude` (or the workstation's global
+   git ignore file) so the lock file never dirties `git status`, and remove the
+   lock file when the writer finishes.
+3. **Scoped Antigravity and Cursor permissions**: keep headless
+   `permissions.allow` rules in Antigravity CLI and command allow-lists in
+   Cursor scoped to the target workspace and required commands so a runaway
+   shell command cannot touch sibling checkouts or global workstation state.
+4. **Stop or kill stale writers before starting a new run**: if a lock file or
+   process check shows a hung or orphaned writer on the target tree, stop or
+   kill that stale writer first, verify `git status` and the current branch are
+   clean, remove the stale lock, and only then launch the next writer.
+
+### Failure modes to watch for
+
+Running concurrent writers on the same branch or working tree causes four
+predictable failure modes:
+
+- **Two pull requests or jobs fighting on one branch**: parallel writers
+  overwrite each other's file edits, stage mixed hunks, or push conflicting
+  commits to the same branch.
+- **Dirty working tree**: uncommitted files or an interrupted merge left behind
+  by one writer cause the next writer to fail branch checks, abort rebases, or
+  commit unintended changes.
+- **Lost commits**: overlapping branch switches, resets, or force updates strand
+  commits on detached HEAD states or overwrite local branch refs.
+- **Duplicate pull request noise**: two workers dispatched for the same or
+  overlapping tasks open competing pull requests or post contradictory updates
+  to the same pull request thread.
