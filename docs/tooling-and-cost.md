@@ -32,8 +32,10 @@ pool:
    fixes, multi-file refactors, and iterative test cycles (see
    [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)).
 3. **Antigravity (`agy` CLI and Remote Control)**: owns document drafting,
-   repository documentation updates, and lighter repository work under a
-   separate Google or Gemini authentication lane. It runs either in the
+   repository documentation updates, lighter repository work, and unstructured
+   or multimodal review (images, short videos, PDFs, and long logs; see
+   [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload))
+   under a separate Google or Gemini authentication lane. It runs either in the
    interactive TUI (`agy`), through Remote Control (`agy remote-control`), or
    in headless print mode (`agy -p`).
 4. **Local workstation hardware**: runs machine learning training, local model

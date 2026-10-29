@@ -87,7 +87,10 @@ design review or cross-domain triage.
   repository documentation writing and review on the local workstation, run
   Antigravity CLI (`agy`) only under `~/agy-work/<repo>` (never under
   `~/work/...`; see
-  [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
+  [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)). For
+  offloading image, short video, PDF, and long-log inspection to `agy` via
+  `--add-dir` and `@/absolute/path`, see
+  [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload).
 
 Do not ask a long-lived domain bot to own every commit for a PR. Do not ask a
 coding agent to write a full article in the repo without a draft approved

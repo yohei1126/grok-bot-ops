@@ -39,6 +39,7 @@ Operators who:
   CLI (`agent` or `cursor-agent`), structure self-contained briefs, enforce
   one-writer parallel-execution controls, and prefer operator-facing choice
   cards over growing fine-grained Allow lists (including
+  [unstructured and multimodal offload](docs/workstation-handoffs.md#unstructured-and-multimodal-offload),
   [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts),
   [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling),
   and the phase-batched wrapper scripts in

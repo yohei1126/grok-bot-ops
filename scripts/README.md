@@ -7,7 +7,10 @@ collection. Batching by phase reduces Grok local-execution approval cards
 without widening Auto-review Allow lists or Antigravity permissions.
 
 See [`../docs/workstation-handoffs.md`](../docs/workstation-handoffs.md) for the
-full workstation handoff rules.
+full workstation handoff rules, including direct `agy -p --add-dir` calls for
+read-only
+[unstructured and multimodal offload](../docs/workstation-handoffs.md#unstructured-and-multimodal-offload)
+outside `$HOME/agy-work`.
 
 ## Run launch and collection in two workstation shell calls
 

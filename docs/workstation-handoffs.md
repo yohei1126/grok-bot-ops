@@ -49,37 +49,31 @@ Isolate every local CLI worker inside its dedicated checkout root so
 directory-scoped `write_file` and command permissions match the workspace on
 disk:
 
-1. **Antigravity CLI (`agy` / `agy -p`) reads and writes only under
-   `~/agy-work/`**: clone or update every GitHub repository at
-   `~/agy-work/<repo>` before editing. Running `agy` against `~/work/...` or
-   any path outside `~/agy-work` is forbidden, because Antigravity write
-   permissions are scoped strictly to `~/agy-work`.
-2. **Local Cursor Agent CLI (`agent` / `cursor-agent` / `agent -p`) reads and
-   writes only under `~/agent-work/`**: create the root directory first if it
-   is missing (`mkdir -p ~/agent-work`), and clone or update the repository at
-   `~/agent-work/<repo>` before editing. Running `agent` against `~/work/...`
-   or any path outside `~/agent-work` is forbidden.
-3. **Require the absolute checkout path in every headless brief**: every brief
-   for `agy -p` or `agent -p` must state the exact absolute checkout path under
-   `~/agy-work/<repo>` or `~/agent-work/<repo>`. Never write "prefer `~/work`
-   if present" or point a headless CLI worker at `~/work`.
+1. **Antigravity CLI (`agy` / `agy -p`) writes only under `~/agy-work/`**: clone or update every GitHub repository at
+   `~/agy-work/<repo>` before editing. Editing `~/work/...` or any path outside `~/agy-work` is forbidden, because
+   Antigravity write permissions are scoped strictly to `~/agy-work` (for read-only media or log review via `--add-dir`,
+   see [Unstructured and multimodal offload](#unstructured-and-multimodal-offload)).
+2. **Local Cursor Agent CLI (`agent` / `cursor-agent` / `agent -p`) reads and writes only under `~/agent-work/`**:
+   create the root directory first if it is missing (`mkdir -p ~/agent-work`), and clone or update the repository at
+   `~/agent-work/<repo>` before editing. Running `agent` against `~/work/...` or any path outside `~/agent-work` is
+   forbidden.
+3. **Require the absolute checkout path in every headless brief**: every brief for `agy -p` or `agent -p` that edits a
+   repository must state the exact absolute checkout path under `~/agy-work/<repo>` or `~/agent-work/<repo>`. Never
+   write "prefer `~/work` if present" or point a headless CLI worker at `~/work` for repository edits.
 
 ### When to use Cursor cloud coding agents versus local `agent`
 
-Route repository coding and documentation across cloud and workstation lanes
-according to whether the work requires local machine access (see
-[Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)
-and
+Route repository coding and documentation across cloud and workstation lanes according to whether the work requires
+local machine access (see [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers) and
 [Match each role and surface to the right workload](cast-and-routing.md#2-match-each-role-and-surface-to-the-right-workload)):
 
-- **Repository coding (features, bug fixes, refactors)**: prefer **Cursor cloud
-  coding agents** on a fresh remote branch over local `agent -p`.
-- **Local `agent -p` (`~/agent-work/<repo>`)**: use only when the task **must**
-  run on the registered workstation, such as local hardware validation,
-  local-only files, or headless local tooling that cloud agents cannot reach.
-- **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: use for document
-  drafting, repository documentation updates, and prose reviews on the Google
-  or Gemini authentication lane.
+- **Repository coding (features, bug fixes, refactors)**: prefer **Cursor cloud coding agents** on a fresh remote branch
+  over local `agent -p`.
+- **Local `agent -p` (`~/agent-work/<repo>`)**: use only when the task **must** run on the registered workstation, such
+  as local hardware validation, local-only files, or headless local tooling that cloud agents cannot reach.
+- **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: use for document drafting, repository documentation updates,
+  prose reviews, and unstructured or multimodal inspection on the Google or Gemini authentication lane (see
+  [Unstructured and multimodal offload](#unstructured-and-multimodal-offload)).
 
 ## 2. Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI
 
@@ -115,55 +109,77 @@ cd ~/agent-work/<repo> && agent -p < /path/to/cursor-inbox/current-brief.txt
 
 Useful flags from `agy --help` for scripted runs:
 
-- `-p` or `--print`: run a single prompt non-interactively and print the
-  response.
-- `--project <project>` and `--add-dir <dir>`: scope the session to a project
-  or attach extra workspace directories.
-- `--mode <mode>`: set the execution mode (`accept-edits`, `auto`, or `plan`)
-  for the session.
-- `--model <model>` and `--effort <level>`: select the model and reasoning
-  effort (`low`, `medium`, `high`, `xhigh`, `max`).
-- `--print-timeout <duration>`: set a maximum runtime so a stalled command does
-  not block the caller indefinitely.
-- `--output-format <format>`: emit `text`, `json`, or `stream-json` when a
-  local wrapper parses the result.
+- `-p` or `--print`: run a single prompt non-interactively and print the response.
+- `--project <project>` and `--add-dir <dir>`: scope the session to a project or attach extra workspace directories.
+- `--mode <mode>`: set the execution mode (`accept-edits`, `auto`, or `plan`) for the session.
+- `--model <model>` and `--effort <level>`: select the model and reasoning effort (`low`, `medium`, `high`, `xhigh`,
+  `max`).
+- `--print-timeout <duration>`: set a maximum runtime so a stalled command does not block the caller indefinitely.
+- `--output-format <format>`: emit `text`, `json`, or `stream-json` when a local wrapper parses the result.
 - `--sandbox`: enable terminal restrictions for tightly scoped tasks.
 
-Prefer scoped `permissions.allow` rules in settings over
-`--dangerously-skip-permissions`. Test a new workflow once and add narrow allow
-rules for the exact tools it requires.
+Prefer scoped `permissions.allow` rules in settings over `--dangerously-skip-permissions`. Test a new workflow once and
+add narrow allow rules for the exact tools it requires.
 
 ### Path B: draft the brief in Grok and paste it into Remote Control
 
-Use the Remote Control web UI when the operator is on a phone or away from the
-desk and wants to supervise tool calls in real time:
+Use the Remote Control web UI when the operator is on a phone or away from the desk and wants to supervise tool calls
+in real time:
 
-1. Start the background daemon on the workstation with
-   `agy remote-control start`, or open a single session with
+1. Start the background daemon on the workstation with `agy remote-control start`, or open a single session with
    `agy --remote-control` (or `/remote-control` inside the TUI).
 2. Ask the responsible Grok Bot to draft a self-contained brief in chat.
-3. Open the Antigravity Remote Control web UI, paste the brief, and approve or
-   reject edits and shell commands as they appear.
+3. Open the Antigravity Remote Control web UI, paste the brief, and approve or reject edits and shell commands as they
+   appear.
 
 ### Path C: drop a task file into a watched inbox folder
 
-Use a watched inbox folder as a local transport spool when Grok Bot dispatches
-an already-queued work request from the task app without holding a synchronous
-shell session open:
+Use a watched inbox folder as a local transport spool when Grok Bot dispatches an already-queued work request from the
+task app without holding a synchronous shell session open:
 
-1. Grok Bot reads the work request from the task app and writes a plain-text or
-   Markdown brief into a watched directory on the workstation, such as
-   `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or
+1. Grok Bot reads the work request from the task app and writes a plain-text or Markdown brief into a watched directory
+   on the workstation, such as `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or
    `/path/to/cursor-inbox/task-YYYYMMDD-HHMM.md`).
-2. A macOS `LaunchAgent` (`WatchPaths`) or `cron` entry invokes a local wrapper
-   script whenever a new file lands in the inbox folder.
-3. The wrapper moves the file into `processing/` first so a second trigger
-   cannot pick up the same file, pipes the file contents into `agy -p` or
-   `agent -p`, writes the log to `out/task-YYYYMMDD-HHMM.log`, and archives the
-   brief under `done/`.
-4. Grok Bot reads the short output summary or exit status on a later pass and
-   updates the item in the task app. Do not store unscheduled backlog items in
-   the watched inbox folder.
+2. A macOS `LaunchAgent` (`WatchPaths`) or `cron` entry invokes a local wrapper script whenever a new file lands in the
+   inbox folder.
+3. The wrapper moves the file into `processing/` first so a second trigger cannot pick up the same file, pipes the file
+   contents into `agy -p` or `agent -p`, writes the log to `out/task-YYYYMMDD-HHMM.log`, and archives the brief under
+   `done/`.
+4. Grok Bot reads the short output summary or exit status on a later pass and updates the item in the task app. Do not
+   store unscheduled backlog items in the watched inbox folder.
+
+### Unstructured and multimodal offload
+
+Route unstructured and multimodal inspection (images, short videos, PDF documents, and long noisy logs) to Antigravity
+CLI (`agy`) on the Google or Gemini lane so Grok Bot saves tokens. Grok Bot routes the job (file paths, brief, and
+success criteria) and reads back a short text summary; do not paste large binary files or long OCR dumps into Grok
+chat when `agy` can inspect them on the workstation.
+
+For headless print runs (`agy -p`), attach each directory that holds target media or logs with `--add-dir` and pass
+absolute file paths with `@/absolute/path/to/file`:
+
+```bash
+agy --add-dir /path/to/captures --add-dir /path/to/rollouts \
+  -p "Inspect camera framing and lighting in @/path/to/captures/frame.jpg and check multi-camera motion or frozen-actor failure modes in @/path/to/rollouts/clip.mp4"
+```
+
+Apply five rules to multimodal and unstructured `agy` handoffs:
+
+- **Images and short videos**: attach parent folders with `--add-dir` and reference files via `@/absolute/path` so
+  `agy -p` reviews image framing, lighting, and objects or short video motion (such as a frozen-arm failure mode in a
+  dual-camera clip) and returns a compact verdict.
+- **PDFs and long logs**: use the same `--add-dir` and `@/absolute/path` pattern for PDF document reading and long log
+  triage. Grok Bot keeps only the file path pointer and the returned summary.
+- **Interactive media paste**: in interactive TUI sessions (`agy`), operators can also paste media directly into the
+  prompt with `Ctrl+V` (supported image formats such as `PNG` and `JPEG`, and video formats such as `MP4`, `MOV`,
+  `WebM`, and `AVI`).
+- **Read-only `--add-dir` outside `~/agy-work` versus write scope inside `~/agy-work`**: keep repository checkouts and
+  `write_file` edits strictly under `~/agy-work/<repo>`. When a task only needs read-only review of media, PDFs, or
+  logs stored outside `~/agy-work`, attach those external directories with `--add-dir` instead of copying large video
+  or document files into `~/agy-work`.
+- **Keep existing launch and permission guardrails**: confirm heavy launches on an operator choice card, issue one
+  `argv`-style command per `RunCommand` tool call, stop immediately and report the exact command and reason on a
+  headless `soft-deny` without widening allow lists mid-run, and never pass `--dangerously-skip-permissions`.
 
 ## 3. Structure self-contained handoff briefs and keep secrets out of `argv`
 
