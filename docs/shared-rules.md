@@ -91,8 +91,9 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
-Tool routing across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
-workstation is in [`tooling-and-cost.md`](tooling-and-cost.md).
+Cast roles, assignment channels, and tool routing across Grok Bot, Cursor,
+Antigravity CLI (`agy`), and the local workstation are in
+[`tooling-and-cost.md`](tooling-and-cost.md).
 
 ## 6. Start fresh agents to control token cost
 
@@ -164,10 +165,22 @@ rollup. They are not the canonical source for the review.
 
 ## 10. Todos go in the task app, schedules in the calendar
 
-- Use a dedicated task app for todos.
-- The calendar is the schedule source of truth.
-- Do not keep a second calendar of record in bot notes, progress docs, or
-  status files.
+Keep todos and work requests in the operator's task app, and keep schedules in
+the calendar:
+
+- **Task app as the todos and work-request source of truth**: the operator's
+  dedicated task app (Todoist or an equivalent) holds all todos and serves as
+  the queue of record for work requests.
+- **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
+  queue and launches execution handoffs (`agy -p`, `agent -p`, fresh cloud
+  coding agents, and low-priority bot-to-bot messages; see
+  [`tooling-and-cost.md`](tooling-and-cost.md#3-map-who-assigns-work-to-whom-and-over-which-channel)).
+- **No second backlog**: do not maintain a parallel work-request queue in chat
+  transcripts, watched inbox folders, weekly progress docs, or workspace status
+  files. Those surfaces serve as execution channels or status summaries only.
+- **Calendar as the schedule source of truth**: record dates and times in the
+  calendar. Do not keep a second calendar of record in bot notes, progress
+  docs, or status files.
 
 ## 11. Deliverable formats (examples)
 

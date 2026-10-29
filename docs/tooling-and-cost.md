@@ -1,126 +1,234 @@
-# Tool routing, cost caps, and workstation CLI handoffs
+# Tool routing, cast roles, handoff channels, and cost controls
 
-Split work across four surfaces (Grok Bot, Cursor, Antigravity CLI (`agy`), and
-the local workstation) so usage stays within included plan limits and extra
-on-demand charges stay rare.
+Route every task to the actor, device, and authentication lane that fits its
+workload so usage stays within included plan pools and handoffs do not collide.
 
 Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
-## 1. Split work across four surfaces
+## 1. Know the full cast across actors, tools, and environments
 
-Route every task to the surface that fits its compute, authentication pool, and
-token profile:
+Identify every human, bot, coding tool, automated trigger, and execution
+surface before assigning work:
 
-1. **Grok Bot**: operator UI, mobile-friendly orchestration, connectors (mail,
-   calendar, collaborative docs, task app), scheduled routines, and multi-bot
-   coordination. Grok owns the goal, guardrails, success criteria, and handoff
-   launch. Keep chats short, and keep long machine learning runs, large PDF
-   comparison loops, and bulk regeneration loops out of Grok.
-2. **Cursor (IDE, cloud agents, and local CLI)**: repository coding across
-   interactive IDE sessions, fresh cloud coding agents, and local headless CLI
-   runs (`agent` or `cursor-agent`) for multi-file refactors and iterative
-   code-and-test cycles (see
-   [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)).
-3. **Antigravity CLI (`agy`)**: document drafting and lighter repository work
-   under Google or Gemini authentication. It executes workstation briefs after
-   Grok hands off work, either in the interactive TUI (`agy`) or in headless
-   print mode (`agy -p`).
-4. **Local workstation (for example, an Apple Silicon laptop)**: machine
-   learning training, local model inference, and heavy generation or comparison
-   jobs. Run the compute on the workstation and return only short results or
-   output paths to Grok.
+- **Operator (human)**: sets goals, approves cost and ops proposals, supervises
+  sensitive tool calls, reviews pull requests, and merges or publishes finished
+  work.
+- **Grok Bot (sidebar bots and orchestrator surface)**: includes long-lived
+  domain bots (`Domain｜Role`), the progress bot, the cost/ops bot, and
+  short-lived one-off chats. Grok Bot is the primary conversational UI and
+  multi-bot orchestrator.
+- **Execution environments and devices**:
+  - **Grok cloud computer ("box")**: the hosted cloud environment where Grok
+    Bot runs connectors, scheduled routines, and short research tasks.
+  - **Registered local workstation**: the operator's computer (for example, an
+    Apple Silicon laptop) registered with Grok's local execution bridge to run
+    local CLI workers and heavy compute.
+  - **Phone**: the mobile client used for quick instructions, status checks,
+    and human approvals.
+- **Cursor toolchain**:
+  - **Cursor IDE**: interactive local editor for hands-on development.
+  - **Cursor cloud coding agents**: fresh remote workers that clone a
+    repository, implement changes on a branch, and open or update a pull
+    request.
+  - **Local Cursor Agent CLI (`agent` or `cursor-agent`)**: local terminal or
+    headless worker (`agent -p`) that executes repository coding briefs on the
+    registered workstation.
+- **Antigravity toolchain**:
+  - **Antigravity CLI (`agy`)**: local terminal TUI (`agy`) and headless print
+    worker (`agy -p`) authenticated through a separate Google or Gemini lane.
+  - **Antigravity Remote Control**: local background daemon
+    (`agy remote-control`) and web UI that let the operator paste prompts and
+    approve tool calls from a phone or remote browser.
+- **Document worker versus coding agent**: as defined in
+  [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers),
+  a document worker drafts prose, long-form articles, and decks, while a coding
+  agent (`agent`, `agy`, or a cloud coding agent) implements code changes or
+  commits approved text into a repository.
+- **Routines and schedules (automated assigners)**: scheduled Grok routines and
+  local workstation file watchers (`LaunchAgent` or `cron`) that trigger
+  recurring passes or dispatch queued inbox briefs. They are automated triggers
+  owned by the operator, never independent decision-makers.
 
-Keep the orchestrator-versus-worker boundary strict when handing work from Grok
-Bot to a workstation CLI (`agy` or `agent`):
+## 2. Match each role and device to the right workload
 
-- **Grok Bot (orchestrator)** decides *what* needs to happen: the deliverable
-  goal, target repository and branch policy, guardrails, forbidden content, and
-  done criteria, and then launches the handoff.
-- **Workstation CLIs (workers)** decide *how* to finish the job inside the
-  brief: which files to inspect, how to structure edits, and how to run local
-  checks before reporting back.
+Assign each job to the surface built to execute and supervise it safely:
 
-Cursor usage (across the IDE, cloud agents, and local CLI) may share plan pools
-with Grok Bot depending on billing, whereas Antigravity CLI runs in a separate
-Google or Gemini authentication lane. When product billing settings support an
-on-demand or additional-usage spend cap, the operator should set a monthly cap
-so usage stops at a known limit after the included pool runs out.
+1. **Grok Bot**: owns the operator UI, mobile-friendly orchestration, external
+   connectors (mail, calendar, collaborative docs suite, task app), multi-bot
+   coordination, and scheduled routines. Grok reads and updates the operator's
+   task app (Todoist or an equivalent) as the queue of record for work requests,
+   owns the goal, guardrails, and success criteria, and launches handoffs
+   (`agy -p`, `agent -p`, cloud coding agents, and bot-to-bot messages; see
+   [Todos go in the task app, schedules in the calendar](shared-rules.md#10-todos-go-in-the-task-app-schedules-in-the-calendar)).
+   Keep long machine learning runs, large PDF comparison loops, and bulk
+   regeneration loops out of Grok.
+2. **Cursor cloud coding agents and local `agent` (plus Cursor IDE)**: own
+   repository coding across interactive sessions, fresh cloud branches, and
+   local headless runs (`agent -p`) for features, bug fixes, multi-file
+   refactors, and iterative test cycles.
+3. **Antigravity (`agy` and Remote Control)**: owns document drafting,
+   repository documentation updates, and lighter repository tasks that belong on
+   the Google or Gemini authentication lane.
+4. **Local workstation hardware**: runs machine learning training, local model
+   inference, heavy generation or comparison batches, local test suites, and
+   local CLI workers (`agy` and `agent`). Run heavy compute on the workstation
+   and return only short summaries, metrics, or output paths to Grok.
+5. **Phone**: handles short instructions, triage, and human approvals. Do not
+   use the phone as a launch surface for long training runs, bulk regeneration
+   jobs, or unreviewed multi-file refactors.
+6. **Grok cloud computer ("box")**: runs connector calls, scheduled routines,
+   inter-bot coordination, and short research queries. Keep GPU-heavy workloads
+   and long iterative compute loops off the Grok box.
 
-## 2. Keep device posture aligned with tool roles
+## 3. Map who assigns work to whom and over which channel
 
-Match each device or execution surface to the work it can supervise safely.
+Route every handoff through a named channel so tasks have a clear owner and
+return path:
 
-- **Local workstation**: runs heavy compute, local model inference, and local
-  CLI agents (`agy`, `agent` or `cursor-agent`, local test suites, and build
-  scripts).
-- **Phone**: handles short instructions, human approvals, and progress checks.
-  Do not launch long training runs or bulk regeneration jobs from the phone.
-- **Grok cloud environment**: runs connectors, routines, multi-bot
-  coordination, and short research queries. Keep GPU-heavy work and long
-  iterative compute loops off the cloud environment.
+| Assigner | Assignee | Channel type | Typical use |
+| :--- | :--- | :--- | :--- |
+| Operator | Grok Bot (`Domain｜Role` or one-off chat) | **In-app chat / `@bot`** | Goal setting, domain questions, connector tasks, and orchestration briefs |
+| Grok Bot | Another Grok Bot (`Domain｜Role`) | **Bot-to-bot message** | Cross-domain facts and handoffs (low priority by default; high priority only for blockers) |
+| Grok Bot | Antigravity CLI (`agy`) | **Approved local shell on registered workstation** (`agy -p`) | Synchronous or scripted documentation and Google or Gemini lane tasks on the workstation |
+| Grok Bot (with operator) | Antigravity CLI (`agy`) | **Remote Control web UI (paste)** | Grok drafts the brief; the operator pastes it into Remote Control and approves actions live |
+| Grok Bot | Antigravity CLI (`agy`) or local Cursor Agent (`agent`) | **Inbox file + LaunchAgent/cron** | Unattended local queue where a file drop triggers `agy -p` or `agent -p` |
+| Grok Bot | Local Cursor Agent (`agent` / `cursor-agent`) | **Approved local shell on registered workstation** (`agent -p`) | Local repository coding, refactors, and test loops on the workstation |
+| Grok Bot or operator | Cursor cloud coding agents | **Cloud agent launch / PR thread** | Fresh remote branch and pull request work for isolated repository coding tasks |
+| Routines / schedules | Grok Bot or local CLI workers | **Scheduled routine / LaunchAgent or cron** | Daytime or event-driven status passes and watched-folder CLI dispatch |
+| Operator | Cursor IDE, cloud coding agents, `agent`, or `agy` | **Direct CLI, IDE, Remote Control, or cloud launch (bypass)** | Self-contained coding or docs work that needs no Grok connectors or multi-bot context |
 
-## 3. Treat cost and routing changes as proposals
+Follow these channel rules on every handoff:
 
-Propose routing and spend changes through a cost/ops bot or the
-[monthly audit](monthly-audit.md) instead of applying them ad hoc (see
-[Cost and ops changes start as proposals](shared-rules.md#14-cost-and-ops-changes-start-as-proposals)).
-The operator decides what to adopt:
+- **Task app as the work-request queue of record**: keep the backlog of work
+  requests and todos in the operator's task app (Todoist or an equivalent),
+  while the calendar remains the schedule source of truth (see
+  [Todos go in the task app, schedules in the calendar](shared-rules.md#10-todos-go-in-the-task-app-schedules-in-the-calendar)).
+  Grok Bot reads and updates that queue and launches handoffs (`agy -p`,
+  `agent -p`, cloud coding agents, and bot-to-bot messages). Do not create a
+  second queue in chat transcripts, watched inbox folders, or weekly progress
+  docs. Use those surfaces only as execution channels or status notes.
+- **In-app chat / `@bot`**: message the responsible `Domain｜Role` bot directly
+  (see [Talk to the responsible bot](shared-rules.md#3-talk-to-the-responsible-bot)).
+  Use `@bot` mentions inside a group room only during live multi-bot
+  consultation.
+- **Bot-to-bot message**: default to low (deferred) priority so the recipient
+  acts on its next scheduled pass or when the operator opens that bot. Use high
+  priority only for immediate blockers, production incidents, or
+  operator-declared deadlines (see
+  [Bot-to-bot messages](shared-rules.md#7-bot-to-bot-messages-default-to-low-priority)).
+- **Approved local shell on registered workstation (`agy -p` / `agent -p`)**:
+  invoke headless print mode only inside directories the operator has registered
+  and approved on the local workstation.
+- **Remote Control web UI (paste)**: keep Remote Control for human paste and
+  supervision. Do not use browser automation to drive the Remote Control web UI
+  as a primary handoff path.
+- **Inbox file + LaunchAgent/cron**: drop a self-contained brief file into a
+  watched workstation directory (`/path/to/agy-inbox/` or
+  `/path/to/cursor-inbox/`) when Grok should queue local work without holding an
+  interactive shell open.
+- **Cloud agent launch / PR thread**: start a fresh Cursor cloud coding agent
+  per pull request or isolated coding task, and keep code review and follow-up
+  fixes anchored to the pull request thread.
+- **Direct operator bypass**: the operator may talk directly to Cursor IDE,
+  Cursor cloud coding agents, local `agent`, or `agy` without going through Grok
+  Bot when the task is self-contained and does not need Grok connectors,
+  multi-bot coordination, or shared-note lookups. If a direct session changes a
+  project priority, architecture choice, or cross-domain rule, record the
+  decision in shared durable notes afterward so domain bots stay aligned.
 
-1. Move heavy compute, comparison, or drafting loops off Grok onto the local
-   workstation, Antigravity CLI, or Cursor as appropriate.
-2. Set an on-demand or additional-usage monthly spend cap in product billing
-   settings so work halts at a known limit instead of triggering silent
-   top-ups.
-3. Prefer routines that run when a person can act (such as weekday daytime) or
-   fire on event triggers, rather than overnight schedules that pile up unread
-   output.
+## 4. Keep the orchestrator-versus-worker boundary strict
 
-## 4. Prepare the workstation for Antigravity CLI handoffs
+Separate orchestration decisions in Grok Bot from implementation steps inside
+workstation CLIs and coding agents:
 
-Complete five one-time setup steps on the local workstation before wiring Grok
-Bot to Antigravity CLI (`agy`):
+- **Grok Bot (orchestrator)** decides *what* must happen: the deliverable goal,
+  target repository and branch policy, constraints, forbidden content, merge
+  policy, and success criteria, and then launches the handoff.
+- **Workstation CLIs (`agy`, `agent`) and cloud coding agents (workers)** decide
+  *how* to finish the job inside the brief: which files to inspect, how to
+  structure edits, and how to run local verification commands before reporting
+  back.
 
-1. **Install `agy` and configure the shell path**: install the Antigravity CLI
-   binary and run `agy install` if needed so `agy` is on `PATH` for both
-   interactive shells and non-interactive automation runners.
-2. **Complete one interactive login**: run `agy` once in a local terminal and
-   finish the Google or Gemini authentication prompt. Headless runs (`agy -p`)
-   rely on the stored session and fail if the workstation has never logged in.
-3. **Start the Remote Control daemon when mobile access is needed**: run
-   `agy remote-control start` (and verify with `agy remote-control status`) if
-   the operator plans to review or paste prompts from a phone or remote
-   browser. Stop it with `agy remote-control stop` when remote access is no
-   longer wanted.
-4. **Configure scoped `permissions.allow` rules**: edit the Antigravity CLI
-   `settings.json` file (or pass session settings via `--settings`) to allow
-   only the specific tools and commands that unattended runs need. In headless
-   print mode, tools that would normally ask for interactive confirmation are
-   soft-denied unless explicitly allowed in advance.
-5. **Register the workstation for Grok local execution**: when Grok Bot will
-   invoke `agy -p` or drop files onto the workstation directly, register the
-   workstation with Grok's local execution bridge and restrict command
-   approvals to the intended working directories.
+Give the worker a complete brief up front so it never needs to read a Grok chat
+transcript or guess repository policy.
 
-## 5. Hand work from Grok Bot to Antigravity CLI through three paths
+## 5. Treat plan pools, spend caps, and routine schedules as proposals
 
-Pick the handoff path that matches how much human supervision the task needs.
+Account for shared usage pools and propose routing or spend adjustments through
+a cost/ops bot or the [monthly audit](monthly-audit.md) (see
+[Cost and ops changes start as proposals](shared-rules.md#14-cost-and-ops-changes-start-as-proposals)):
+
+1. **Confirm shared weekly and plan pool implications**: Cursor usage (across
+   Cursor IDE, cloud coding agents, and local `agent`) may share plan usage
+   pools with Grok Bot depending on billing settings, whereas Antigravity CLI
+   (`agy`) runs on a separate Google or Gemini authentication lane. Shift
+   eligible documentation or side tasks to `agy` when the shared pool is tight,
+   and never state or invent subscription prices or tier figures in repository
+   docs.
+2. **Set an on-demand monthly spend cap**: when product billing settings support
+   an on-demand or additional-usage cap, set a monthly limit so usage stops
+   predictably after the included pool runs out.
+3. **Prefer event-driven or daytime routines**: schedule recurring routines for
+   hours when the operator can act (such as weekday daytime) or trigger them on
+   concrete events. Avoid overnight routines that accumulate unread output.
+
+## 6. Prepare the workstation for Antigravity and Cursor CLI handoffs
+
+Complete five one-time setup steps on the registered local workstation before
+wiring Grok Bot to `agy` or `agent` (`cursor-agent`):
+
+1. **Install the CLI binaries on `PATH`**: install `agy` (running `agy install`
+   if needed) and `agent` (or `cursor-agent`) so both interactive shells and
+   non-interactive automation runners can resolve them.
+2. **Complete one interactive login per tool**: run `agy` and `agent` once in a
+   local terminal and finish their authentication prompts. Headless runs
+   (`agy -p` and `agent -p`) rely on stored credentials and fail if the
+   workstation has never logged in.
+3. **Start the Remote Control daemon when mobile review is needed**: run
+   `agy remote-control start` (and check with `agy remote-control status`) when
+   the operator wants to paste briefs or approve tool calls from a phone or
+   remote browser. Stop it with `agy remote-control stop` when remote access is
+   no longer needed.
+4. **Configure scoped tool and command permissions**: edit the CLI settings
+   (such as `permissions.allow` in Antigravity CLI `settings.json` or session
+   `--settings`) to allow only the specific tools and commands that unattended
+   runs require. In headless print mode, tools that would normally ask for
+   interactive confirmation are soft-denied unless allowed in advance.
+5. **Register the workstation for Grok local execution**: connect the
+   workstation to Grok's local execution bridge and restrict command approvals
+   to the target project directories.
+
+## 7. Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI
+
+Select the workstation handoff path that matches how much live supervision the
+task requires.
 
 ### Path A: run headless print mode via an approved local shell
 
-Use headless print mode when a Grok Bot (`Domain｜Role`) can run approved local
-shell commands on the registered workstation:
+Use headless print mode when a Grok Bot (`Domain｜Role`) has approval to run
+local shell commands on the registered workstation.
+
+For documentation or Google and Gemini lane tasks with Antigravity CLI (`agy`):
 
 ```bash
 cd /path/to/project && agy -p "<brief>"
 ```
 
-When the brief is long or contains shell metacharacters, pipe it over standard
+For repository coding tasks with the local Cursor Agent CLI (`agent` or
+`cursor-agent`):
+
+```bash
+cd /path/to/project && agent -p "<brief>"
+```
+
+When a brief is long or contains shell metacharacters, pipe it over standard
 input instead of embedding it in command arguments:
 
 ```bash
 agy -p --project /path/to/project < /path/to/agy-inbox/current-brief.txt
+cd /path/to/project && agent -p < /path/to/cursor-inbox/current-brief.txt
 ```
 
 Useful flags from `agy --help` for scripted runs:
@@ -137,131 +245,136 @@ Useful flags from `agy --help` for scripted runs:
   not block the caller indefinitely.
 - `--output-format <format>`: emit `text`, `json`, or `stream-json` when a
   local wrapper parses the result.
-- `--sandbox`: enable terminal restrictions for untrusted or tightly scoped
-  tasks.
+- `--sandbox`: enable terminal restrictions for tightly scoped tasks.
 
 Prefer scoped `permissions.allow` rules in settings over
-`--dangerously-skip-permissions`. Because headless mode soft-denies any action
-that still needs interactive approval, test a new workflow once and add narrow
-allow rules for the exact tools it requires.
+`--dangerously-skip-permissions`. Test a new workflow once and add narrow allow
+rules for the exact tools it requires.
 
 ### Path B: draft the brief in Grok and paste it into Remote Control
 
-Use Remote Control when the operator is on a phone or away from the desk and
-wants to supervise tool calls in real time:
+Use the Remote Control web UI when the operator is on a phone or away from the
+desk and wants to supervise tool calls in real time:
 
-1. Keep the background daemon running on the workstation with
+1. Start the background daemon on the workstation with
    `agy remote-control start`, or open a single session with
    `agy --remote-control` (or `/remote-control` inside the TUI).
 2. Ask the responsible Grok Bot to draft a self-contained brief in chat.
-3. Open the Antigravity Remote Control web view, paste the brief, and approve
-   or reject edits and shell commands as they appear.
+3. Open the Antigravity Remote Control web UI, paste the brief, and approve or
+   reject edits and shell commands as they appear.
 
 ### Path C: drop a task file into a watched inbox folder
 
-Use a watched inbox folder when Grok Bot should queue unattended work without
-holding a synchronous shell session open:
+Use a watched inbox folder as a local transport spool when Grok Bot dispatches
+an already-queued work request from the task app without holding a synchronous
+shell session open:
 
-1. Grok Bot writes a plain-text or Markdown brief into a watched directory on
-   the workstation, such as `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md`.
-2. A macOS LaunchAgent (`WatchPaths`) or cron entry invokes a local wrapper
-   script whenever a new file lands in `/path/to/agy-inbox/`.
-3. The wrapper moves the file into `/path/to/agy-inbox/processing/` first so a
-   second trigger cannot pick up the same file, feeds the file contents to
-   `agy -p`, writes the output to
-   `/path/to/agy-inbox/out/task-YYYYMMDD-HHMM.log`, and archives the input
-   under `/path/to/agy-inbox/done/`.
-4. Grok Bot reads only the short output summary or exit status on a later pass.
+1. Grok Bot reads the work request from the task app and writes a plain-text or
+   Markdown brief into a watched directory on the workstation, such as
+   `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or
+   `/path/to/cursor-inbox/task-YYYYMMDD-HHMM.md`).
+2. A macOS `LaunchAgent` (`WatchPaths`) or `cron` entry invokes a local wrapper
+   script whenever a new file lands in the inbox folder.
+3. The wrapper moves the file into `processing/` first so a second trigger
+   cannot pick up the same file, pipes the file contents into `agy -p` or
+   `agent -p`, writes the log to `out/task-YYYYMMDD-HHMM.log`, and archives the
+   brief under `done/`.
+4. Grok Bot reads the short output summary or exit status on a later pass and
+   updates the item in the task app. Do not store unscheduled backlog items in
+   the watched inbox folder.
 
-## 6. Hand coding work from Grok Bot to the local Cursor Agent CLI
+## 8. Structure handoff briefs and prevent mis-assignment
 
-Use the local Cursor Agent CLI as an optional parallel workstation handoff when
-a task is repository coding and should run locally in the Cursor toolchain. On
-the workstation, the CLI entrypoint is typically `agent` (also installed as
-`cursor-agent`), and it supports the same non-interactive print mode pattern as
-`agy -p`:
+Write every Grok-to-worker brief (`agy`, `agent`, or cloud coding agent) so a
+fresh worker session can finish the job without reading the Grok chat
+transcript. Do not store concrete task prompts or personal briefs in shared
+public documentation.
 
-```bash
-cd /path/to/project && agent -p "<brief>"
-```
-
-For long briefs or prompts with shell metacharacters, pipe the brief from a
-file or watched inbox directory instead of passing it inline on the command
-line:
-
-```bash
-cd /path/to/project && agent -p < /path/to/cursor-inbox/current-brief.txt
-```
-
-Prepare the workstation with the same safeguards used for `agy`: put `agent`
-(or `cursor-agent`) on `PATH`, complete an interactive login once in a local
-terminal, prefer scoped command and tool permissions over skip-all flags, and
-restrict Grok's local execution approvals to the target project directories.
-
-Pick between `agent -p` and `agy -p` by task type and billing lane:
-
-- **Prefer `agent -p` (or `cursor-agent -p`)** when the job is repository
-  coding (features, refactors, bug fixes, and test loops) that should stay in
-  the Cursor toolchain.
-- **Prefer `agy -p`** when the job is document drafting, Google or Gemini side
-  work, or when the operator wants that separate authentication and cost lane.
-- **Account for plan pools**: Cursor usage (IDE, cloud agents, and local CLI)
-  may share plan pools with Grok Bot depending on billing, whereas Antigravity
-  CLI uses a separate Google or Gemini authentication lane.
-
-## 7. Keep handoff briefs self-contained and free of secrets
-
-Write every Grok-to-CLI brief (`agy` or `agent`) so a fresh worker session can
-finish the job without reading the Grok chat transcript. Keep the
-orchestrator-and-worker division clear: Grok specifies the target outcome,
-constraints, and done criteria, while the workstation CLI determines the
-implementation steps inside the brief. Do not store concrete task prompts or
-project-specific briefs in shared public documentation.
-
-Structure each handoff brief around four fields:
+Include four required sections in every handoff brief:
 
 - **Goal**: one sentence naming the deliverable (for example, updating a
-  specific guide section or fixing a lint failure).
-- **Target paths and branch policy**: the repository directory, which branch to
-  update or create, and the exact files in scope.
-- **Constraints**: line limits, formatting rules, forbidden content (such as
-  personal identifiers, billing figures, or real display names), and whether the
-  worker must stop before merging.
-- **Verification and return format**: the exact check commands to run (such as
-  a Markdown linter or test suite) and what to report back (for example, the PR
-  URL and the list of changed files).
+  specific guide section or fixing a failing test).
+- **Target paths, branch, and merge policy**: the repository directory, which
+  branch or pull request to update or create, the exact files in scope, and an
+  explicit merge rule (such as opening a draft PR or updating the branch without
+  merging).
+- **Constraints**: line limits, style rules, required reading (such as
+  `CONTRIBUTING.md` on public docs repositories), and forbidden content (such as
+  personal identifiers, billing amounts, subscription tiers, or real bot display
+  names).
+- **Success criteria and return format**: the exact verification commands to run
+  (such as `npx --yes markdownlint-cli2@0.23.2` or a test suite) and what to
+  report back (such as the PR URL and the list of changed files).
 
-Apply two extra hygiene rules on every handoff:
+Keep secrets out of command arguments (`argv`): never pass API keys, tokens, or
+private URLs inline inside `agy -p "..."` or `agent -p "..."`, because arguments
+appear in local process tables (`ps`) and shell history. Load secrets from
+workstation environment variables or local secret stores, and pass sensitive or
+long briefs over standard input or through a local file with `0600` permissions.
 
-- **Follow `CONTRIBUTING.md` on public docs repositories**: instruct the worker
-  to read `CONTRIBUTING.md` before changing files or updating a pull request,
-  and to run required structure and humanizer prose checks plus Markdown
-  linting.
-- **Keep secrets out of `argv`**: never pass API keys, tokens, or private URLs
-  inline inside `agy -p "..."` or `agent -p "..."`. Command-line arguments
-  appear in local process tables (`ps`) and shell history. Load secrets from
-  workstation environment variables or local secret stores, and pass long or
-  sensitive prompts through standard input or a local file with restricted
-  permissions (`0600`).
+Run this checklist before launching a handoff to prevent mis-assignment and
+bad handoffs:
 
-## 8. Avoid common orchestration anti-patterns
+- [ ] **Match the job type to the right lane**: route repository coding to
+  Cursor cloud coding agents or local `agent`; route documentation and Google or
+  Gemini lane work to `agy` (or a document worker); route machine learning and
+  heavy compute to native workstation tools; keep connectors, routines, and
+  multi-bot orchestration in Grok Bot.
+- [ ] **Enforce one writer per checkout at a time**: never run parallel `agy` or
+  `agent` processes on the same local repository checkout or branch at the same
+  time (see
+  [Control parallel `agy` and `agent` runs](#9-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
+  Use separate clones, git worktrees, or sequential runs when two tasks touch
+  the same repository.
+- [ ] **Verify goal, constraints, success criteria, and merge policy**: confirm
+  the brief specifies all four fields, including whether to open a draft PR or
+  stop before merging.
+- [ ] **Use scoped permissions over skip-all flags**: rely on narrow
+  `permissions.allow` rules and directory-scoped execution approvals instead of
+  `--dangerously-skip-permissions`.
+- [ ] **Schedule routines for daytime or events**: prefer event triggers or
+  daytime schedules when a person can review the output over overnight jobs that
+  create unread noise.
+- [ ] **Check shared weekly pool implications**: account for whether Cursor
+  shares plan usage pools with Grok Bot while Antigravity CLI uses its separate
+  Google or Gemini authentication lane, and never invent or hardcode billing
+  numbers.
+- [ ] **Keep the work-request backlog in the task app**: read and update
+  pending work requests in the operator's task app (Todoist or an equivalent)
+  instead of building a second queue in chat transcripts, watched inbox folders,
+  or weekly progress docs.
+- [ ] **Keep Remote Control human-driven and heavy launches off the phone**: do
+  not browser-automate the Remote Control web UI as a primary path, and start
+  heavy builds or compute runs from the workstation instead of the phone.
 
-Do not use fragile shortcuts that defeat tool isolation or human review:
+## 9. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
-- **Do not browser-automate the Remote Control UI**: driving the Remote Control
-  web interface with a browser automation agent is brittle and breaks whenever
-  the web UI changes. Use Path A (`agy -p`) or Path C (`/path/to/agy-inbox/`)
-  for automated runs, and reserve Remote Control (Path B) for a human operator.
-- **Do not launch heavy jobs from the phone**: mobile chats are for short
-  prompts, triage, and approvals. Start long builds, batch evaluations, and
-  multi-file refactors on the workstation where power, network, and logs are
-  stable.
-- **Do not keep machine learning or bulk regeneration loops inside Grok Bot**:
-  iterative training, large document comparisons, and repeated generation loops
-  consume shared cloud tokens rapidly. Run those loops on the local workstation
-  and send only final metrics or output paths back to Grok.
-- **Do not treat `--dangerously-skip-permissions` or skip-all flags as a
-  default**: bypassing all permission checks in `agy` or `agent` removes safety
-  boundaries for shell commands and file deletions. Use scoped allow rules and
-  review them during the
-  [monthly ops audit](monthly-audit.md#1-billing-and-usage-trend).
+Enforce strict write isolation whenever multiple local CLI sessions (`agy` or
+`agent`) run on the workstation:
+
+- **Allowed parallelism**:
+  - Running writers in different repositories or separate `git worktree`
+    directories is safe.
+  - Running read-only or planning sessions (such as `agy --mode plan`) alongside
+    a single active writer is safe.
+  - Keeping separate Antigravity Remote Control sessions open on different
+    project directories is safe.
+- **One-writer rule**: allow at most one writer process per git checkout,
+  branch, or shared working tree at any time. Never run two `agy -p` jobs, two
+  `agent -p` jobs, or `agy` and `agent -p` together when they edit the same
+  branch or checkout. Create a dedicated `git worktree` or a separate clone
+  directory whenever true parallel writes are needed.
+- **Control knobs**:
+  - **Queue of record (task app)**: serialize work items that target the same
+    checkout in the task app and mark the active item in progress before
+    dispatch.
+  - **Orchestrator lock and PID check**: before Grok Bot or a local wrapper
+    launches a writer, check for a running writer PID or a lock file in the
+    target directory (for example, `/path/to/project/.agy-write.lock` storing
+    `pid`, `started_at`, and `purpose`). Stop or clean up stale writer
+    processes before starting a new run on the same tree.
+  - **Scoped headless allow-lists**: keep `permissions.allow` and directory
+    approvals narrow so a headless worker cannot stray into sibling checkouts.
+- **Failure modes from parallel writers**: two processes fighting over the same
+  branch or pull request, dirty working trees that break commits or rebases,
+  overwritten edits and lost commits, and duplicate pull request noise.

@@ -117,8 +117,10 @@ Proposal: a short PR against this docs repo or your fork that updates
   notes. Decisions were not relayed through a chain of bots.
 - [ ] The weekly review used collaborative progress docs under a dated folder.
   Workspace status files, if any, served only as optional rollup input.
-- [ ] Todos live in the task app. The calendar is still the only schedule of
-  record.
+- [ ] Todos and the work-request queue of record live in the task app (Todoist
+  or an equivalent), and the calendar is the only schedule of record. Chat
+  transcripts, watched inbox folders, and progress docs were not used as a
+  second backlog.
 - [ ] For long-form work, a document worker drafted the body and a coding
   agent committed only approved text. Nothing was published or merged without
   the operator. Sources meant for pasting into LinkedIn-style surfaces stayed
