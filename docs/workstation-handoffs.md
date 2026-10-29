@@ -12,11 +12,8 @@ For surface cost lanes and spend caps, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For cast roles, assignment
 channels, and the task-app queue of record, see
 [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
-confirmation, batched workstation shell calls, and offline allow-list updates
-over growing Allow lists (see
-[Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists),
-[Reduce local approval prompts](#reduce-local-approval-prompts), and
-[Headless agy soft-deny handling](#headless-agy-soft-deny-handling)).
+confirmation over growing Allow lists (see
+[Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 
 ## 1. Prepare the workstation for Antigravity and Cursor CLI handoffs
 
@@ -207,9 +204,8 @@ prefix and soft-deny compound shell lines that contain `&&`, `||`, `;`, `|`,
 `$()`, backticks, or unquoted shell globs.
 
 Split verification, git, and pull request steps into separate tool calls using
-commands already in the workstation allow list (avoid `npm` or `npx` lint in
-docs-lane briefs unless that exact command string is allow-listed in advance;
-see [Headless agy soft-deny handling](#headless-agy-soft-deny-handling)):
+commands already in the workstation allow list (see
+[Headless agy soft-deny handling](#headless-agy-soft-deny-handling)):
 
 1. `wc -l docs/workstation-handoffs.md`
 2. `git status`
@@ -218,10 +214,6 @@ see [Headless agy soft-deny handling](#headless-agy-soft-deny-handling)):
 5. `git commit -m "Docs: explain single-command headless calls"`
 6. `git push -u origin docs/topic-branch`
 7. `gh pr create --draft --title "..." --body "..."`
-
-If any `RunCommand` call is soft-denied, stop the run and report the exact
-command line and deny reason to the orchestrator. Do not widen permissions
-mid-run.
 
 ## 4. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
@@ -374,10 +366,6 @@ Keep Ask-first (or equivalent interactive confirmation) for:
 - external sends (mail, chat, or public posts)
 - deletes outside the project directory
 - purchases or other spend actions
-
-If a headless `agy -p` or `agent -p` run soft-denies a required tool, stop and
-report which permission was denied. Do not widen allow lists ad hoc just to
-finish that one job.
 
 ### Orchestrator flow: propose, pick, then launch
 

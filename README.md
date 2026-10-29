@@ -37,10 +37,11 @@ Operators who:
   for `agy` and `~/agent-work` for local `agent`) and cloud-versus-local coding
   routing, wire Grok Bot to Antigravity CLI (`agy`) and the local Cursor Agent
   CLI (`agent` or `cursor-agent`), structure self-contained briefs, enforce
-  one-writer parallel-execution controls, prefer operator-facing choice cards
-  over growing fine-grained Allow lists, batch workstation shell calls to reduce
-  local approval prompts, and handle headless `agy -p` soft-denies without
-  mid-run permission widening.
+  one-writer parallel-execution controls, and prefer operator-facing choice
+  cards over growing fine-grained Allow lists (including
+  [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts)
+  and
+  [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling)).
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update

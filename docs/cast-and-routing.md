@@ -281,13 +281,10 @@ Verify every item before launching a handoff:
 - [ ] **Use scoped permissions over skip-all flags**: rely on narrow
   `permissions.allow` rules and directory-scoped execution approvals instead of
   `--dangerously-skip-permissions`. Do not expand fine-grained Allow entries for
-  every new command as the primary launch control. Batch workstation `Shell`
-  calls by phase (`prepare`, `launch`, `collect-result`) to reduce Grok
-  local-execution approval prompts, and stop without widening permissions
-  mid-run if a headless `agy -p` command soft-denies (see
+  every new command as the primary launch control. Follow
   [Reduce local approval prompts](workstation-handoffs.md#reduce-local-approval-prompts)
   and
-  [Headless agy soft-deny handling](workstation-handoffs.md#headless-agy-soft-deny-handling)).
+  [Headless agy soft-deny handling](workstation-handoffs.md#headless-agy-soft-deny-handling).
 - [ ] **Schedule routines for daytime or events**: prefer event triggers or
   daytime schedules when a person can review the output over overnight jobs that
   create unread noise.
