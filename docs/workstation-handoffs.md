@@ -11,7 +11,9 @@ coding agent, and shared durable notes.
 For surface cost lanes and spend caps, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For cast roles, assignment
 channels, and the task-app queue of record, see
-[`cast-and-routing.md`](cast-and-routing.md).
+[`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
+confirmation over growing Allow lists (see
+[Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 
 ## 1. Prepare the workstation for Antigravity and Cursor CLI handoffs
 
@@ -260,3 +262,73 @@ Reject fragile shortcuts that bypass tool isolation or human review:
   permission checks in `agy` or `agent` removes safety boundaries for shell
   commands and file deletions. Use scoped allow rules and review them during the
   [monthly ops audit](monthly-audit.md#1-billing-and-usage-trend).
+- **Do not grow fine-grained Allow lists as the primary launch gate**: adding a
+  new Auto-review Allow rule or Antigravity `permissions.allow` entry for every
+  command that might run next week is brittle and over-broad. Prefer an
+  operator-facing choice card (see
+  [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
+
+## 6. Prefer card-style launch confirmation over growing Allow lists
+
+Gate whether a workstation handoff starts with an operator-facing choice card
+(or an equivalent one-tap confirmation). Expanding fine-grained Allow rules for
+every new command is a weak primary control.
+
+### Prefer a named choice card
+
+When Grok Bot (or another orchestrator) is ready to start local work, present a
+short card that names the lane and the action. Typical choices:
+
+- run with `agy`
+- run with `agent` (or `cursor-agent`)
+- queue in the task app
+- cancel
+
+Keep the card copy short: the deliverable in one line, the proposed lane, and a
+one-sentence reason (for example, documentation on the Google or Gemini lane, or
+repository coding on a fresh local branch).
+
+### Keep Allow lists narrow
+
+Treat Auto-review Allow lists and Antigravity `permissions.allow` as a narrow
+safety net for unattended tools the operator already trusts in that workspace.
+Leave launch-class decisions on the choice card.
+
+Keep Ask-first (or equivalent interactive confirmation) for:
+
+- destructive git operations
+- external sends (mail, chat, or public posts)
+- deletes outside the project directory
+- purchases or other spend actions
+
+If a headless `agy -p` or `agent -p` run soft-denies a required tool, stop and
+report which permission was denied. Do not widen allow lists ad hoc just to
+finish that one job.
+
+### Orchestrator flow: propose, pick, then launch
+
+1. Propose the matching lane and a short reason.
+2. Wait for the operator to pick on the card (or cancel).
+3. Launch only after that pick, unless standing permission already covers that
+   class of job.
+4. For durable or deferred work that surfaces mid-conversation, queue it in the
+   task app instead of starting silently or dropping it (see
+   [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+
+Heavy jobs wait for the card pick. Standing permission may cover a narrow,
+repeatable class (for example, a routine that always queues a status pass). It
+does not mean every shell command is pre-approved forever.
+
+### Cards gate start; checkout locks still apply
+
+Choice cards decide *whether* to start. CLI-side controls still bound the run:
+
+- scoped `permissions.allow` and directory-scoped execution approvals still
+  limit what a running worker may do
+- the one-writer-per-checkout rule and `.agy-write.lock` checks still serialize
+  writers on a shared tree (see
+  [Control parallel `agy` and `agent` runs](#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts))
+
+After the operator picks a lane on the card, run the usual pre-launch PID or
+lock check, then start Path A, B, or C from
+[Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI](#2-wire-grok-bot-to-antigravity-cli-and-local-cursor-agent-cli).

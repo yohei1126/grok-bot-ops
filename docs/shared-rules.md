@@ -93,8 +93,8 @@ Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
 Cast roles, assignment channels, and the task-app queue of record are in
 [`cast-and-routing.md`](cast-and-routing.md). Tooling cost lanes are in
-[`tooling-and-cost.md`](tooling-and-cost.md), and workstation CLI handoffs and
-one-writer parallel controls are in
+[`tooling-and-cost.md`](tooling-and-cost.md), and workstation CLI handoffs,
+one-writer parallel controls, and card-style launch confirmation are in
 [`workstation-handoffs.md`](workstation-handoffs.md).
 
 ## 6. Start fresh agents to control token cost
@@ -179,13 +179,17 @@ the calendar:
   that pattern. When a recurring or time-based item surfaces while the operator
   is mid-conversation, Grok Bot queues it instead of letting the conversation
   silently drop it.
-- **Launch proposals and confirmation for immediate work**: when work should
-  run now, Grok Bot proposes launching on the matching lane (cloud versus
-  local; `agy` versus `agent`) with a short reason. Grok Bot does not start
-  heavy or consequential jobs without operator confirmation unless standing
-  permission or an explicit instruction to run immediately covers that launch or
-  send (see
-  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+- **Launch proposals and card confirmation for immediate work**: when work
+  should run now, Grok Bot proposes launching on the matching lane (cloud versus
+  local; `agy` versus `agent`) with a short reason, then waits for an
+  operator-facing choice card (run with `agy`, run with `agent`, queue in the
+  task app, or cancel) unless standing permission or an explicit instruction to
+  run immediately covers that launch or send. Keep Auto-review Allow lists and
+  Antigravity `permissions.allow` entries narrow; the card is the launch gate
+  (see
+  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
+  and
+  [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
   queue, serializes jobs that share a local checkout (marking the active item
   in progress), and launches execution handoffs (`agy -p`, `agent -p`, fresh
@@ -276,8 +280,9 @@ See [`tooling-and-cost.md`](tooling-and-cost.md),
 [`cast-and-routing.md`](cast-and-routing.md), and
 [`workstation-handoffs.md`](workstation-handoffs.md) for concrete cost,
 routing, and handoff rules, including plan pool separation, on-demand spend
-caps, routine timing, and Grok handoffs to Antigravity CLI (`agy`) and the
-local Cursor Agent CLI (`agent` or `cursor-agent`).
+caps, routine timing, card-style launch confirmation, and Grok handoffs to
+Antigravity CLI (`agy`) and the local Cursor Agent CLI (`agent` or
+`cursor-agent`).
 
 ## 15. Retire finished single-purpose rooms and bots
 

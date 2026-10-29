@@ -49,7 +49,9 @@ are sections 6 through 8. Other PRs during the month follow
   and the local workstation, verify on-demand monthly spend caps, and check
   Antigravity Remote Control status, watched inbox jobs, stale `.agy-write.lock`
   files or orphaned worktrees, and headless CLI (`agy` and `agent`) allow rules
-  for drift (see [`tooling-and-cost.md`](tooling-and-cost.md),
+  for drift. Confirm that heavy launches still use operator-facing choice cards
+  while Allow lists stay narrow (see
+  [`tooling-and-cost.md`](tooling-and-cost.md),
   [`cast-and-routing.md`](cast-and-routing.md), and
   [`workstation-handoffs.md`](workstation-handoffs.md)).
 - [ ] Confirm that high-priority bot-to-bot traffic was rare and justified.
@@ -123,9 +125,9 @@ Proposal: a short PR against this docs repo or your fork that updates
   or an equivalent), and the calendar is the only schedule of record. Grok Bot
   queued deferred or recurring items that surfaced mid-conversation instead of
   dropping them, proposed the matching lane (`agy` versus `agent`; cloud versus
-  local) for immediate work, and confirmed heavy or consequential launches when
-  no standing permission applied. Chat transcripts, watched inbox folders, and
-  progress docs were not used as a second backlog.
+  local) for immediate work, and confirmed heavy or consequential launches on a
+  choice card when no standing permission applied. Chat transcripts, watched
+  inbox folders, and progress docs were not used as a second backlog.
 - [ ] For long-form work, a document worker drafted the body and a coding
   agent committed only approved text. Nothing was published or merged without
   the operator. Sources meant for pasting into LinkedIn-style surfaces stayed

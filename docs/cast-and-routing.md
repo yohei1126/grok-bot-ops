@@ -9,8 +9,8 @@ coding agent, and shared durable notes.
 
 For plan pools, spend caps, and surface cost lanes, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For workstation CLI setup,
-`agy` and `agent` handoff paths, and parallel-writer control, see
-[`workstation-handoffs.md`](workstation-handoffs.md).
+`agy` and `agent` handoff paths, parallel-writer control, and card-style launch
+confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
 
 ## 1. Know the full cast across actors, tools, and environments
 
@@ -111,10 +111,16 @@ schedule source of truth (see
   local workstation; `agy` versus `agent`) with a short reason, such as
   isolating repository code on a fresh branch, keeping documentation on the
   Google or Gemini lane, or running local tests on the workstation.
-- **Confirm before starting heavy or consequential jobs**: Grok Bot does not
-  start heavy compute, multi-file refactors, external sends, or other
-  consequential jobs without operator confirmation unless standing permission or
-  an explicit instruction to run immediately covers that launch or send.
+- **Confirm on a choice card before starting heavy or consequential jobs**:
+  prefer an operator-facing choice card (or equivalent one-tap confirmation)
+  that names the lane and action: run with `agy`, run with `agent`, queue in
+  the task app, or cancel. Grok Bot does not start heavy compute, multi-file
+  refactors, external sends, or other consequential jobs until the operator
+  picks, unless standing permission or an explicit instruction to run
+  immediately covers that launch or send. Keep Auto-review Allow lists and
+  Antigravity `permissions.allow` narrow. The choice card is the launch gate
+  (see
+  [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 - **Grok Bot dispatches from the task app**: Grok Bot reads pending work
   requests from the task app, marks the active item in progress, serializes
   jobs that touch the same local checkout, and launches the matching handoff
@@ -212,7 +218,8 @@ Verify every item before launching a handoff:
   stop before merging.
 - [ ] **Use scoped permissions over skip-all flags**: rely on narrow
   `permissions.allow` rules and directory-scoped execution approvals instead of
-  `--dangerously-skip-permissions`.
+  `--dangerously-skip-permissions`. Do not expand fine-grained Allow entries for
+  every new command as the primary launch control.
 - [ ] **Schedule routines for daytime or events**: prefer event triggers or
   daytime schedules when a person can review the output over overnight jobs that
   create unread noise.
@@ -225,10 +232,13 @@ Verify every item before launching a handoff:
   proactively queue deferred or recurring items that surface mid-conversation,
   and never build a second queue in chat transcripts, watched inbox folders, or
   weekly progress docs.
-- [ ] **Confirm heavy or consequential launches**: propose the target lane
-  (cloud versus local; `agy` versus `agent`) with a short reason and wait for
-  operator confirmation before starting heavy or consequential work unless
-  standing permission or an explicit run-now instruction covers that launch.
+- [ ] **Confirm heavy or consequential launches on a choice card**: propose the
+  target lane (cloud versus local; `agy` versus `agent`) with a short reason,
+  present a card that names the action (run with `agy`, run with `agent`, queue
+  in the task app, or cancel), and wait for the operator pick before starting
+  unless standing permission or an explicit run-now instruction covers that
+  launch (see
+  [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 - [ ] **Keep Remote Control human-driven and heavy launches off the phone**: do
   not browser-automate the Remote Control web UI as a primary path, and start
   heavy builds or compute runs from the workstation instead of the phone.

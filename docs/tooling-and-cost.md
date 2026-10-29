@@ -10,8 +10,8 @@ coding agent, and shared durable notes.
 
 For the full cast, assignment channels, and the task-app queue of record, see
 [`cast-and-routing.md`](cast-and-routing.md). For workstation CLI setup,
-`agy` and `agent` handoff paths, and parallel-writer controls, see
-[`workstation-handoffs.md`](workstation-handoffs.md).
+`agy` and `agent` handoff paths, parallel-writer controls, and card-style
+launch confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
 
 ## 1. Split work across four surfaces and cost lanes
 
