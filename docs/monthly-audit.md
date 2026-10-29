@@ -45,6 +45,10 @@ are sections 6 through 8. Other PRs during the month follow
   personal identifiers.
 - [ ] Note candidates to split, retire, or move to shorter-lived agents for
   cost control.
+- [ ] Review tool routing across Grok Bot, Cursor, Antigravity CLI (`agy`),
+  and the local workstation, verify on-demand monthly spend caps, and check
+  Antigravity Remote Control status and headless `permissions.allow` rules for
+  drift (see [`tooling-and-cost.md`](tooling-and-cost.md)).
 - [ ] Confirm that high-priority bot-to-bot traffic was rare and justified.
 
 Example proposals: retire idle bots, shorten default routines, and move heavy

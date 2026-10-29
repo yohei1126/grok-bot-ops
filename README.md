@@ -23,6 +23,10 @@ Operators who:
   and cross-domain signals, decisions, weekly progress docs, tasks versus the
   calendar, deliverables and publishing, issues and pull requests, cost and
   ops proposals, and retiring finished bots.
+- [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
+  work across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
+  workstation to stay within plan pools, how to propose spend caps and routine
+  timing changes, and three ways to hand work from Grok Bot to Antigravity CLI.
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update

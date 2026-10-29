@@ -91,6 +91,8 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
+Tool routing across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
+workstation is in [`tooling-and-cost.md`](tooling-and-cost.md).
 
 ## 6. Start fresh agents to control token cost
 
@@ -238,6 +240,10 @@ inventory and cleanup. It does not apply the cleanup itself.
 5. Bots cannot delete sidebar bots or rooms. The operator does that in the UI
    (see
    [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).
+
+See [`tooling-and-cost.md`](tooling-and-cost.md) for concrete cost and routing
+proposals, including weekly pool separation, on-demand spend caps, routine
+timing, and Grok-to-Antigravity CLI handoff paths.
 
 ## 15. Retire finished single-purpose rooms and bots
 
