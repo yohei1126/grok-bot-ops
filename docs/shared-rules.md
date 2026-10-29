@@ -198,6 +198,9 @@ the calendar:
   [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
   and
   [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
+  For local approval prompt reduction and headless `agy -p` soft-deny handling,
+  see [Reduce local approval prompts](workstation-handoffs.md#reduce-local-approval-prompts)
+  and [Headless agy soft-deny handling](workstation-handoffs.md#headless-agy-soft-deny-handling).
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
   queue, serializes jobs that share a local checkout, and launches execution
   handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and low-priority

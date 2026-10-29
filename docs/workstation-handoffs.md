@@ -187,8 +187,8 @@ Include four required sections in every handoff brief:
   content (such as personal identifiers, billing amounts, subscription tiers, or
   real bot display names).
 - **Success criteria and return format**: the exact verification commands to run
-  (such as `npx --yes markdownlint-cli2@0.23.2` or a test suite) and what to
-  report back (such as the PR URL and the list of changed files).
+  (such as `wc -l` or an explicitly allow-listed linter or test command) and
+  what to report back (such as the PR URL and the list of changed files).
 
 Keep secrets out of command arguments (`argv`): never pass API keys, tokens, or
 private URLs inline inside `agy -p "..."` or `agent -p "..."`, because arguments
@@ -203,20 +203,17 @@ command per `RunCommand` tool call. Scoped allow lists match a single command
 prefix and soft-deny compound shell lines that contain `&&`, `||`, `;`, `|`,
 `$()`, backticks, or unquoted shell globs.
 
-Split verification, git, and pull request steps into separate tool calls:
+Split verification, git, and pull request steps into separate tool calls using
+commands already in the workstation allow list (see
+[Headless agy soft-deny handling](#headless-agy-soft-deny-handling)):
 
 1. `wc -l docs/workstation-handoffs.md`
-2. `npx --yes markdownlint-cli2@0.23.2 docs/workstation-handoffs.md`
-3. `git status`
-4. `git diff`
-5. `git add docs/workstation-handoffs.md`
-6. `git commit -m "Docs: explain single-command headless calls"`
-7. `git push -u origin docs/topic-branch`
-8. `gh pr create --draft --title "..." --body "..."`
-
-If any `RunCommand` call is soft-denied, stop the run and report the exact
-command line and deny reason to the orchestrator. Do not widen permissions
-mid-run.
+2. `git status`
+3. `git diff`
+4. `git add docs/workstation-handoffs.md`
+5. `git commit -m "Docs: explain single-command headless calls"`
+6. `git push -u origin docs/topic-branch`
+7. `gh pr create --draft --title "..." --body "..."`
 
 ## 4. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
@@ -370,10 +367,6 @@ Keep Ask-first (or equivalent interactive confirmation) for:
 - deletes outside the project directory
 - purchases or other spend actions
 
-If a headless `agy -p` or `agent -p` run soft-denies a required tool, stop and
-report which permission was denied. Do not widen allow lists ad hoc just to
-finish that one job.
-
 ### Orchestrator flow: propose, pick, then launch
 
 1. Propose the matching lane and a short reason.
@@ -401,3 +394,76 @@ Choice cards decide *whether* to start. CLI-side controls still bound the run:
 After the operator picks a lane on the card, run the usual pre-launch PID or
 lock check, then start Path A, B, or C from
 [Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI](#2-wire-grok-bot-to-antigravity-cli-and-local-cursor-agent-cli).
+
+### Reduce local approval prompts
+
+Keep **Grok local-execution approval** distinct from **Antigravity
+`permissions.allow`**. Every workstation `Shell` call that Grok Bot sends with a
+registered `machineId` can trigger a Grok local-execution approval card, even
+when Antigravity CLI (`agy`) already has `permissions.allow` and
+`trustedWorkspaces` configured on the workstation.
+
+Cut prompt volume by batching Grok-side workstation calls instead of widening
+allow rules:
+
+- **Batch workstation side effects by phase**: combine pre-launch status checks,
+  allowed brief writes, worker launch, and the initial log smoke-check into as
+  few workstation `Shell` invocations as practical (ideally one per phase:
+  `prepare`, `launch`, and `collect-result`). Avoid running a chain of separate
+  `pgrep`, `cat`, or `gh` commands that each raise a separate approval card. For
+  `agy` documentation runs, call
+  [`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) in one `Shell`
+  call to start the worker and
+  [`scripts/agy-docs-collect.sh`](../scripts/agy-docs-collect.sh) in one
+  follow-up `Shell` call to inspect PID state, git status, open pull requests,
+  and log tails (see [`scripts/README.md`](../scripts/README.md)):
+
+  ```bash
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt <stem>
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-collect.sh <repo> <stem>
+  ```
+
+- **Confirm heavy launches once, then poll minimally**: gate heavy `agy`,
+  `agent`, or cloud work once on an operator-facing choice card or widget. The
+  launch and collect wrapper scripts do not replace that confirmation card.
+  After launch, wait for a completion notification or run a single follow-up
+  `Shell` call (`agy-docs-collect.sh`) to collect results instead of polling in
+  a tight loop.
+- **Never auto-approve all local `Shell` calls to fix prompt fatigue**: do not
+  expand Grok Auto-review Allow rules to cover arbitrary local commands, and
+  never pass `--dangerously-skip-permissions` inside wrapper scripts. Rely on
+  choice cards and phase batching to keep prompt counts low, and keep Ask-first
+  confirmation for destructive git operations, external sends, deletes outside
+  the project directory, and purchases.
+
+### Headless agy soft-deny handling
+
+Stop immediately and report the exact command or tool when a headless `agy -p`
+run hits a permission denial or unsupported tool error; never widen permissions
+mid-run.
+
+Configure briefs and permissions for unattended Print mode (`agy -p`) with four
+constraints in mind:
+
+- **Path-scoped `write_file` and `trustedWorkspaces` are necessary and still
+  limited**: scoping `write_file(~/agy-work)` and `trustedWorkspaces` is
+  required for `agy -p`, and those settings still do not authorize every tool
+  alias or shell command. Because Print mode cannot show an interactive
+  confirmation dialog, any action that requires confirmation is soft-denied, or
+  fails with `unknown_command` or `unsupported_tool: write_file`.
+- **Interactive review modes soft-deny in Print mode**: settings such as
+  `toolPermission=request-review` (or equivalent interactive review policies)
+  are incompatible with unattended `agy -p` runs for those tools, because
+  headless Print mode soft-denies instead of prompting the operator.
+- **Prefer allow-listed commands in docs-lane briefs**: write docs-lane briefs
+  around commands already in the workstation allow list: `git`, `gh`, `cp`,
+  `wc`, `mkdir`, `ls`, `cat`, and the allow-listed `git` and `gh` subcommands.
+  Avoid `npm` or `npx` lint commands unless the exact allow-listed command
+  string is named in the brief before launch. Issue one `argv`-style command per
+  `RunCommand` call with no `&&`, `||`, `;`, `|`, `$()`, backticks, or unquoted
+  globs (see
+  [Issue one command per tool call in headless CLI handoffs](#issue-one-command-per-tool-call-in-headless-cli-handoffs)).
+- **Review allow-list changes offline after a stop**: on `soft-deny`,
+  `unknown_command`, or `unsupported_tool`, stop the run and return the exact
+  command or tool and the failure reason. The operator or the cost/ops bot
+  reviews any `permissions.allow` change offline and re-runs the brief afterward.
