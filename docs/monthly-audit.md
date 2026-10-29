@@ -49,7 +49,9 @@ are sections 6 through 8. Other PRs during the month follow
   and the local workstation, verify on-demand monthly spend caps, and check
   Antigravity Remote Control status, watched inbox jobs, stale `.agy-write.lock`
   files or orphaned worktrees, and headless CLI (`agy` and `agent`) allow rules
-  for drift (see [`tooling-and-cost.md`](tooling-and-cost.md)).
+  for drift (see [`tooling-and-cost.md`](tooling-and-cost.md),
+  [`cast-and-routing.md`](cast-and-routing.md), and
+  [`workstation-handoffs.md`](workstation-handoffs.md)).
 - [ ] Confirm that high-priority bot-to-bot traffic was rare and justified.
 
 Example proposals: retire idle bots, shorten default routines, and move heavy
@@ -129,7 +131,8 @@ Proposal: a short PR against this docs repo or your fork that updates
 ## 6. Open the monthly-audit PR with generalized diffs only
 
 Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) for every PR to this repo.
-[`AGENTS.md`](../AGENTS.md) only points agents at that file.
+[`AGENTS.md`](../AGENTS.md) points agents at that file and the topic-file split
+rule for `docs/`.
 
 This section is the monthly-audit PR that closes the cycle. Mid-cycle docs or
 rules PRs use the same contribution rules, without sections 7 and 8.

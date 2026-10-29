@@ -23,13 +23,18 @@ Operators who:
   and cross-domain signals, decisions, weekly progress docs, tasks versus the
   calendar, deliverables and publishing, issues and pull requests, cost and
   ops proposals, and retiring finished bots.
-- [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) maps the full cast
-  (operator, Grok Bot, Grok cloud box, local workstation, phone, Cursor IDE,
-  cloud coding agents, local `agent`, Antigravity CLI `agy`, Remote Control, and
-  automated routines), who assigns work to whom over each channel from the
-  task-app queue of record, plan pool and spend-cap proposals, one-writer
-  concurrency controls, and the pre-handoff checklist to prevent
-  mis-assignment.
+- [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
+  work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
+  Antigravity (`agy` CLI and Remote Control), and the local workstation to stay
+  within plan pools, and how to propose spend caps and routine timing changes.
+- [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
+  across actors, tools, and execution environments, defines who assigns work to
+  whom over which named channel, sets the task app as the work-request queue of
+  record, and provides a pre-launch routing checklist.
+- [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
+  prepare a registered workstation, wire Grok Bot to Antigravity CLI (`agy`)
+  and the local Cursor Agent CLI (`agent` or `cursor-agent`), structure
+  self-contained briefs, and enforce one-writer parallel-execution controls.
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update
@@ -38,7 +43,8 @@ Operators who:
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) holds all contribution rules: how to
   propose changes by pull request, the English prose review every PR needs,
   and the generic-examples policy.
-- [`AGENTS.md`](AGENTS.md) points coding agents and bots at `CONTRIBUTING.md`.
+- [`AGENTS.md`](AGENTS.md) points coding agents and bots at `CONTRIBUTING.md`
+  and states the topic-file and 500-line split rule for `docs/`.
 
 ## How to use it
 

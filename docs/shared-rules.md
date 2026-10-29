@@ -91,9 +91,11 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
-Cast roles, assignment channels, one-writer parallel CLI controls, and tool
-routing across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
-workstation are in [`tooling-and-cost.md`](tooling-and-cost.md).
+Cast roles, assignment channels, and the task-app queue of record are in
+[`cast-and-routing.md`](cast-and-routing.md). Tooling cost lanes are in
+[`tooling-and-cost.md`](tooling-and-cost.md), and workstation CLI handoffs and
+one-writer parallel controls are in
+[`workstation-handoffs.md`](workstation-handoffs.md).
 
 ## 6. Start fresh agents to control token cost
 
@@ -175,9 +177,9 @@ the calendar:
   queue, serializes jobs that share a local checkout (marking the active item
   in progress), and launches execution handoffs (`agy -p`, `agent -p`, fresh
   cloud coding agents, and low-priority bot-to-bot messages; see
-  [`tooling-and-cost.md`](tooling-and-cost.md#3-map-who-assigns-work-to-whom-and-over-which-channel)
+  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
   and
-  [Control parallel `agy` and `agent` runs](tooling-and-cost.md#9-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
+  [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
 - **No second backlog**: do not maintain a parallel work-request queue in chat
   transcripts, watched inbox folders, weekly progress docs, or workspace status
   files. Those surfaces serve as execution channels or status summaries only.
@@ -257,10 +259,12 @@ inventory and cleanup. It does not apply the cleanup itself.
    (see
    [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).
 
-See [`tooling-and-cost.md`](tooling-and-cost.md) for concrete cost and routing
-proposals, including plan pool separation, on-demand spend caps, routine
-timing, and Grok handoffs to Antigravity CLI (`agy`) and the local Cursor Agent
-CLI (`agent` or `cursor-agent`).
+See [`tooling-and-cost.md`](tooling-and-cost.md),
+[`cast-and-routing.md`](cast-and-routing.md), and
+[`workstation-handoffs.md`](workstation-handoffs.md) for concrete cost,
+routing, and handoff rules, including plan pool separation, on-demand spend
+caps, routine timing, and Grok handoffs to Antigravity CLI (`agy`) and the
+local Cursor Agent CLI (`agent` or `cursor-agent`).
 
 ## 15. Retire finished single-purpose rooms and bots
 
