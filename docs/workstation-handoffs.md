@@ -154,6 +154,28 @@ appear in local process tables (`ps`) and shell history. Load secrets from
 workstation environment variables or local secret stores, and pass sensitive or
 long briefs over standard input or through a local file with `0600` permissions.
 
+### Issue one command per tool call in headless CLI handoffs
+
+Instruct headless CLI workers (`agy -p` and `agent -p`) to run one `argv`-style
+command per `RunCommand` tool call. Scoped allow lists match a single command
+prefix and soft-deny compound shell lines that contain `&&`, `||`, `;`, `|`,
+`$()`, backticks, or unquoted shell globs.
+
+Split verification, git, and pull request steps into separate tool calls:
+
+1. `wc -l docs/workstation-handoffs.md`
+2. `npx --yes markdownlint-cli2@0.23.2 docs/workstation-handoffs.md`
+3. `git status`
+4. `git diff`
+5. `git add docs/workstation-handoffs.md`
+6. `git commit -m "Docs: explain single-command headless calls"`
+7. `git push -u origin docs/topic-branch`
+8. `gh pr create --draft --title "..." --body "..."`
+
+If any `RunCommand` call is soft-denied, stop the run and report the exact
+command line and deny reason to the orchestrator. Do not widen permissions
+mid-run.
+
 ## 4. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
 Enforce strict write isolation whenever multiple local CLI sessions (`agy`,
