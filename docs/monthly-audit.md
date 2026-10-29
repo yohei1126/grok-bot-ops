@@ -120,9 +120,12 @@ Proposal: a short PR against this docs repo or your fork that updates
 - [ ] The weekly review used collaborative progress docs under a dated folder.
   Workspace status files, if any, served only as optional rollup input.
 - [ ] Todos and the work-request queue of record live in the task app (Todoist
-  or an equivalent), and the calendar is the only schedule of record. Chat
-  transcripts, watched inbox folders, and progress docs were not used as a
-  second backlog.
+  or an equivalent), and the calendar is the only schedule of record. Grok Bot
+  queued deferred or recurring items that surfaced mid-conversation instead of
+  dropping them, proposed the matching lane (`agy` versus `agent`; cloud versus
+  local) for immediate work, and confirmed heavy or consequential launches when
+  no standing permission applied. Chat transcripts, watched inbox folders, and
+  progress docs were not used as a second backlog.
 - [ ] For long-form work, a document worker drafted the body and a coding
   agent committed only approved text. Nothing was published or merged without
   the operator. Sources meant for pasting into LinkedIn-style surfaces stayed

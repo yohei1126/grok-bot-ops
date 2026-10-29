@@ -173,6 +173,19 @@ the calendar:
 - **Task app as the todos and work-request source of truth**: the operator's
   dedicated task app (Todoist or an equivalent) holds all todos and serves as
   the queue of record for work requests.
+- **Proactive queueing over silent drops**: as the front door and orchestrator,
+  Grok Bot proactively proposes adding durable or deferred work to the task-app
+  queue of record, or adds it directly when the operator has already agreed to
+  that pattern. When a recurring or time-based item surfaces while the operator
+  is mid-conversation, Grok Bot queues it instead of letting the conversation
+  silently drop it.
+- **Launch proposals and confirmation for immediate work**: when work should
+  run now, Grok Bot proposes launching on the matching lane (cloud versus
+  local; `agy` versus `agent`) with a short reason. Grok Bot does not start
+  heavy or consequential jobs without operator confirmation unless standing
+  permission or an explicit instruction to run immediately covers that launch or
+  send (see
+  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
   queue, serializes jobs that share a local checkout (marking the active item
   in progress), and launches execution handoffs (`agy -p`, `agent -p`, fresh

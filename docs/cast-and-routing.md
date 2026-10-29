@@ -63,10 +63,14 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
 
 1. **Grok Bot**: owns the operator UI, mobile-friendly orchestration, external
    connectors (mail, calendar, collaborative docs suite, task app), multi-bot
-   coordination, and scheduled routines. Grok owns the goal, guardrails, and
-   success criteria, and launches handoffs (`agy -p`, `agent -p`, cloud coding
-   agents, and bot-to-bot messages). Keep long machine learning runs, large PDF
-   comparison loops, and bulk regeneration loops out of Grok.
+   coordination, and scheduled routines. As the front door and orchestrator,
+   Grok proactively queues durable or deferred work in the operator's task app,
+   proposes the matching execution lane for immediate work, owns the goal,
+   guardrails, and success criteria, and launches approved handoffs (`agy -p`,
+   `agent -p`, cloud coding agents, and bot-to-bot messages; see
+   [Keep the work-request queue of record in the task app](#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+   Keep long machine learning runs, large PDF comparison loops, and bulk
+   regeneration loops out of Grok.
 2. **Cursor cloud coding agents and local `agent` (plus Cursor IDE)**: own
    repository coding across interactive sessions, fresh cloud branches, and
    local headless runs (`agent -p`) for features, bug fixes, multi-file
@@ -94,6 +98,23 @@ queue of record for todos and work requests, while the calendar remains the
 schedule source of truth (see
 [Todos go in the task app, schedules in the calendar](shared-rules.md#10-todos-go-in-the-task-app-schedules-in-the-calendar)):
 
+- **Proactively queue durable or deferred work**: as the front door and
+  orchestrator, Grok Bot proactively proposes adding durable follow-ups or
+  deferred work to the task-app queue of record (Todoist or an equivalent), or
+  adds the item directly when the operator has already agreed to that pattern.
+- **Prefer queueing over silent drops mid-conversation**: when a recurring or
+  time-based item surfaces while the operator is mid-conversation on another
+  topic, Grok Bot queues it in the task app (or records fixed times in the
+  calendar) instead of letting the active thread bury and silently drop it.
+- **Propose the matching lane for immediate work**: when work should run now,
+  Grok Bot proposes launching on the matching lane (cloud coding agent versus
+  local workstation; `agy` versus `agent`) with a short reason, such as
+  isolating repository code on a fresh branch, keeping documentation on the
+  Google or Gemini lane, or running local tests on the workstation.
+- **Confirm before starting heavy or consequential jobs**: Grok Bot does not
+  start heavy compute, multi-file refactors, external sends, or other
+  consequential jobs without operator confirmation unless standing permission or
+  an explicit instruction to run immediately covers that launch or send.
 - **Grok Bot dispatches from the task app**: Grok Bot reads pending work
   requests from the task app, marks the active item in progress, serializes
   jobs that touch the same local checkout, and launches the matching handoff
@@ -200,9 +221,14 @@ Verify every item before launching a handoff:
   Google or Gemini authentication lane, and never invent or hardcode billing
   numbers.
 - [ ] **Keep the work-request backlog in the task app**: read and update
-  pending work requests in the operator's task app (Todoist or an equivalent)
-  instead of building a second queue in chat transcripts, watched inbox folders,
-  or weekly progress docs.
+  pending work requests in the operator's task app (Todoist or an equivalent),
+  proactively queue deferred or recurring items that surface mid-conversation,
+  and never build a second queue in chat transcripts, watched inbox folders, or
+  weekly progress docs.
+- [ ] **Confirm heavy or consequential launches**: propose the target lane
+  (cloud versus local; `agy` versus `agent`) with a short reason and wait for
+  operator confirmation before starting heavy or consequential work unless
+  standing permission or an explicit run-now instruction covers that launch.
 - [ ] **Keep Remote Control human-driven and heavy launches off the phone**: do
   not browser-automate the Remote Control web UI as a primary path, and start
   heavy builds or compute runs from the workstation instead of the phone.
