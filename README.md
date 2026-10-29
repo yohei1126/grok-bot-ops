@@ -24,10 +24,10 @@ Operators who:
   calendar, deliverables and publishing, issues and pull requests, cost and
   ops proposals, and retiring finished bots.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
-  work across Grok Bot, Cursor, Antigravity CLI (`agy`), and the local
-  workstation to stay within plan pools, how to propose spend caps and routine
-  timing changes, and how to wire Grok Bot to Antigravity CLI (workstation
-  prerequisites, three handoff paths, prompt hygiene, and anti-patterns).
+  work across Grok Bot, Cursor (IDE, cloud agents, and local CLI), Antigravity
+  CLI (`agy`), and the local workstation to stay within plan pools, how to
+  propose spend caps and routine timing changes, and how to wire Grok Bot to
+  `agy` and the local Cursor Agent CLI (`agent` or `cursor-agent`).
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update
