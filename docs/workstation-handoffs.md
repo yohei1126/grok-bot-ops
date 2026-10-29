@@ -410,13 +410,28 @@ allow rules:
   allowed brief writes, worker launch, and the initial log smoke-check into as
   few workstation `Shell` invocations as practical (ideally one per phase:
   `prepare`, `launch`, and `collect-result`). Avoid running a chain of separate
-  `pgrep`, `cat`, or `gh` commands that each raise a separate approval card.
+  `pgrep`, `cat`, or `gh` commands that each raise a separate approval card. For
+  `agy` documentation runs, call
+  [`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) in one `Shell`
+  call to start the worker and
+  [`scripts/agy-docs-collect.sh`](../scripts/agy-docs-collect.sh) in one
+  follow-up `Shell` call to inspect PID state, git status, open pull requests,
+  and log tails (see [`scripts/README.md`](../scripts/README.md)):
+
+  ```bash
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt <stem>
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-collect.sh <repo> <stem>
+  ```
+
 - **Confirm heavy launches once, then poll minimally**: gate heavy `agy`,
-  `agent`, or cloud work once on an operator-facing choice card or widget. After
-  launch, wait for a completion notification or run a single follow-up `Shell`
-  call to collect results instead of polling in a tight loop.
+  `agent`, or cloud work once on an operator-facing choice card or widget. The
+  launch and collect wrapper scripts do not replace that confirmation card.
+  After launch, wait for a completion notification or run a single follow-up
+  `Shell` call (`agy-docs-collect.sh`) to collect results instead of polling in
+  a tight loop.
 - **Never auto-approve all local `Shell` calls to fix prompt fatigue**: do not
-  expand Grok Auto-review Allow rules to cover arbitrary local commands. Rely on
+  expand Grok Auto-review Allow rules to cover arbitrary local commands, and
+  never pass `--dangerously-skip-permissions` inside wrapper scripts. Rely on
   choice cards and phase batching to keep prompt counts low, and keep Ask-first
   confirmation for destructive git operations, external sends, deletes outside
   the project directory, and purchases.

@@ -39,9 +39,10 @@ Operators who:
   CLI (`agent` or `cursor-agent`), structure self-contained briefs, enforce
   one-writer parallel-execution controls, and prefer operator-facing choice
   cards over growing fine-grained Allow lists (including
-  [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts)
-  and
-  [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling)).
+  [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts),
+  [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling),
+  and the phase-batched wrapper scripts in
+  [`scripts/README.md`](scripts/README.md)).
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage, routines, idle bots, rule drift, and
   cross-bot practice; open the monthly-audit PR; after that PR merges, update
