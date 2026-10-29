@@ -191,12 +191,21 @@ the calendar:
   and
   [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 - **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
-  queue, serializes jobs that share a local checkout (marking the active item
-  in progress), and launches execution handoffs (`agy -p`, `agent -p`, fresh
-  cloud coding agents, and low-priority bot-to-bot messages; see
+  queue, serializes jobs that share a local checkout, and launches execution
+  handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and low-priority
+  bot-to-bot messages; see
   [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
   and
   [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
+- **Handoff visibility in the task app**: label dispatched items with the lane
+  (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status (`running`,
+  `waiting`), prefix the title with the active lane or handoff chain (such as
+  `[agy]` or `[agent→agy]`), and record the assignee, target pull request or
+  checkout path, progress notes, and done criteria in the description. Mark the
+  item `running` on launch, `waiting` with the blocker when paused, and
+  complete (or commented with the outcome) on finish so the queue shows status
+  without chat archaeology (see
+  [Format task items so handoff ownership is visible at a glance](cast-and-routing.md#format-task-items-so-handoff-ownership-is-visible-at-a-glance)).
 - **No second backlog**: do not maintain a parallel work-request queue in chat
   transcripts, watched inbox folders, weekly progress docs, or workspace status
   files. Those surfaces serve as execution channels or status summaries only.

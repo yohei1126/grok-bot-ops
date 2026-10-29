@@ -122,14 +122,64 @@ schedule source of truth (see
   (see
   [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 - **Grok Bot dispatches from the task app**: Grok Bot reads pending work
-  requests from the task app, marks the active item in progress, serializes
-  jobs that touch the same local checkout, and launches the matching handoff
-  (`agy -p`, `agent -p`, cloud coding agents, or bot-to-bot messages).
+  requests from the task app, marks the active item `running` with the active
+  lane, serializes jobs that touch the same local checkout, and launches the
+  matching handoff (`agy -p`, `agent -p`, cloud coding agents, or bot-to-bot
+  messages).
 - **Do not create a second backlog**: never maintain a parallel work-request
   queue in chat transcripts, watched inbox folders (`/path/to/agy-inbox/` or
   `/path/to/cursor-inbox/`), weekly progress docs, or shared workspace status
   files. Watched inbox folders are transport spools for already-dispatched
   tasks, and progress docs or status files are summaries only.
+
+### Format task items so handoff ownership is visible at a glance
+
+Apply a consistent visibility convention to every dispatched task-app item so
+the operator can see who was asked to do what without keeping a second backlog:
+
+- **Labels for lane and status**: attach a lane label (such as `agy`, `agent`,
+  `orchestrator-bot`, or `cloud-coding`) and a status label (`running` or
+  `waiting`).
+- **Title prefix for the active lane and handoff chain**: prefix the task title
+  with the active execution lane, and show the handoff chain when work moves
+  across workers (for example, `[agy] Document task-app visibility rules` or
+  `[agent→agy] Refresh routing docs after CLI verification`).
+- **Structured description fields**: keep four fields in the task description:
+  1. **Assignee and lane**: which bot or worker owns the current step.
+  2. **Target pull request or checkout path**: generic placeholders until bound,
+     such as `https://github.com/org/repo/pull/N` or `/path/to/project` on
+     branch `docs/topic-name`.
+  3. **Progress notes**: short timestamped or step-level handoff updates.
+  4. **Done criteria**: the verification check and expected deliverable (such as
+     lint passing and the pull request updated without merging).
+
+Example task-app entry during a handoff:
+
+```text
+Title: [agent→agy] Document task-app visibility rules
+Labels: agy, running
+Description:
+- Assignee / lane: agy (document lane on registered workstation)
+- Target: /path/to/project (branch docs/topic-name, PR https://github.com/org/repo/pull/N)
+- Progress: CLI check finished in agent; handed off to agy for Markdown edits
+- Done criteria: docs updated, <= 500 lines per file, markdownlint clean, PR body refreshed
+```
+
+### Update task state on launch, block, and finish
+
+Update the task-app item at each transition so the queue shows live status and
+completion without chat archaeology:
+
+1. **On launch**: apply the lane label and `running`, add or update the lane
+   title prefix (including any `worker-a→worker-b` handoff chain), and record
+   who is running what in the description before or as the worker starts.
+2. **On block or wait**: switch the status label from `running` to `waiting` and
+   record the specific blocker in the task description or a comment (such as
+   waiting on an operator choice-card pick, a soft-denied CLI permission, or
+   another writer holding `.agy-write.lock`).
+3. **On finish**: complete the task in the task app (or post a short outcome
+   comment with the pull request URL or commit hash and then complete the item)
+   so the operator sees completion in the queue without reading chat logs.
 
 ## 4. Map who assigns work to whom and over which channel
 
@@ -227,11 +277,15 @@ Verify every item before launching a handoff:
   shares plan usage pools with Grok Bot while Antigravity CLI uses its separate
   Google or Gemini authentication lane, and never invent or hardcode billing
   numbers.
-- [ ] **Keep the work-request backlog in the task app**: read and update
-  pending work requests in the operator's task app (Todoist or an equivalent),
-  proactively queue deferred or recurring items that surface mid-conversation,
-  and never build a second queue in chat transcripts, watched inbox folders, or
-  weekly progress docs.
+- [ ] **Keep the work-request backlog and handoff visibility in the task app**:
+  read and update pending work requests in the operator's task app (Todoist or
+  an equivalent), apply lane (`agy`, `agent`, `orchestrator-bot`,
+  `cloud-coding`) and status (`running`, `waiting`) labels, prefix titles with
+  the active lane or handoff chain (`[agy]`, `[agent→agy]`), record the
+  assignee, target PR or checkout path, progress notes, and done criteria in the
+  description, and complete (or comment the outcome on) finished items. Never
+  build a second queue in chat transcripts, watched inbox folders, or status
+  docs.
 - [ ] **Confirm heavy or consequential launches on a choice card**: propose the
   target lane (cloud versus local; `agy` versus `agent`) with a short reason,
   present a card that names the action (run with `agy`, run with `agent`, queue

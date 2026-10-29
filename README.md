@@ -30,8 +30,8 @@ Operators who:
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
   across actors, tools, and execution environments, defines who assigns work to
   whom over which named channel, sets the task app as the work-request queue of
-  record, and provides a pre-launch routing checklist that includes card-style
-  confirmation for heavy launches.
+  record with handoff visibility conventions, and provides a pre-launch routing
+  checklist that includes card-style confirmation for heavy launches.
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
   prepare a registered workstation, wire Grok Bot to Antigravity CLI (`agy`)
   and the local Cursor Agent CLI (`agent` or `cursor-agent`), structure
