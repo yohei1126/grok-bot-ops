@@ -27,10 +27,11 @@ Operators who:
   repositories, and storing secrets in 1Password.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
-  Antigravity (`agy` CLI and Remote Control), and the local workstation to stay
-  within plan pools, how to minimize cloud token spend, how to route and
-  saturate local workstation compute, and how to propose spend caps and
-  routine timing changes.
+  Antigravity (`agy` CLI and Remote Control), the local workstation, and
+  GitHub Actions CI to stay within plan pools, how to keep CI lean, how to
+  minimize cloud token spend, how to route and saturate local workstation
+  compute, and how to propose spend caps, lane shifts, and routine timing
+  changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
   across actors, tools, and execution environments, clarifies daily commander
   versus progress bot roles, defines who assigns work to whom over which named
@@ -51,10 +52,11 @@ Operators who:
   and the phase-batched wrapper scripts in
   [`scripts/README.md`](scripts/README.md)).
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
-  monthly ops cycle: review usage, routines, idle bots, rule drift, and
-  cross-bot practice; open the monthly-audit PR; after that PR merges, update
-  the operator's private shared assistant notes; tag one `YYMMDD` GitHub
-  Release for the cycle (not for mid-cycle PRs).
+  monthly ops cycle: review usage across LLM subscriptions and GitHub Actions,
+  routines, idle bots, rule drift, and cross-bot practice; open the
+  monthly-audit PR; after that PR merges, update the operator's private shared
+  assistant notes; tag one `YYMMDD` GitHub Release for the cycle (not for
+  mid-cycle PRs).
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) holds all contribution rules: how to
   propose changes by pull request, the English prose review every PR needs,
   and the generic-examples policy.

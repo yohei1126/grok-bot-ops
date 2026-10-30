@@ -1,8 +1,8 @@
 # Tooling surfaces, cost lanes, and spend controls
 
-Split work across four surfaces (Grok Bot, Cursor, Antigravity CLI (`agy`), and
-the local workstation) so usage stays within included plan pools and unexpected
-on-demand charges stay rare.
+Split work across five surfaces (Grok Bot, Cursor, Antigravity CLI (`agy`),
+the local workstation, and GitHub Actions) so usage stays within included plan
+pools and unexpected on-demand charges stay rare.
 
 Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
@@ -13,7 +13,7 @@ For the full cast, assignment channels, and job routing, see
 `agy` and `agent` handoff paths, parallel-writer controls, and card-style
 launch confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
 
-## 1. Split work across four surfaces and cost lanes
+## 1. Split work across five surfaces and cost lanes
 
 Route every task to the surface that fits its compute profile and authentication
 pool:
@@ -45,6 +45,12 @@ pool:
    local compute on the workstation so shared cloud LLM tokens are not burned
    on non-LLM compute, returning only short summaries, metrics, or output paths
    to Grok.
+5. **GitHub Actions (CI/CD and repository automation)**: runs pull request
+   checks, linters, automated tests, and deployment workflows. Workflow minutes
+   and artifact storage draw from metered account or organization allocations.
+   Keep CI lean and purpose-limited so automated checks protect merge quality
+   without wasting runner minutes or accumulating storage debt (see
+   [Keep GitHub Actions CI lean and prevent runner waste](#7-keep-github-actions-ci-lean-and-prevent-runner-waste)).
 
 ## 2. Match devices and execution environments to tool roles
 
@@ -89,6 +95,12 @@ before dispatching a batch of tasks:
   subscription-authenticated local workstation or Cursor cloud execution for
   quota-aligned work. Do not use API-key pay-as-you-go billing for routine
   documentation work unless the operator explicitly approves metered billing.
+- **Metered CI runner and storage allocations**: GitHub Actions workflow minutes
+  and artifact storage draw from separate metered account or organization
+  allocations. Review Actions usage alongside subscription LLM pools during
+  monthly reviews. Keep billing rules generic: never record included minute
+  quotas, runner rates, or account plan names in repository documentation (see
+  [Billing and usage trend](monthly-audit.md#1-billing-and-usage-trend)).
 - **Keep billing rules generic**: never state or invent subscription prices,
   dollar figures, or tier names in repository documentation, weekly progress
   docs, or status files (see
@@ -120,6 +132,9 @@ Align each task with its best cost lane to protect quotas:
 - Reserve Grok Bot for orchestration: short chats, connectors, status updates,
   and task handoffs. Keep heavy loops and unstructured media processing out of
   Grok conversation threads.
+- Protect GitHub Actions runner minute and storage pools with lean,
+  purpose-limited CI. Useful verification stays while redundant checks and
+  vanity jobs are pruned.
 
 ## 5. Minimize cloud token spend while maximizing useful outcomes
 
@@ -194,7 +209,38 @@ Follow these operational guidelines for local saturation:
   (`~/agy-work` or `~/agent-work`), and stop immediately on permission denials
   without widening permissions mid-run.
 
-## 7. Treat spend caps, lane shifts, and routine schedules as proposals
+## 7. Keep GitHub Actions CI lean and prevent runner waste
+
+GitHub Actions minutes and artifact storage draw from metered quotas on many
+plans, especially for private repositories and organization accounts. CI waste
+burns minutes without improving merge quality when workflows run broad
+matrices, duplicate lint passes, heavy unpinned actions, or noisy scheduled
+triggers.
+
+Review GitHub Actions as part of the same monthly cost review as LLM
+subscriptions. Apply these operational guidelines:
+
+- **Prefer lean, purpose-limited workflows**: for documentation repositories, a
+  single pinned Markdown lint job is enough unless tests, builds, or release
+  artifacts are required.
+- **Prefer event-driven triggers over scheduled CI**: trigger runs on pull
+  requests and pushes to `main`. Avoid frequent scheduled runs unless a
+  recurring operational need exists.
+- **Pin action versions**: reference explicit action release versions or full
+  commit SHAs to maintain predictable execution and avoid sudden failures.
+- **Filter paths to skip irrelevant runs**: configure path filters so
+  documentation edits skip code test suites when the platform supports path
+  filtering.
+- **Prune broad matrices and excess storage**: restrict build matrices to
+  active targets, and set short retention periods for workflow run artifacts.
+- **Do not invent plan details**: never record specific prices, included-minute
+  quotas, or product tier names in repository files.
+
+Keeping CI lean protects Actions pools the same way Flash `agy` and Cursor
+cloud routing protect LLM pools. Useful checks stay; vanity or duplicate jobs
+go.
+
+## 8. Treat spend caps, lane shifts, and routine schedules as proposals
 
 Propose routing and spend adjustments through a cost/ops bot or the
 [monthly audit](monthly-audit.md) instead of applying ad hoc changes mid-month
@@ -212,3 +258,5 @@ The operator decides which proposals to adopt:
 3. **Prefer event-driven or daytime routines**: schedule recurring routines for
    hours when the operator can act (such as weekday daytime) or trigger them on
    concrete events. Avoid overnight routines that accumulate unread output.
+4. **Prune redundant CI workflows**: propose leaner triggers, remove duplicate
+   lint passes, or tighten test matrices through the monthly audit.
