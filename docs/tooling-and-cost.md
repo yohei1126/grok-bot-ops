@@ -8,7 +8,7 @@ Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
-For the full cast, assignment channels, and the task-app queue of record, see
+For the full cast, assignment channels, and job routing, see
 [`cast-and-routing.md`](cast-and-routing.md). For workstation CLI setup,
 `agy` and `agent` handoff paths, parallel-writer controls, and card-style
 launch confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
@@ -20,9 +20,9 @@ pool:
 
 1. **Grok Bot**: owns the operator UI, mobile-friendly orchestration, external
    connectors (mail, calendar, collaborative docs suite, task app), scheduled
-   routines, and multi-bot coordination. Grok reads and updates the operator's
-   task app as the queue of record, defines the goal, guardrails, and success
-   criteria, and launches handoffs (see
+   routines, and multi-bot coordination. Grok queues human tasks in the task
+   app and agent jobs in the private job hub, defines the goal, guardrails, and
+   success criteria, and launches handoffs (see
    [`cast-and-routing.md`](cast-and-routing.md)). Keep chats short. Keep
    long machine learning loops, bulk regeneration loops, and large media
    understanding out of Grok token burn.

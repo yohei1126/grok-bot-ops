@@ -105,7 +105,7 @@ the same agent while that session continues (see
 
 Publishing rules for long-form articles are in
 [Publishing and long-form articles](#12-publishing-and-long-form-articles).
-Cast roles, assignment channels, and the task-app queue of record are in
+Cast roles, assignment channels, and job routing are in
 [`cast-and-routing.md`](cast-and-routing.md). Tooling cost lanes are in
 [`tooling-and-cost.md`](tooling-and-cost.md), and workstation CLI handoffs,
 one-writer parallel controls, and card-style launch confirmation are in
@@ -179,29 +179,35 @@ rollup. They are not the canonical source for the review.
   file so the progress bot stops aggregating it (see
   [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).
 
-## 10. Todos go in the task app, schedules in the calendar
+## 10. Human tasks in the task app, agent jobs in the private job hub, schedules in the calendar
 
-Keep todos and work requests in the operator's task app, and keep schedules in
-the calendar:
+Track human work in the operator's task app, bot work in a private job hub, and
+dates in the calendar:
 
-- **Task app as the todos and work-request source of truth**: the operator's
-  dedicated task app (Todoist or an equivalent) holds all todos and serves as
-  the queue of record for work requests.
-- **Proactive queueing over silent drops**: as the front door and orchestrator,
-  Grok Bot proactively proposes adding durable or deferred work to the task-app
-  queue of record, or adds it directly when the operator has already agreed to
-  that pattern. When a recurring or time-based item surfaces while the operator
-  is mid-conversation, Grok Bot queues it instead of letting the conversation
-  silently drop it.
+- **Human tasks in the task app**: the operator's dedicated task app (Todoist or
+  an equivalent) tracks human work only. Use it for operator chores, personal
+  reminders, and non-agent tasks. Do not put bot or agent job queues in the human
+  task app.
+- **Agent jobs in the private job hub**: bot and agent jobs use a private job hub
+  (such as a private operations repository with Issues and labels) for bot
+  assignments, launch triggers, status labels, and completion signals.
+- **Do not duplicate agent state**: keep agent job queues and run status inside
+  the private job hub. Do not duplicate agent job state into the human task app
+  unless the operator explicitly asks for a personal reminder about a human step
+  (for example, "approve this card").
+- **Proactive queueing over silent drops**: when a human follow-up surfaces
+  mid-conversation, Grok Bot proposes adding it to the human task app. When an
+  agent job surfaces, Grok Bot logs it in the private job hub instead of letting
+  the active conversation bury and silently drop it.
 - **Launch proposals and card confirmation for immediate work**: when work
   should run now, Grok Bot proposes launching on the matching lane (cloud versus
   local; `agy` versus `agent`) with a short reason, then waits for an
   operator-facing choice card (run with `agy`, run with `agent`, queue in the
-  task app, or cancel) unless standing permission or an explicit instruction to
-  run immediately covers that launch or send. Keep Auto-review Allow lists and
-  Antigravity `permissions.allow` entries narrow; the card is the launch gate
-  (see
-  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
+  private job hub, or cancel) unless standing permission or an explicit
+  instruction to run immediately covers that launch or send. Keep Auto-review
+  Allow lists and Antigravity `permissions.allow` entries narrow; the card is the
+  launch gate (see
+  [`cast-and-routing.md`](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)
   and
   [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
   For local approval prompt reduction and headless `agy -p` soft-deny handling,
@@ -211,22 +217,22 @@ the calendar:
   see [Prepare agy docs briefs without long Mac heredocs](workstation-handoffs.md#prepare-agy-docs-briefs-without-long-mac-heredocs).
   For images, short video, PDF, and messy-log understanding on `agy`, see
   [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload).
-- **Grok Bot dispatches from the task app**: Grok Bot reads and updates that
-  queue, serializes jobs that share a local checkout, and launches execution
-  handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and low-priority
-  bot-to-bot messages; see
-  [`cast-and-routing.md`](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)
+- **Grok Bot dispatches from the private job hub**: Grok Bot reads and updates
+  that queue, serializes jobs that share a local checkout, and launches
+  execution handoffs (`agy -p`, `agent -p`, fresh cloud coding agents, and
+  low-priority bot-to-bot messages; see
+  [`cast-and-routing.md`](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)
   and
   [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
-- **Handoff visibility in the task app**: label dispatched items with the lane
-  (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status (`running`,
-  `waiting`), prefix the title with the active lane or handoff chain (such as
-  `[agy]` or `[agent→agy]`), and record the assignee, target pull request or
-  checkout path, progress notes, and done criteria in the description. Mark the
-  item `running` on launch, `waiting` with the blocker when paused, and
-  complete (or commented with the outcome) on finish so the queue shows status
-  without chat archaeology (see
-  [Format task items so handoff ownership is visible at a glance](cast-and-routing.md#format-task-items-so-handoff-ownership-is-visible-at-a-glance)).
+- **Handoff visibility in the private job hub**: label dispatched items with the
+  lane (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status
+  (`running`, `waiting`), prefix the title with the active lane or handoff
+  chain (such as `[agy]` or `[agent→agy]`), and record the assignee, target pull
+  request or checkout path, progress notes, and done criteria in the
+  description. Mark the item `running` on launch, `waiting` with the blocker
+  when paused, and complete on finish so the queue shows status without chat
+  archaeology (see
+  [Format job items so handoff ownership is visible at a glance](cast-and-routing.md#format-job-items-so-handoff-ownership-is-visible-at-a-glance)).
 - **No second backlog**: do not maintain a parallel work-request queue in chat
   transcripts, watched inbox folders, weekly progress docs, or workspace status
   files. Those surfaces serve as execution channels or status summaries only.
@@ -275,13 +281,26 @@ source to plain Markdown:
 Keep repo and path examples generic. Do not point examples at one person's
 repositories.
 
-## 13. Issues and pull requests
+## 13. Issue-first coding and pull requests
 
-- Write issues and PRs in English.
-- Include full URLs for repos, docs, and related issues. Do not write "the doc
-  we talked about".
-- Make titles and bodies understandable without the sidebar chat context.
-- For pull requests to this repo, follow
+Open an Issue in the target repository before writing code or opening a pull
+request:
+
+- **Target-repo Issue first**: open an Issue in the target repository before
+  coding or opening a documentation pull request for that repository. Define the
+  goal, expected behavior, and constraints in the Issue.
+- **Link pull requests to target Issues**: reference the target-repo Issue in
+  the pull request description or title so review context remains connected.
+- **Job hub Issues do not replace target Issues**: Issues in the private job hub
+  track agent launches, dispatch queues, and worker run status. They do not
+  replace the Issue in the target repository for the code or documentation
+  change itself.
+- **Write in English**: write issues and PRs in English throughout.
+- **Include full URLs**: include full URLs for repos, docs, and related issues.
+  Do not write "the doc we talked about".
+- **Self-contained descriptions**: make titles and bodies understandable without
+  sidebar chat context.
+- **Contribution review**: for pull requests to this repo, follow
   [`CONTRIBUTING.md`](../CONTRIBUTING.md), including its required English
   prose review.
 
@@ -327,3 +346,52 @@ When a room or bot has finished its purpose:
 
 Do not leave idle bots around "just in case" unless they have a named owner
 and a next review date in the monthly audit.
+
+## 16. Prefer public repositories for reusable know-how and code
+
+Default to public repositories for generalized know-how, templates,
+documentation, and non-secret code:
+
+- **Public by default**: keep reusable conventions, operational guides, shared
+  skills, and general application code in public repositories. Public
+  repositories make conventions directly accessible to agents and collaborators
+  without extra token setup or credential plumbing.
+- **Private repositories by exception**: use private repositories only when
+  content is personal, secret-bearing, or install-specific. Examples include
+  credential storage, personal access tokens, tunnel identifiers, local machine
+  paths, and private job hub wiring.
+- **Public repositories are not personal job stores**: public repositories must
+  never become the source of truth for personal job queues or secret values.
+  Keep personal job queues, launch triggers, and private operational state inside
+  the private job hub. Store secret values in 1Password (see
+  [1Password is the source of truth for secrets](#18-1password-is-the-source-of-truth-for-secrets)).
+
+## 17. Archive unused repositories
+
+Archive repositories that are no longer active rather than leaving them as idle
+defaults:
+
+- **Archive over idle defaults**: when a repository is no longer actively
+  maintained or referenced, mark it archived in GitHub repository settings.
+- **Prevent operator and agent confusion**: leaving dead repositories active
+  confuses search results and leads agents to propose changes in abandoned
+  locations.
+- **Document the replacement**: before archiving, record a short pointer in the
+  README to the active replacement repository or shared durable notes if one
+  exists.
+
+## 18. 1Password is the source of truth for secrets
+
+Store API keys, tokens, and other secret values in 1Password. Deploy-time and
+runtime reads come from that vault.
+
+- **1Password holds the secret values**: treat 1Password as the source of truth.
+  Do not paste secret values into docs, issues, pull requests, or chat.
+- **Cloudflare Worker secrets are injected at deploy time**: when deploying a
+  Worker, inject secrets from the 1Password source of truth into the Worker
+  secret store. Leave those values out of the repository.
+- **Committed `.env` files hold non-secret config only**: a `.env` file that is
+  committed may contain only values that are safe in git, such as public URLs
+  and feature flags.
+- **`.env.example` is placeholders only**: list variable names and placeholder
+  values in `.env.example` so operators know what to set locally.

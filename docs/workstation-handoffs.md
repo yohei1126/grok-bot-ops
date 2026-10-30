@@ -10,7 +10,8 @@ coding agent, and shared durable notes.
 
 For surface cost lanes and spend caps, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For commander scope, assignment
-channels, event-driven completion, and the task-app queue of record, see
+channels, event-driven completion, and human-task versus private-job-hub
+routing, see
 [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
 confirmation over growing Allow lists (see
 [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
@@ -170,8 +171,8 @@ desk and wants to supervise tool calls in real time:
 ### Path C: drop a task file into a watched inbox folder
 
 Use a watched inbox folder as a local transport spool when Grok Bot dispatches
-an already-queued work request from the task app without holding a synchronous
-shell session open:
+an already-queued agent job from the private job hub without holding a
+synchronous shell session open:
 
 1. Grok Bot writes a brief into a watched directory on the workstation, such as
    `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or `cursor-inbox`).
@@ -181,7 +182,7 @@ shell session open:
    pipes the file into `agy -p` or `agent -p`, writes the log to
    `out/task-YYYYMMDD-HHMM.log`, and archives the brief under `done/`.
 4. Grok Bot reads the short output summary or exit status on a later pass and
-   updates the item in the task app.
+   updates the item in the private job hub.
 
 ## 3. Structure self-contained handoff briefs and keep secrets out of `argv`
 
@@ -210,8 +211,11 @@ Include four required sections in every handoff brief:
 Keep secrets out of command arguments (`argv`): never pass API keys, tokens, or
 private URLs inline inside `agy -p "..."` or `agent -p "..."`, because arguments
 appear in local process tables (`ps`) and shell history. Load secrets from
-workstation environment variables or local secret stores, and pass sensitive or
-long briefs over standard input or through a local file with `0600` permissions.
+workstation environment variables or a local secret store. 1Password is the
+source of truth for secret values (see
+[1Password is the source of truth for secrets](shared-rules.md#18-1password-is-the-source-of-truth-for-secrets)).
+Pass sensitive or long briefs over standard input or through a local file with
+`0600` permissions.
 
 ### Issue one command per tool call in headless CLI handoffs
 
@@ -269,10 +273,10 @@ git worktree add ~/agy-work/<repo>-topic-b -b docs/topic-b main
 
 Use four operational controls to keep parallel runs from colliding:
 
-1. **Queue of record (task app)**: serialize jobs that share a checkout or
-   branch in the operator's task app, and mark the active job in progress before
+1. **Queue of record (private job hub)**: serialize jobs that share a checkout or
+   branch in the private job hub, and mark the active job in progress before
    launching the worker (see
-   [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+   [Track human tasks in the task app and agent jobs in a private job hub](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)).
    Hold follow-up jobs for that checkout in the queue until the current writer
    exits.
 2. **Grok orchestrator pre-launch PID and lock check**: before launching a
@@ -337,7 +341,7 @@ short card naming the deliverable, proposed lane, and one-sentence reason:
 
 - run with `agy`
 - run with `agent` (or `cursor-agent`)
-- queue in the task app
+- queue an agent job in the private job hub, or a human task in the task app
 - cancel
 
 ### Keep Allow lists narrow
@@ -353,9 +357,10 @@ directory, and purchases.
 1. Propose the matching lane and a short reason.
 2. Wait for the operator to pick on the card (or cancel).
 3. Launch only after that pick, unless standing permission covers that class.
-4. For durable or deferred work that surfaces mid-conversation, queue it in the
-   task app instead of starting silently (see
-   [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+4. For durable or deferred work that surfaces mid-conversation, queue human
+   tasks in the task app and agent jobs in the private job hub instead of
+   starting silently (see
+   [Track human tasks in the task app and agent jobs in a private job hub](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)).
 
 Choice cards decide whether to start. Scoped permissions and checkout locks
 still apply during execution.
