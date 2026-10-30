@@ -68,7 +68,13 @@ before dispatching a batch of tasks:
 - **Separate Google or Gemini lane**: Antigravity CLI (`agy`) authenticates
   through a separate Google or Gemini lane. When the shared Grok or Cursor pool
   is tight, shift eligible documentation updates, prose reviews, and lighter
-  repository tasks to `agy`. Prefer `agy` for **unstructured and multimodal** understanding (images,
+  repository tasks to `agy`. Prefer `agy` (defaulting to Gemini 3.8 Flash,
+  `gemini-3.8-flash-medium`) for docs drafting and review; Grok drafting docs is
+  an exception-only fallback (see
+  [Default agy model](workstation-handoffs.md#default-agy-model-gemini-38-flash)
+  and
+  [Prefer agy for docs; Grok draft exception-only](workstation-handoffs.md#prefer-agy-for-docs-grok-draft-exception-only)).
+  Prefer `agy` for **unstructured and multimodal** understanding (images,
   short video, PDF, long messy logs) so Grok Bot only routes paths and returns
   a short summary (see
   [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload)).

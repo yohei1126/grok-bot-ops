@@ -35,8 +35,9 @@ Operators who:
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
   prepare a registered workstation, enforce fixed checkout roots (`~/agy-work`
   for `agy` and `~/agent-work` for local `agent`) and cloud-versus-local coding
-  routing, wire Grok Bot to Antigravity CLI (`agy`) and the local Cursor Agent
-  CLI (`agent` or `cursor-agent`), structure self-contained briefs, enforce
+  routing, wire Grok Bot to Antigravity CLI (`agy`, defaulting to Gemini 3.8
+  Flash with Grok docs drafting exception-only) and the local Cursor Agent CLI
+  (`agent` or `cursor-agent`), structure self-contained briefs, enforce
   one-writer parallel-execution controls, and prefer operator-facing choice
   cards over growing fine-grained Allow lists (including
   [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts),
