@@ -1,7 +1,7 @@
 # Cast roles, assignment channels, and work-request routing
 
-Route every work request from the task-app queue of record through a named
-channel to the actor and surface built for that job.
+Route human work requests from the task app and bot jobs from the private job hub
+through a named channel to the actor and surface built for that job.
 
 Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
@@ -64,11 +64,12 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
 1. **Grok Bot**: owns the operator UI, mobile-friendly orchestration, external
    connectors (mail, calendar, collaborative docs suite, task app), multi-bot
    coordination, and scheduled routines. As the front door and orchestrator,
-   Grok proactively queues durable or deferred work in the operator's task app,
-   proposes the matching execution lane for immediate work, owns the goal,
-   guardrails, and success criteria, and launches approved handoffs (`agy -p`,
-   `agent -p`, cloud coding agents, and bot-to-bot messages; see
-   [Keep the work-request queue of record in the task app](#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+   Grok proactively queues human tasks in the operator's task app, records bot
+   jobs in the private job hub, proposes the matching execution lane for
+   immediate work, owns the goal, guardrails, and success criteria, and launches
+   approved handoffs (`agy -p`, `agent -p`, cloud coding agents, and bot-to-bot
+   messages; see
+   [Track human tasks in the task app and agent jobs in a private job hub](#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)).
    Keep long machine learning runs, large PDF comparison loops, and bulk
    regeneration loops out of Grok.
 2. **Cursor cloud coding agents and local `agent` (plus Cursor IDE)**: own
@@ -98,21 +99,27 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
    inter-bot coordination, and short research queries. Keep GPU-heavy workloads
    and long iterative compute loops off the Grok box.
 
-## 3. Keep the work-request queue of record in the task app
+## 3. Track human tasks in the task app and agent jobs in a private job hub
 
-Use the operator's dedicated task app (Todoist or an equivalent) as the single
-queue of record for todos and work requests, while the calendar remains the
-schedule source of truth (see
-[Todos go in the task app, schedules in the calendar](shared-rules.md#10-todos-go-in-the-task-app-schedules-in-the-calendar)):
+Keep human work in the operator's task app and agent jobs in a private job hub,
+while the calendar remains the schedule source of truth (see
+[Human tasks in the task app, agent jobs in the private job hub, schedules in the calendar](shared-rules.md#10-human-tasks-in-the-task-app-agent-jobs-in-the-private-job-hub-schedules-in-the-calendar)):
 
-- **Proactively queue durable or deferred work**: as the front door and
-  orchestrator, Grok Bot proactively proposes adding durable follow-ups or
-  deferred work to the task-app queue of record (Todoist or an equivalent), or
-  adds the item directly when the operator has already agreed to that pattern.
-- **Prefer queueing over silent drops mid-conversation**: when a recurring or
-  time-based item surfaces while the operator is mid-conversation on another
-  topic, Grok Bot queues it in the task app (or records fixed times in the
-  calendar) instead of letting the active thread bury and silently drop it.
+- **Human task manager for human work only**: the operator's dedicated task app
+  (Todoist or an equivalent) tracks human work only. Use it for operator
+  chores, personal reminders, and non-agent tasks. Do not put bot or agent job
+  queues in the human task app.
+- **Private job hub for bot and agent jobs**: bot and agent jobs use a private
+  job hub (such as a private operations repository with Issues and labels) for
+  bot assignments, launch triggers, status labels, and completion signals.
+- **Do not duplicate agent state into the human task app**: keep agent job queues
+  and status inside the private job hub. Do not duplicate agent job state into
+  the human task app unless the operator explicitly asks for a personal reminder
+  about a human step (for example, "approve this card").
+- **Proactively queue durable or deferred work**: when a human follow-up
+  surfaces mid-conversation, Grok Bot proposes adding it to the human task app.
+  When an agent job surfaces, Grok Bot logs it in the private job hub instead of
+  letting the active conversation bury and silently drop it.
 - **Propose the matching lane for immediate work**: when work should run now,
   Grok Bot proposes launching on the matching lane (cloud coding agent versus
   local workstation; `agy` versus `agent`) with a short reason, such as
@@ -121,17 +128,17 @@ schedule source of truth (see
 - **Confirm on a choice card before starting heavy or consequential jobs**:
   prefer an operator-facing choice card (or equivalent one-tap confirmation)
   that names the lane and action: run with `agy`, run with `agent`, queue in
-  the task app, or cancel. Grok Bot does not start heavy compute, multi-file
-  refactors, external sends, or other consequential jobs until the operator
-  picks, unless standing permission or an explicit instruction to run
+  the private job hub, or cancel. Grok Bot does not start heavy compute,
+  multi-file refactors, external sends, or other consequential jobs until the
+  operator picks, unless standing permission or an explicit instruction to run
   immediately covers that launch or send. Keep Auto-review Allow lists and
   Antigravity `permissions.allow` narrow. The choice card is the launch gate
   (see
   [Prefer card-style launch confirmation](workstation-handoffs.md#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
-- **Grok Bot dispatches from the task app**: Grok Bot reads pending work
-  requests from the task app, marks the active item `running` with the active
-  lane, serializes jobs that touch the same local checkout, and launches the
-  matching handoff (`agy -p`, `agent -p`, cloud coding agents, or bot-to-bot
+- **Grok Bot dispatches from the private job hub**: Grok Bot reads pending
+  agent jobs from the private job hub, marks the active item `running` with the
+  active lane, serializes jobs that touch the same local checkout, and launches
+  the matching handoff (`agy -p`, `agent -p`, cloud coding agents, or bot-to-bot
   messages).
 - **Do not create a second backlog**: never maintain a parallel work-request
   queue in chat transcripts, watched inbox folders (`/path/to/agy-inbox/` or
@@ -139,19 +146,20 @@ schedule source of truth (see
   files. Watched inbox folders are transport spools for already-dispatched
   tasks, and progress docs or status files are summaries only.
 
-### Format task items so handoff ownership is visible at a glance
+### Format job items so handoff ownership is visible at a glance
 
-Apply a consistent visibility convention to every dispatched task-app item so
-the operator can see who was asked to do what without keeping a second backlog:
+Apply a consistent visibility convention to every dispatched item in the private
+job hub so the operator can see who was asked to do what without keeping a second
+backlog:
 
 - **Labels for lane and status**: attach a lane label (such as `agy`, `agent`,
   `orchestrator-bot`, or `cloud-coding`) and a status label (`running` or
   `waiting`).
-- **Title prefix for the active lane and handoff chain**: prefix the task title
+- **Title prefix for the active lane and handoff chain**: prefix the job title
   with the active execution lane, and show the handoff chain when work moves
-  across workers (for example, `[agy] Document task-app visibility rules` or
+  across workers (for example, `[agy] Document job hub visibility rules` or
   `[agent→agy] Refresh routing docs after CLI verification`).
-- **Structured description fields**: keep four fields in the task description:
+- **Structured description fields**: keep four fields in the job description:
   1. **Assignee and lane**: which bot or worker owns the current step.
   2. **Target pull request or checkout path**: generic placeholders until bound,
      such as `https://github.com/org/repo/pull/N` or `~/agy-work/<repo>` (or
@@ -160,10 +168,10 @@ the operator can see who was asked to do what without keeping a second backlog:
   4. **Done criteria**: the verification check and expected deliverable (such as
      lint passing and the pull request updated without merging).
 
-Example task-app entry during a handoff:
+Example private job hub entry during a handoff:
 
 ```text
-Title: [agent→agy] Document task-app visibility rules
+Title: [agent→agy] Document job hub visibility rules
 Labels: agy, running
 Description:
 - Assignee / lane: agy (document lane on registered workstation)
@@ -172,21 +180,22 @@ Description:
 - Done criteria: docs updated, <= 500 lines per file, markdownlint clean, PR body refreshed
 ```
 
-### Update task state on launch, block, and finish
+### Update job state on launch, block, and finish
 
-Update the task-app item at each transition so the queue shows live status and
-completion without chat archaeology:
+Update the private job hub item at each transition so the queue shows live
+status and completion without chat archaeology:
 
 1. **On launch**: apply the lane label and `running`, add or update the lane
    title prefix (including any `worker-a→worker-b` handoff chain), and record
    who is running what in the description before or as the worker starts.
 2. **On block or wait**: switch the status label from `running` to `waiting` and
-   record the specific blocker in the task description or a comment (such as
+   record the specific blocker in the description or an Issue comment (such as
    waiting on an operator choice-card pick, a soft-denied CLI permission, or
    another writer holding `.agy-write.lock`).
-3. **On finish**: complete the task in the task app (or post a short outcome
-   comment with the pull request URL or commit hash and then complete the item)
-   so the operator sees completion in the queue without reading chat logs.
+3. **On finish**: close the Issue or mark the job complete in the private job hub
+   (or post a short outcome comment with the pull request URL or commit hash and
+   then close the item) so the operator sees completion in the queue without
+   reading chat logs.
 
 ## 4. Map who assigns work to whom and over which channel
 
@@ -227,8 +236,8 @@ Follow these channel rules on every handoff:
   as a primary handoff path.
 - **Inbox file + LaunchAgent/cron**: drop a self-contained brief file into a
   watched workstation directory (`/path/to/agy-inbox/` or
-  `/path/to/cursor-inbox/`) when Grok dispatches a task-app item without holding
-  an interactive shell open.
+  `/path/to/cursor-inbox/`) when Grok dispatches a private job hub item without
+  holding an interactive shell open.
 - **Cloud agent launch / PR thread**: start a fresh Cursor cloud coding agent
   per pull request or isolated coding task, and keep code review and follow-up
   fixes anchored to the pull request thread.

@@ -10,7 +10,7 @@ coding agent, and shared durable notes.
 
 For surface cost lanes and spend caps, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For cast roles, assignment
-channels, and the task-app queue of record, see
+channels, and job routing, see
 [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
 confirmation over growing Allow lists (see
 [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
@@ -269,10 +269,10 @@ git worktree add ~/agy-work/<repo>-topic-b -b docs/topic-b main
 
 Use four operational controls to keep parallel runs from colliding:
 
-1. **Queue of record (task app)**: serialize jobs that share a checkout or
-   branch in the operator's task app, and mark the active job in progress before
+1. **Queue of record (private job hub)**: serialize jobs that share a checkout or
+   branch in the private job hub, and mark the active job in progress before
    launching the worker (see
-   [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+   [Track human tasks in the task app and agent jobs in a private job hub](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)).
    Hold follow-up jobs for that checkout in the queue until the current writer
    exits.
 2. **Grok orchestrator pre-launch PID and lock check**: before launching a
@@ -353,9 +353,10 @@ directory, and purchases.
 1. Propose the matching lane and a short reason.
 2. Wait for the operator to pick on the card (or cancel).
 3. Launch only after that pick, unless standing permission covers that class.
-4. For durable or deferred work that surfaces mid-conversation, queue it in the
-   task app instead of starting silently (see
-   [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
+4. For durable or deferred work that surfaces mid-conversation, queue human
+   tasks in the task app and agent jobs in the private job hub instead of
+   starting silently (see
+   [Track human tasks in the task app and agent jobs in a private job hub](cast-and-routing.md#3-track-human-tasks-in-the-task-app-and-agent-jobs-in-a-private-job-hub)).
 
 Choice cards decide whether to start. Scoped permissions and checkout locks
 still apply during execution.

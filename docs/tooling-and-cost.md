@@ -8,7 +8,7 @@ Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
-For the full cast, assignment channels, and the task-app queue of record, see
+For the full cast, assignment channels, and job routing, see
 [`cast-and-routing.md`](cast-and-routing.md). For workstation CLI setup,
 `agy` and `agent` handoff paths, parallel-writer controls, and card-style
 launch confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
