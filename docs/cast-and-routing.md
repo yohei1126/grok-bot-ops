@@ -81,13 +81,14 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
    `~/agent-work/<repo>` (`mkdir -p ~/agent-work`; never `~/work/...`).
 3. **Antigravity (`agy` and Remote Control)**: owns document drafting,
    repository documentation updates, and lighter repository tasks that belong on
-   the Google or Gemini authentication lane. Keep all local `agy` checkouts
-   strictly under `~/agy-work/<repo>` (never `~/work/...`; see
+   the Google or Gemini authentication lane. Prefer `agy` (defaulting to
+   Gemini 3.8 Flash) whenever that lane has quota. Keep all local `agy`
+   checkouts strictly under `~/agy-work/<repo>` (never `~/work/...`; see
    [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
-4. **Local workstation hardware**: runs machine learning training, local model
-   inference, heavy generation or comparison batches, local test suites, and
-   local CLI workers (`agy` and `agent`). Enforce the one-writer rule across
-   local checkouts (see
+4. **Local workstation hardware**: runs Apple Silicon Metal and MPS workloads,
+   local model inference, non-training heavy batches (video, audio, data
+   transforms, container builds), local test suites, and local CLI workers
+   (`agy` and `agent`). Enforce the one-writer rule across local checkouts (see
    [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts))
    and return only short summaries, metrics, or output paths to Grok.
 5. **Phone**: handles short instructions, triage, and human approvals. Do not
