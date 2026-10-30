@@ -81,6 +81,18 @@ and
   drafting, repository documentation updates, and prose reviews on the Google
   or Gemini authentication lane.
 
+### Prefer agy for docs; Grok draft exception-only
+
+Prefer Antigravity CLI (`agy`) for repository document writing and review
+whenever credits or quota are available.
+
+Drafting documentation in Grok Bot is an exception-only fallback. Use Grok
+drafts only after an `agy` soft-deny or a `RESOURCE_EXHAUSTED` (429) quota
+failure, and only with explicit operator approval. Never fall back to Grok docs
+drafting silently. When Grok prepares briefs for `agy`, keep the standard
+safety rules: card confirmation before launch, one `argv`-style command per
+tool call, and soft-deny stop-and-report without widening permissions mid-run.
+
 ## 2. Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI
 
 Select the workstation handoff path that matches how much live supervision the
@@ -115,32 +127,38 @@ cd ~/agent-work/<repo> && agent -p < /path/to/cursor-inbox/current-brief.txt
 
 Useful flags from `agy --help` for scripted runs:
 
-- `-p` or `--print`: run a single prompt non-interactively and print the
-  response.
-- `--project <project>` and `--add-dir <dir>`: scope the session to a project
-  or attach extra workspace directories.
-- `--mode <mode>`: set the execution mode (`accept-edits`, `auto`, or `plan`)
-  for the session.
-- `--model <model>` and `--effort <level>`: select the model and reasoning
-  effort (`low`, `medium`, `high`, `xhigh`, `max`).
-- `--print-timeout <duration>`: set a maximum runtime so a stalled command does
-  not block the caller indefinitely.
-- `--output-format <format>`: emit `text`, `json`, or `stream-json` when a
-  local wrapper parses the result.
+- `-p` or `--print`: run a single prompt non-interactively and print the response.
+- `--project <project>` and `--add-dir <dir>`: scope the session or attach extra directories.
+- `--mode <mode>`: set execution mode (`accept-edits`, `auto`, or `plan`).
+- `--model <model>` and `--effort <level>`: select the model and reasoning effort.
+- `--print-timeout <duration>`: set a maximum runtime.
+- `--output-format <format>`: emit `text`, `json`, or `stream-json`.
 - `--sandbox`: enable terminal restrictions for tightly scoped tasks.
 
 Prefer scoped `permissions.allow` rules in settings over
 `--dangerously-skip-permissions`. Test a new workflow once and add narrow allow
 rules for the exact tools it requires.
 
+### Default agy model (Gemini 3.8 Flash)
+
+Default interactive and headless `agy` documentation launches to **Gemini 3.8
+Flash** (`gemini-3.8-flash-medium`) unless the operator explicitly specifies
+another model.
+
+Larger models exhaust Antigravity Individual quota and trigger HTTP 429
+(`RESOURCE_EXHAUSTED`) much faster on iterative documentation passes. When
+Grok Bot or an operator needs an alternate model, pass it through
+[`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) as the 4th
+argument or via `AGY_DOCS_MODEL` (or `AGY_MODEL`). Do not bypass the wrapper to
+craft raw, multi-flag Mac `agy ... --model` commands.
+
 ### Path B: draft the brief in Grok and paste it into Remote Control
 
 Use the Remote Control web UI when the operator is on a phone or away from the
 desk and wants to supervise tool calls in real time:
 
-1. Start the background daemon on the workstation with
-   `agy remote-control start`, or open a single session with
-   `agy --remote-control` (or `/remote-control` inside the TUI).
+1. Start the background daemon on the workstation with `agy remote-control start`,
+   or open a single session with `agy --remote-control` (or `/remote-control`).
 2. Ask the responsible Grok Bot to draft a self-contained brief in chat.
 3. Open the Antigravity Remote Control web UI, paste the brief, and approve or
    reject edits and shell commands as they appear.
@@ -151,19 +169,15 @@ Use a watched inbox folder as a local transport spool when Grok Bot dispatches
 an already-queued work request from the task app without holding a synchronous
 shell session open:
 
-1. Grok Bot reads the work request from the task app and writes a plain-text or
-   Markdown brief into a watched directory on the workstation, such as
-   `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or
-   `/path/to/cursor-inbox/task-YYYYMMDD-HHMM.md`).
+1. Grok Bot writes a brief into a watched directory on the workstation, such as
+   `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or `cursor-inbox`).
 2. A macOS `LaunchAgent` (`WatchPaths`) or `cron` entry invokes a local wrapper
    script whenever a new file lands in the inbox folder.
-3. The wrapper moves the file into `processing/` first so a second trigger
-   cannot pick up the same file, pipes the file contents into `agy -p` or
-   `agent -p`, writes the log to `out/task-YYYYMMDD-HHMM.log`, and archives the
-   brief under `done/`.
+3. The wrapper moves the file into `processing/` first to prevent double runs,
+   pipes the file into `agy -p` or `agent -p`, writes the log to
+   `out/task-YYYYMMDD-HHMM.log`, and archives the brief under `done/`.
 4. Grok Bot reads the short output summary or exit status on a later pass and
-   updates the item in the task app. Do not store unscheduled backlog items in
-   the watched inbox folder.
+   updates the item in the task app.
 
 ## 3. Structure self-contained handoff briefs and keep secrets out of `argv`
 
@@ -174,8 +188,7 @@ public documentation.
 
 Include four required sections in every handoff brief:
 
-- **Goal**: one sentence naming the deliverable (for example, updating a
-  specific guide section or fixing a failing test).
+- **Goal**: one sentence naming the deliverable.
 - **Target paths, branch, and merge policy**: the absolute repository checkout
   path under the fixed root (`~/agy-work/<repo>` for `agy` or
   `~/agent-work/<repo>` for `agent`; never `~/work/...`), which branch or pull
@@ -205,15 +218,9 @@ prefix and soft-deny compound shell lines that contain `&&`, `||`, `;`, `|`,
 
 Split verification, git, and pull request steps into separate tool calls using
 commands already in the workstation allow list (see
-[Headless agy soft-deny handling](#headless-agy-soft-deny-handling)):
-
-1. `wc -l docs/workstation-handoffs.md`
-2. `git status`
-3. `git diff`
-4. `git add docs/workstation-handoffs.md`
-5. `git commit -m "Docs: explain single-command headless calls"`
-6. `git push -u origin docs/topic-branch`
-7. `gh pr create --draft --title "..." --body "..."`
+[Headless agy soft-deny handling](#headless-agy-soft-deny-handling)): `wc -l`,
+`git status`, `git diff`, `git add`, `git commit`, `git push`, and
+`gh pr create --draft`.
 
 ## 4. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
@@ -268,20 +275,10 @@ Use four operational controls to keep parallel runs from colliding:
    writer, Grok Bot (or the local wrapper script) checks the target checkout
    (`~/agy-work/<repo>` or `~/agent-work/<repo>`) for a running writer process
    ID (PID) or lock file. Use a simple lock convention such as
-   `~/agy-work/<repo>/.agy-write.lock` recording the writer `pid`, `tool`,
-   `branch`, `started_at`, and `purpose`:
-
-   ```text
-   pid=48210
-   tool=agy
-   branch=docs/topic-a
-   started_at=2026-10-29T16:50:00Z
-   purpose=Update routing section in docs/cast-and-routing.md
-   ```
-
-   Ignore `.agy-write.lock` in `.git/info/exclude` (or the workstation's global
-   git ignore file) so the lock file never dirties `git status`, and remove the
-   lock file when the writer finishes.
+   `~/agy-work/<repo>/.agy-write.lock` recording `pid`, `tool`, `branch`,
+   `started_at`, and `purpose`. Ignore `.agy-write.lock` in `.git/info/exclude`
+   (or global gitignore) so it never dirties git status, and remove it when the
+   writer finishes.
 3. **Scoped Antigravity and Cursor permissions**: keep headless
    `permissions.allow` rules in Antigravity CLI and command allow-lists in
    Cursor scoped to the target workspace and required commands so a runaway
@@ -293,44 +290,33 @@ Use four operational controls to keep parallel runs from colliding:
 
 ### Failure modes to watch for
 
-Running concurrent writers on the same branch or working tree causes four
-predictable failure modes:
-
-- **Two pull requests or jobs fighting on one branch**: parallel writers
-  overwrite each other's file edits, stage mixed hunks, or push conflicting
-  commits to the same branch.
-- **Dirty working tree**: uncommitted files or an interrupted merge left behind
-  by one writer cause the next writer to fail branch checks, abort rebases, or
-  commit unintended changes.
-- **Lost commits**: overlapping branch switches, resets, or force updates strand
-  commits on detached HEAD states or overwrite local branch refs.
-- **Duplicate pull request noise**: two workers dispatched for the same or
-  overlapping tasks open competing pull requests or post contradictory updates
-  to the same pull request thread.
+Concurrent writers on the same branch or working tree cause four predictable
+failure modes: branches fighting over conflicting commits, dirty working trees
+blocking rebases, commits lost to detached HEAD resets, and duplicate pull
+request noise.
 
 ## 5. Avoid common orchestration anti-patterns
 
 Reject fragile shortcuts that bypass tool isolation or human review:
 
 - **Do not browser-automate the Remote Control UI**: driving the Remote Control
-  web interface with a browser automation agent breaks whenever the web UI
-  changes. Use Path A (`agy -p`) or Path C (`/path/to/agy-inbox/`) for automated
-  runs, and keep Remote Control (Path B) for a human operator.
+  web interface with a browser automation agent breaks when the UI changes.
+  Use Path A (`agy -p`) or Path C (`/path/to/agy-inbox/`) for automated runs,
+  and keep Remote Control (Path B) for a human operator.
 - **Do not launch heavy jobs from the phone**: mobile chats are for short
   prompts, triage, and approvals. Start long builds, batch evaluations, and
   multi-file refactors on the workstation where power, network, and logs are
   stable.
 - **Do not keep machine learning or bulk regeneration loops inside Grok Bot**:
   iterative training, large document comparisons, and repeated generation loops
-  consume shared cloud tokens rapidly. Run those loops on the local workstation
-  and send only final metrics or output paths back to Grok.
+  consume shared cloud tokens rapidly. Run those loops on the workstation and
+  send only final metrics or output paths back to Grok.
 - **Do not treat `--dangerously-skip-permissions` as a default**: bypassing all
   permission checks in `agy` or `agent` removes safety boundaries for shell
   commands and file deletions. Use scoped allow rules and review them during the
   [monthly ops audit](monthly-audit.md#1-billing-and-usage-trend).
 - **Do not grow fine-grained Allow lists as the primary launch gate**: adding a
-  new Auto-review Allow rule or Antigravity `permissions.allow` entry for every
-  command that might run next week is brittle and over-broad. Prefer an
+  new Allow rule for every upcoming command is brittle. Prefer an
   operator-facing choice card (see
   [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 
@@ -343,57 +329,32 @@ every new command is a weak primary control.
 ### Prefer a named choice card
 
 When Grok Bot (or another orchestrator) is ready to start local work, present a
-short card that names the lane and the action. Typical choices:
+short card naming the deliverable, proposed lane, and one-sentence reason:
 
 - run with `agy`
 - run with `agent` (or `cursor-agent`)
 - queue in the task app
 - cancel
 
-Keep the card copy short: the deliverable in one line, the proposed lane, and a
-one-sentence reason (for example, documentation on the Google or Gemini lane, or
-repository coding on a fresh local branch).
-
 ### Keep Allow lists narrow
 
 Treat Auto-review Allow lists and Antigravity `permissions.allow` as a narrow
 safety net for unattended tools the operator already trusts in that workspace.
-Leave launch-class decisions on the choice card.
-
-Keep Ask-first (or equivalent interactive confirmation) for:
-
-- destructive git operations
-- external sends (mail, chat, or public posts)
-- deletes outside the project directory
-- purchases or other spend actions
+Leave launch-class decisions on the choice card. Keep Ask-first confirmation
+for destructive git operations, external sends, deletes outside the project
+directory, and purchases.
 
 ### Orchestrator flow: propose, pick, then launch
 
 1. Propose the matching lane and a short reason.
 2. Wait for the operator to pick on the card (or cancel).
-3. Launch only after that pick, unless standing permission already covers that
-   class of job.
+3. Launch only after that pick, unless standing permission covers that class.
 4. For durable or deferred work that surfaces mid-conversation, queue it in the
-   task app instead of starting silently or dropping it (see
+   task app instead of starting silently (see
    [Keep the work-request queue of record in the task app](cast-and-routing.md#3-keep-the-work-request-queue-of-record-in-the-task-app)).
 
-Heavy jobs wait for the card pick. Standing permission may cover a narrow,
-repeatable class (for example, a routine that always queues a status pass). It
-does not mean every shell command is pre-approved forever.
-
-### Cards gate start; checkout locks still apply
-
-Choice cards decide *whether* to start. CLI-side controls still bound the run:
-
-- scoped `permissions.allow` and directory-scoped execution approvals still
-  limit what a running worker may do
-- the one-writer-per-checkout rule and `.agy-write.lock` checks still serialize
-  writers on a shared tree (see
-  [Control parallel `agy` and `agent` runs](#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts))
-
-After the operator picks a lane on the card, run the usual pre-launch PID or
-lock check, then start Path A, B, or C from
-[Wire Grok Bot to Antigravity CLI and local Cursor Agent CLI](#2-wire-grok-bot-to-antigravity-cli-and-local-cursor-agent-cli).
+Choice cards decide whether to start. Scoped permissions and checkout locks
+still apply during execution.
 
 ### Reduce local approval prompts
 
@@ -403,38 +364,37 @@ registered `machineId` can trigger a Grok local-execution approval card, even
 when Antigravity CLI (`agy`) already has `permissions.allow` and
 `trustedWorkspaces` configured on the workstation.
 
-Cut prompt volume by batching Grok-side workstation calls instead of widening
-allow rules:
+Configure Grok local execution and batch workstation calls to reduce prompt churn:
 
-- **Batch workstation side effects by phase**: combine pre-launch status checks,
-  allowed brief writes, worker launch, and the initial log smoke-check into as
-  few workstation `Shell` invocations as practical (ideally one per phase:
-  `prepare`, `launch`, and `collect-result`). Avoid running a chain of separate
-  `pgrep`, `cat`, or `gh` commands that each raise a separate approval card. For
-  `agy` documentation runs, call
-  [`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) in one `Shell`
-  call to start the worker and
-  [`scripts/agy-docs-collect.sh`](../scripts/agy-docs-collect.sh) in one
-  follow-up `Shell` call to inspect PID state, git status, open pull requests,
-  and log tails (see [`scripts/README.md`](../scripts/README.md)):
+- **Narrow Allow for fixed checkout roots**: prefer a narrow Allow rule for Grok
+  local execution scoped strictly to `~/agy-work` (and `~/agent-work` when local
+  agent runs are used). Scoping to these roots lets routine status checks, brief
+  file copies, script launches, and log reads proceed without raising an
+  approval card on every call.
+- **Keep Ask-first for sensitive operations**: never expand Allow to arbitrary
+  local `Shell` commands or "always allow everything". Retain Ask-first
+  confirmation for destructive git operations, external sends, deletes outside
+  the project directory, and purchases. This Grok approval policy remains
+  separate from Antigravity `permissions.allow` and headless soft-deny handling.
+- **Batch workstation calls by phase**: combine pre-launch checks, brief writes,
+  launch, and log inspection into as few `Shell` calls as practical (ideally
+  `prepare`, `launch`, and `collect-result`). For `agy` documentation, call
+  [`scripts/agy-docs-launch.sh`](../scripts/agy-docs-launch.sh) to start the
+  worker and [`scripts/agy-docs-collect.sh`](../scripts/agy-docs-collect.sh) to
+  inspect PID, git status, open PRs, and logs (see
+  [`scripts/README.md`](../scripts/README.md)):
 
   ```bash
-  ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt <stem>
-  ~/agy-work/grok-bot-ops/scripts/agy-docs-collect.sh <repo> <stem>
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt [stem] [model]
+  ~/agy-work/grok-bot-ops/scripts/agy-docs-collect.sh <repo> [stem]
   ```
 
-- **Confirm heavy launches once, then poll minimally**: gate heavy `agy`,
-  `agent`, or cloud work once on an operator-facing choice card or widget. The
-  launch and collect wrapper scripts do not replace that confirmation card.
-  After launch, wait for a completion notification or run a single follow-up
-  `Shell` call (`agy-docs-collect.sh`) to collect results instead of polling in
-  a tight loop.
+- **Confirm heavy launches once, then poll minimally**: gate heavy runs once on
+  an operator-facing choice card. After launch, wait for completion notification
+  or run `agy-docs-collect.sh` once instead of polling in a tight loop.
 - **Never auto-approve all local `Shell` calls to fix prompt fatigue**: do not
   expand Grok Auto-review Allow rules to cover arbitrary local commands, and
-  never pass `--dangerously-skip-permissions` inside wrapper scripts. Rely on
-  choice cards and phase batching to keep prompt counts low, and keep Ask-first
-  confirmation for destructive git operations, external sends, deletes outside
-  the project directory, and purchases.
+  never pass `--dangerously-skip-permissions` inside wrapper scripts.
 
 ### Prepare agy docs briefs without long Mac heredocs
 

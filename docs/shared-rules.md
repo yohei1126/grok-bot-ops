@@ -88,6 +88,12 @@ design review or cross-domain triage.
   Antigravity CLI (`agy`) only under `~/agy-work/<repo>` (never under
   `~/work/...`; see
   [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
+  Prefer `agy` (defaulting to Gemini 3.8 Flash, `gemini-3.8-flash-medium`) for
+  docs drafting and review; Grok drafting docs is an exception-only fallback
+  after soft-deny or 429 quota exhaustion with operator approval (see
+  [Default agy model](workstation-handoffs.md#default-agy-model-gemini-38-flash)
+  and
+  [Prefer agy for docs; Grok draft exception-only](workstation-handoffs.md#prefer-agy-for-docs-grok-draft-exception-only)).
 
 Do not ask a long-lived domain bot to own every commit for a PR. Do not ask a
 coding agent to write a full article in the repo without a draft approved

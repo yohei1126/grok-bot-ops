@@ -20,13 +20,20 @@ Call one workstation `Shell` per phase after the brief exists under
 1. **Launch (`agy-docs-launch.sh`)**: validates that `<repo>` is a plain
    basename, verifies that `$HOME/agy-work/<repo>` exists and resolves inside
    `$HOME/agy-work`, verifies that `<brief-path>` resolves inside
-   `$HOME/agy-inbox/`, starts `agy --project "$HOME/agy-work/<repo>" -p` in the
+   `$HOME/agy-inbox/`, resolves the model (default `gemini-3.8-flash-medium`;
+   overridden by the optional 4th argument, `AGY_DOCS_MODEL`, or `AGY_MODEL`),
+   starts `agy --project "$HOME/agy-work/<repo>" --model "$model" -p` in the
    background via `nohup`, and writes `$HOME/agy-inbox/<stem>.pid`,
    `<stem>-stdout.log`, and `<stem>-stderr.log`.
 
    ```bash
-   ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt [log-stem]
+   ~/agy-work/grok-bot-ops/scripts/agy-docs-launch.sh <repo> ~/agy-inbox/<brief>.txt [log-stem] [model]
    ```
+
+   The script defaults to Gemini 3.8 Flash (`gemini-3.8-flash-medium`) because
+   larger models exhaust Individual quota (429) more quickly. Override the
+   model via the 4th argument, the `AGY_DOCS_MODEL` environment variable, or
+   `AGY_MODEL` (resolved in that order).
 
 2. **Collect (`agy-docs-collect.sh`)**: inspects the recorded PID file (or falls
    back to process lookup), prints `git status -sb`, current branch, the last

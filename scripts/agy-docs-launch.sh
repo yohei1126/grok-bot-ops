@@ -3,7 +3,8 @@
 # background under the fixed $HOME/agy-work/<repo> checkout root.
 #
 # Usage:
-#   scripts/agy-docs-launch.sh <repo> <brief-path> [log-stem]
+#   scripts/agy-docs-launch.sh <repo> <brief-path> [log-stem] [model]
+# Model default: gemini-3.8-flash-medium (override via 4th arg, else AGY_DOCS_MODEL, else AGY_MODEL).
 #
 # Safety properties:
 # - Requires <repo> to be a single directory basename (no slashes or '..').
@@ -18,12 +19,14 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'EOF'
-Usage: scripts/agy-docs-launch.sh <repo> <brief-path> [log-stem]
+Usage: scripts/agy-docs-launch.sh <repo> <brief-path> [log-stem] [model]
 
 Arguments:
   <repo>        Repository directory basename under $HOME/agy-work/<repo>
   <brief-path>  Readable brief file under $HOME/agy-inbox/
   [log-stem]    Optional log/PID filename stem (defaults to brief basename)
+  [model]       Optional agy --model id (default gemini-3.8-flash-medium;
+                else AGY_DOCS_MODEL, else AGY_MODEL)
 EOF
 }
 
@@ -49,7 +52,7 @@ validate_token() {
   fi
 }
 
-if [[ $# -lt 2 || $# -gt 3 ]]; then
+if [[ $# -lt 2 || $# -gt 4 ]]; then
   usage
   exit 2
 fi
@@ -57,6 +60,7 @@ fi
 repo="$1"
 brief_input="$2"
 stem_input="${3:-}"
+model_input="${4:-}"
 
 validate_token "repository name" "$repo"
 
@@ -125,11 +129,23 @@ if [[ -f "$pid_file" ]]; then
   fi
 fi
 
-nohup agy --project "$HOME/agy-work/$repo" -p "$(cat "$brief_real")" >"$stdout_log" 2>"$stderr_log" </dev/null &
+# Model: 4th argv > AGY_DOCS_MODEL > AGY_MODEL > gemini-3.8-flash-medium
+if [[ -n "$model_input" ]]; then
+  model="$model_input"
+elif [[ -n "${AGY_DOCS_MODEL:-}" ]]; then
+  model="$AGY_DOCS_MODEL"
+elif [[ -n "${AGY_MODEL:-}" ]]; then
+  model="$AGY_MODEL"
+else
+  model="gemini-3.8-flash-medium"
+fi
+
+nohup agy --project "$HOME/agy-work/$repo" --model "$model" -p "$(cat "$brief_real")" >"$stdout_log" 2>"$stderr_log" </dev/null &
 agy_pid=$!
 printf '%s\n' "$agy_pid" >"$pid_file"
 
 printf 'AGY_PID=%s\n' "$agy_pid"
 printf 'PID_FILE=%s\n' "$pid_file"
+printf 'MODEL=%s\n' "$model"
 printf 'STDOUT_LOG=%s\n' "$stdout_log"
 printf 'STDERR_LOG=%s\n' "$stderr_log"
