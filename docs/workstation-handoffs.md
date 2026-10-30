@@ -80,6 +80,10 @@ and
 - **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: use for document
   drafting, repository documentation updates, and prose reviews on the Google
   or Gemini authentication lane.
+- **Heavy local compute and hardware saturation**: for non-training workloads
+  (media pipelines, audio, offline inference, large data transforms, and heavy
+  builds) and guidance on saturating Mac CPU and Metal capacity, see
+  [Run eligible heavy workloads locally and saturate workstation capacity](tooling-and-cost.md#6-run-eligible-heavy-workloads-locally-and-saturate-workstation-capacity).
 
 ### Prefer agy for docs; Grok draft exception-only
 

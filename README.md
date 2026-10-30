@@ -26,7 +26,9 @@ Operators who:
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
   Antigravity (`agy` CLI and Remote Control), and the local workstation to stay
-  within plan pools, and how to propose spend caps and routine timing changes.
+  within plan pools, how to minimize cloud token spend, how to route and
+  saturate local workstation compute, and how to propose spend caps and
+  routine timing changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
   across actors, tools, and execution environments, defines who assigns work to
   whom over which named channel, sets the task app as the work-request queue of

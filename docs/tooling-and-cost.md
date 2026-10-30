@@ -23,23 +23,28 @@ pool:
    routines, and multi-bot coordination. Grok reads and updates the operator's
    task app as the queue of record, defines the goal, guardrails, and success
    criteria, and launches handoffs (see
-   [`cast-and-routing.md`](cast-and-routing.md)). Keep chats short, and keep
-   long machine learning runs, large PDF comparison loops, and bulk
-   regeneration loops out of Grok.
+   [`cast-and-routing.md`](cast-and-routing.md)). Keep chats short. Keep
+   long machine learning loops, bulk regeneration loops, and large media
+   understanding out of Grok token burn.
 2. **Cursor (IDE, cloud coding agents, and local `agent` CLI)**: owns
    repository coding across interactive IDE sessions, fresh cloud branches, and
    local headless CLI runs (`agent -p` or `cursor-agent -p`) for features, bug
    fixes, multi-file refactors, and iterative test cycles (see
    [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)).
+   Prefer Cursor cloud coding agents for ordinary repository coding inside
+   included Cursor pools.
 3. **Antigravity (`agy` CLI and Remote Control)**: owns document drafting,
    repository documentation updates, and lighter repository work under a
-   separate Google or Gemini authentication lane. It runs either in the
+   separate Google or Gemini authentication lane. Prefer `agy` (defaulting to
+   Gemini 3.8 Flash) whenever that lane has quota. It runs either in the
    interactive TUI (`agy`), through Remote Control (`agy remote-control`), or
    in headless print mode (`agy -p`).
-4. **Local workstation hardware**: runs machine learning training, local model
-   inference, heavy generation or comparison batches, local test suites, and
-   local CLI workers (`agy` and `agent`). Run heavy compute on the workstation
-   and return only short summaries, metrics, or output paths to Grok.
+4. **Local workstation hardware**: runs Apple Silicon Metal and MPS workloads,
+   local model inference, heavy batch processing, large local disk I/O, local
+   test suites, and local CLI workers (`agy` and `agent`). Prefer running heavy
+   local compute on the workstation so shared cloud LLM tokens are not burned
+   on non-LLM compute, returning only short summaries, metrics, or output paths
+   to Grok.
 
 ## 2. Match devices and execution environments to tool roles
 
@@ -78,12 +83,118 @@ before dispatching a batch of tasks:
   short video, PDF, long messy logs) so Grok Bot only routes paths and returns
   a short summary (see
   [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload)).
+- **Distinguish subscription lanes from pay-as-you-go cloud runs**: distinguish
+  subscription-authenticated workstation sessions (`agy` and Cursor) from
+  API-key pay-as-you-go runs on a remote cloud computer ("box"). Prefer
+  subscription-authenticated local workstation or Cursor cloud execution for
+  quota-aligned work. Do not use API-key pay-as-you-go billing for routine
+  documentation work unless the operator explicitly approves metered billing.
 - **Keep billing rules generic**: never state or invent subscription prices,
   dollar figures, or tier names in repository documentation, weekly progress
   docs, or status files (see
   [Billing and usage trend](monthly-audit.md#1-billing-and-usage-trend)).
 
-## 4. Treat spend caps, lane shifts, and routine schedules as proposals
+## 4. Set spend posture to exhaust subscription pools and avoid overage
+
+Exhaust included plan and subscription usage pools for Grok Bot, Cursor, and
+related connected products before leaving capacity idle. Do not incur overage
+charges, on-demand top-ups, or pay-as-you-go API-key fees for routine work
+unless the operator explicitly approves that spend in advance.
+
+Configure an on-demand monthly spend cap whenever a tool or platform supports
+one. A fixed spend cap ensures that automated jobs halt predictably when an
+included pool runs dry, avoiding silent top-up charges. In line with the generic
+billing rule, never commit specific dollar amounts, credit numbers, or tier
+names to repository files.
+
+Align each task with its best cost lane to protect quotas:
+
+- Route ordinary repository coding (features, bug fixes, refactors) to Cursor
+  cloud coding agents within included Cursor pools.
+- Route document drafting, prose reviews, and documentation maintenance to
+  Antigravity CLI (`agy`) on its separate Gemini authentication lane whenever
+  that lane has quota.
+- Route tasks requiring local GPU (Apple Silicon Metal or MPS), intensive disk
+  I/O, or offline inference to the registered local workstation, preventing
+  cloud LLM token burn on non-LLM compute.
+- Reserve Grok Bot for orchestration: short chats, connectors, status updates,
+  and task handoffs. Keep heavy loops and unstructured media processing out of
+  Grok conversation threads.
+
+## 5. Minimize cloud token spend while maximizing useful outcomes
+
+Select cost-effective models and write focused briefs to get the most value out
+of every prompt:
+
+- **Default agy to Gemini 3.8 Flash**: default documentation launches in `agy`
+  to Gemini 3.8 Flash (`gemini-3.8-flash-medium`) unless the operator
+  explicitly requests another model. Smaller, fast models handle iterative
+  document edits and reviews with minimal quota use. Reserve larger or
+  high-reasoning models for explicit operator instructions or complex design
+  tasks.
+- **Keep briefs narrow and self-contained**: define narrow deliverables,
+  explicit constraints, and concrete success criteria in every brief. If a
+  worker fails or hits a soft-deny, do not re-run the same brief blindly.
+  Diagnose the cause, update the prompt or allow-list rules offline, and re-run
+  only with corrected instructions.
+- **Reuse prior facts and batch status collection**: embed paths, inventories,
+  and log excerpts already known from parent chats into the brief rather than
+  spending tokens asking the worker to rediscover them. Combine status and
+  result collection into single batched checks rather than polling workers
+  repeatedly.
+- **Offload unstructured and multimodal media**: route image inspection, video
+  analysis, large PDF review, and long logs to `agy` instead of passing large
+  blobs through conversational chat tokens (see
+  [Unstructured and multimodal offload](workstation-handoffs.md#unstructured-and-multimodal-offload)).
+
+## 6. Run eligible heavy workloads locally and saturate workstation capacity
+
+Route resource-heavy tasks to the registered local workstation (Apple Silicon
+Metal and MPS, local disk, and local runtimes) rather than consuming cloud LLM
+tokens on non-LLM compute. Light documentation and small pull requests stay on
+Cursor cloud or Flash `agy`, while compute that benefits from Metal acceleration
+or large local disk transfers belongs on the Mac.
+
+### Workloads beyond training and simulation
+
+Apple Silicon Metal acceleration and high-throughput local disk storage handle a
+wide range of operational jobs beyond machine learning training and physics
+simulations. Eligible non-training workloads include:
+
+- **Video and image pipelines**: video frame extraction, video encoding, bulk
+  thumbnail generation, and local vision or embedding passes.
+- **Audio processing**: long-form audio transcription, noise filtering, and
+  speaker separation using local models.
+- **Local offline inference**: classification, extraction, or summarization
+  using local MLX or GGUF models when cloud tokens should be conserved.
+- **Large data transforms**: CSV and parquet conversions, bulk PDF text
+  extraction, and repository corpus preprocessing.
+- **Heavy local builds and test suites**: compiling native binaries, building
+  multi-stage container images, or running integration test suites inside a
+  lightweight local Linux virtual machine or container runtime (such as Colima).
+
+### Saturate workstation CPU and GPU
+
+When a workload is routed to the local workstation, saturate available CPU cores
+and GPU (Metal / MPS) capacity aggressively rather than leaving compute idle
+while cloud LLM tokens continue to burn elsewhere.
+
+Follow these operational guidelines for local saturation:
+
+- Configure batch sizes, thread concurrency, and worker pools to keep CPU and
+  Metal engines busy throughout eligible pipeline runs.
+- Balance throughput against thermal and power limits accepted by the operator.
+- Avoid low-concurrency runs when a task was moved to the workstation specifically
+  to conserve subscription tokens.
+- Keep Grok Bot strictly in an orchestration role. Hardware saturation applies
+  to the local compute job on the workstation, not to generating extra LLM
+  calls.
+- Enforce standard safety boundaries: confirm heavy launches on an
+  operator-facing choice card, scope file writes to dedicated checkout roots
+  (`~/agy-work` or `~/agent-work`), and stop immediately on permission denials
+  without widening permissions mid-run.
+
+## 7. Treat spend caps, lane shifts, and routine schedules as proposals
 
 Propose routing and spend adjustments through a cost/ops bot or the
 [monthly audit](monthly-audit.md) instead of applying ad hoc changes mid-month
