@@ -32,8 +32,9 @@ monthly ops audit, operator's shared assistant notes.
 4. Then tag one GitHub Release as `YYMMDD` (six digits for that merge date in
    the operator's local calendar).
 
-The numbered sections below are the checklist for step 1. Steps 2 through 4
-are sections 6 through 8. Other PRs during the month follow
+The numbered sections below are the checklist for step 1. The audit covers
+subscription LLM pools and GitHub Actions spend. Steps 2 through 4 are sections
+6 through 8. Other PRs during the month follow
 [`CONTRIBUTING.md`](../CONTRIBUTING.md) only. They skip sections 7 and 8.
 
 ## 1. Billing and usage trend
@@ -41,10 +42,19 @@ are sections 6 through 8. Other PRs during the month follow
 - [ ] Compare overall usage with last month by direction only: up, flat, or
   down. Do not paste raw invoices, dollar amounts, or subscription tier names
   into this repo, weekly progress docs, or work-bot status files.
+- [ ] Review GitHub Actions usage trend (minutes and artifact storage
+  direction: up, flat, or down). Do not paste invoices, dollar amounts, or plan
+  tier names into this repo, weekly progress docs, or work-bot status files.
 - [ ] Flag unusually expensive threads or bots by role or domain label, not by
   personal identifiers.
+- [ ] Flag wasteful workflows by purpose (such as duplicate lint runs, unused
+  scheduled jobs, or oversized matrices), not by personal repository
+  identifiers when possible.
 - [ ] Note candidates to split, retire, or move to shorter-lived agents for
   cost control.
+- [ ] Propose leaner CI where checks can stay useful with less spend (example
+  pattern: pinned markdownlint-only for docs-only repositories; see
+  [`tooling-and-cost.md`](tooling-and-cost.md#7-keep-github-actions-ci-lean-and-prevent-runner-waste)).
 - [ ] Review tool routing across Grok Bot, Cursor, Antigravity CLI (`agy`),
   and the local workstation, verify on-demand monthly spend caps, and check
   Antigravity Remote Control status, watched inbox jobs, stale `.agy-write.lock`
@@ -56,8 +66,8 @@ are sections 6 through 8. Other PRs during the month follow
   [`workstation-handoffs.md`](workstation-handoffs.md)).
 - [ ] Confirm that high-priority bot-to-bot traffic was rare and justified.
 
-Example proposals: retire idle bots, shorten default routines, and move heavy
-research to one-off agents.
+Example proposals: retire idle bots, shorten default routines, move heavy
+research to one-off agents, and prune redundant CI workflows.
 
 ## 2. Routine inventory
 
