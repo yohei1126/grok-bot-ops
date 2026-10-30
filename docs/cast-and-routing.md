@@ -22,8 +22,14 @@ surface before assigning work:
   work.
 - **Grok Bot (sidebar bots and orchestrator surface)**: includes long-lived
   domain bots (`Domain｜Role`), the progress bot, the cost/ops bot, and
-  short-lived one-off chats. Grok Bot is the primary conversational UI and
-  multi-bot orchestrator.
+  short-lived one-off chats. Grok Bot provides conversational UI and multi-bot
+  coordination.
+- **Cost/ops bot (daily commander)**: routes tasks to execution lanes, prepares
+  briefs, requests launch confirmation, accepts completion signals, and manages
+  peer handoffs. It links daily orchestration directly with spend oversight.
+- **Progress bot (weekly aggregator)**: aggregates weekly notes and status files
+  into an operator digest. It does not manage daily task assignments or poll
+  workers.
 - **Execution environments and devices**:
   - **Grok cloud computer ("box")**: the hosted cloud environment where Grok
     Bot runs connectors, scheduled routines, and short research tasks.
@@ -55,6 +61,22 @@ surface before assigning work:
   local workstation file watchers (`LaunchAgent` or `cron`) that trigger
   recurring passes or dispatch queued inbox briefs. They are automated triggers
   owned by the operator, never independent decision-makers.
+
+### Daily commander versus progress bot
+
+Assign daily dispatch responsibilities to the cost/ops bot rather than creating
+a separate commander role:
+
+- **Cost/ops bot as daily commander**: selects the execution lane (document
+  worker, cloud coding agent, or registered workstation), prepares briefs,
+  requests launch confirmation, accepts completion signals, and routes peer
+  handoffs. Combining commander duties with cost tracking keeps lane routing
+  aligned with plan limits. Do not create a separate commander bot when a
+  cost/ops bot already manages lanes and spend.
+- **Progress bot for weekly rollups**: aggregates weekly notes and workspace
+  status files into an operator digest. It does not handle daily task
+  assignments, receive completion pings, or poll workers. Optional status files
+  and weekly notes provide sufficient context for its digest.
 
 ## 2. Match each role and surface to the right workload
 
@@ -256,10 +278,74 @@ Give the worker a complete brief up front so it never needs to read a Grok chat
 transcript or guess repository policy (see
 [Structure handoff briefs](workstation-handoffs.md#3-structure-self-contained-handoff-briefs-and-keep-secrets-out-of-argv)).
 
+### Commander assigns and accepts completion only
+
+The orchestrator defines the goal, guardrails, execution lane, and success
+criteria. It launches the task or queues it in the task app, waits for a
+completion signal, and routes the next step.
+
+Domain bots, cloud coding agents, and workstation workers own the internal
+implement, review, and fix cycle. The commander does not execute code edits or
+supervise intermediate steps inside the worker loop.
+
+### Harden goal and done criteria before launch
+
+Define clear goals, constraints, and verifiable success criteria before
+launching any worker. Do not dispatch heavy cloud coding agents or workstation
+CLI runs on vague requests.
+
+Every brief must state target paths, forbidden changes, expected deliverables,
+and exact verification checks. Workers rely on complete briefs to finish tasks
+without conversational back-and-forth (see
+[Structure handoff briefs](workstation-handoffs.md#3-structure-self-contained-handoff-briefs-and-keep-secrets-out-of-argv)).
+
+### Prefer event-driven completion over polling
+
+Wait for asynchronous completion signals instead of polling workstation shells
+or log files in tight loops.
+
+Use standard completion signals:
+
+- task-app status transitions (`running` to completed)
+- pull request or issue comments and status labels
+- webhook relays or worker completion callbacks
+- explicit peer messages sent to the commander
+
+When a completion signal arrives, collect results in a single pass (such as
+running `scripts/agy-docs-collect.sh`). Avoid periodic status queries that burn
+shell calls and tokens.
+
+### Enforce one-writer isolation across parallel workers
+
+Parallel writers must never edit the same checkout directory or git branch
+concurrently.
+
+When concurrent work is required, assign each worker its own checkout directory
+or a dedicated git worktree under its fixed root (`~/agy-work/<repo>` for
+`agy` and `~/agent-work/<repo>` for `agent`). See
+[Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts).
+
+### Split roles only at explicit quality gates
+
+Keep single-worker runs on default economical models, such as Gemini 3.8 Flash
+for documentation and standard cloud coding pools. Do not use continuous
+multi-model handoffs or separate plan, implement, and review roles for routine
+tasks. Always-on model switching increases token consumption and latency.
+
+Split plan, implement, or review roles into separate sessions or models only
+after reaching an explicit quality gate:
+
+- an automated check or test failure
+- a tool permission soft-deny
+- an explicit operator review checkpoint
+
 ## 6. Run the pre-launch checklist to prevent mis-assignment
 
 Verify every item before launching a handoff:
 
+- [ ] **Assign dispatch to the daily commander**: confirm the cost/ops bot
+  manages lane selection and dispatch. Keep the progress bot focused on weekly
+  aggregation. Do not create an extra commander bot.
 - [ ] **Match the job type to the right lane**: route standard repository
   coding to Cursor cloud coding agents; use local `agent -p` (under
   `~/agent-work/<repo>`) only when the task must run on the workstation (local
@@ -276,9 +362,18 @@ Verify every item before launching a handoff:
   [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts)).
   Use separate clones, git worktrees, or sequential runs when two tasks touch
   the same repository.
-- [ ] **Verify goal, constraints, success criteria, and merge policy**: confirm
+- [ ] **Harden goal, constraints, success criteria, and merge policy**: confirm
   the brief specifies all four fields, including whether to open a draft PR or
-  stop before merging.
+  stop before merging. Reject vague asks before dispatching heavy workers.
+- [ ] **Restrict commander scope to assign and accept**: verify the commander
+  sets up the brief, records the task, and waits for a completion signal. Leave
+  the internal implement and review loop to the worker.
+- [ ] **Rely on event signals rather than polling**: configure completion
+  tracking via task-app status, PR labels, webhooks, or callbacks. Do not poll
+  workstation shells or logs in tight loops.
+- [ ] **Keep execution on default models until a quality gate**: run standard
+  tasks on default models. Separate plan, implement, or review roles only after
+  a soft-deny, check failure, or operator checkpoint.
 - [ ] **Use scoped permissions over skip-all flags**: rely on narrow
   `permissions.allow` rules and directory-scoped execution approvals instead of
   `--dangerously-skip-permissions`. Do not expand fine-grained Allow entries for

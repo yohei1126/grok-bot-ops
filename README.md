@@ -30,8 +30,9 @@ Operators who:
   saturate local workstation compute, and how to propose spend caps and
   routine timing changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
-  across actors, tools, and execution environments, defines who assigns work to
-  whom over which named channel, sets the task app as the work-request queue of
+  across actors, tools, and execution environments, clarifies daily commander
+  versus progress bot roles, defines assign-and-accept boundaries with
+  event-driven completion, sets the task app as the work-request queue of
   record with handoff visibility conventions, and provides a pre-launch routing
   checklist that includes card-style confirmation for heavy launches.
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
