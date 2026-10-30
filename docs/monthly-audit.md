@@ -121,18 +121,19 @@ Proposal: a short PR against this docs repo or your fork that updates
   notes. Decisions were not relayed through a chain of bots.
 - [ ] The weekly review used collaborative progress docs under a dated folder.
   Workspace status files, if any, served only as optional rollup input.
-- [ ] Todos and the work-request queue of record live in the task app (Todoist
-  or an equivalent), and the calendar is the only schedule of record. Grok Bot
-  queued deferred or recurring items that surfaced mid-conversation instead of
-  dropping them, proposed the matching lane (`agy` versus `agent`; cloud versus
-  local) for immediate work, and confirmed heavy or consequential launches on a
-  choice card when no standing permission applied. Dispatched items carried
-  lane (`agy`, `agent`, `orchestrator-bot`, `cloud-coding`) and status
-  (`running`, `waiting`) labels, a lane or handoff-chain title prefix (`[agy]`,
-  `[agent→agy]`), and description fields for assignee, target PR or checkout
-  path, progress notes, and done criteria, and were completed (or commented
-  with the outcome) on finish (see
-  [`cast-and-routing.md`](cast-and-routing.md#format-task-items-so-handoff-ownership-is-visible-at-a-glance)).
+- [ ] Human tasks live in the task app (Todoist or an equivalent). Agent jobs
+  live in the private job hub, with lane (`agy`, `agent`, `orchestrator-bot`,
+  `cloud-coding`) and status (`running`, `waiting`) labels, a lane or
+  handoff-chain title prefix (`[agy]`, `[agent→agy]`), and description fields
+  for assignee, target pull request or checkout path, progress notes, and done
+  criteria. Finished jobs are closed or commented with the outcome. Agent job
+  state is copied into the task app only when the operator asks for a personal
+  reminder about a human step. The calendar is the only schedule of record.
+  Grok Bot queued human follow-ups and agent jobs that surfaced
+  mid-conversation, proposed the matching lane (`agy` versus `agent`; cloud
+  versus local) for immediate work, and confirmed heavy or consequential
+  launches on a choice card when no standing permission applied (see
+  [`cast-and-routing.md`](cast-and-routing.md#format-job-items-so-handoff-ownership-is-visible-at-a-glance)).
   Chat transcripts, watched inbox folders, and progress or status docs were not
   used as a second backlog.
 - [ ] For long-form work, a document worker drafted the body and a coding

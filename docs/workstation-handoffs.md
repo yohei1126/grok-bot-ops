@@ -9,8 +9,9 @@ domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
 For surface cost lanes and spend caps, see
-[`tooling-and-cost.md`](tooling-and-cost.md). For cast roles, assignment
-channels, and job routing, see
+[`tooling-and-cost.md`](tooling-and-cost.md). For commander scope, assignment
+channels, event-driven completion, and human-task versus private-job-hub
+routing, see
 [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
 confirmation over growing Allow lists (see
 [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
@@ -170,8 +171,8 @@ desk and wants to supervise tool calls in real time:
 ### Path C: drop a task file into a watched inbox folder
 
 Use a watched inbox folder as a local transport spool when Grok Bot dispatches
-an already-queued work request from the task app without holding a synchronous
-shell session open:
+an already-queued agent job from the private job hub without holding a
+synchronous shell session open:
 
 1. Grok Bot writes a brief into a watched directory on the workstation, such as
    `/path/to/agy-inbox/task-YYYYMMDD-HHMM.md` (or `cursor-inbox`).
@@ -181,7 +182,7 @@ shell session open:
    pipes the file into `agy -p` or `agent -p`, writes the log to
    `out/task-YYYYMMDD-HHMM.log`, and archives the brief under `done/`.
 4. Grok Bot reads the short output summary or exit status on a later pass and
-   updates the item in the task app.
+   updates the item in the private job hub.
 
 ## 3. Structure self-contained handoff briefs and keep secrets out of `argv`
 
@@ -210,8 +211,11 @@ Include four required sections in every handoff brief:
 Keep secrets out of command arguments (`argv`): never pass API keys, tokens, or
 private URLs inline inside `agy -p "..."` or `agent -p "..."`, because arguments
 appear in local process tables (`ps`) and shell history. Load secrets from
-workstation environment variables or local secret stores, and pass sensitive or
-long briefs over standard input or through a local file with `0600` permissions.
+workstation environment variables or a local secret store. 1Password is the
+source of truth for secret values (see
+[1Password is the source of truth for secrets](shared-rules.md#18-1password-is-the-source-of-truth-for-secrets)).
+Pass sensitive or long briefs over standard input or through a local file with
+`0600` permissions.
 
 ### Issue one command per tool call in headless CLI handoffs
 
@@ -337,7 +341,7 @@ short card naming the deliverable, proposed lane, and one-sentence reason:
 
 - run with `agy`
 - run with `agent` (or `cursor-agent`)
-- queue in the task app
+- queue an agent job in the private job hub, or a human task in the task app
 - cancel
 
 ### Keep Allow lists narrow
@@ -394,18 +398,19 @@ Configure Grok local execution and batch workstation calls to reduce prompt chur
   ~/agy-work/grok-bot-ops/scripts/agy-docs-collect.sh <repo> [stem]
   ```
 
-- **Confirm heavy launches once, then poll minimally**: gate heavy runs once on
-  an operator-facing choice card. After launch, wait for completion notification
-  or run `agy-docs-collect.sh` once instead of polling in a tight loop.
+- **Confirm heavy launches once and rely on event signals**: gate heavy runs on
+  an operator-facing choice card. After launch, wait for an event or callback
+  signal instead of polling workstation shells or logs in a tight loop (see
+  [Prefer event-driven completion over polling](cast-and-routing.md#prefer-event-driven-completion-over-polling)).
+  Run `agy-docs-collect.sh` once after that signal to collect results.
 - **Never auto-approve all local `Shell` calls to fix prompt fatigue**: do not
   expand Grok Auto-review Allow rules to cover arbitrary local commands, and
   never pass `--dangerously-skip-permissions` inside wrapper scripts.
 
 ### Prepare agy docs briefs without long Mac heredocs
 
-Long delays before an `agy` docs launch are often **brief preparation**, not the
-worker itself. Keep brief prep fast and low-approval with three rules that align
-with the `prepare` → `launch` → `collect-result` phases above:
+Keep brief prep fast and low-approval with three rules that align with the
+`prepare` → `launch` → `collect-result` phases above:
 
 1. **Write long briefs on the Grok box, then copy them to the workstation**:
    create the Markdown brief under a box path such as

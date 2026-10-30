@@ -363,7 +363,8 @@ documentation, and non-secret code:
 - **Public repositories are not personal job stores**: public repositories must
   never become the source of truth for personal job queues or secret values.
   Keep personal job queues, launch triggers, and private operational state inside
-  the private job hub.
+  the private job hub. Store secret values in 1Password (see
+  [1Password is the source of truth for secrets](#18-1password-is-the-source-of-truth-for-secrets)).
 
 ## 17. Archive unused repositories
 
@@ -378,3 +379,19 @@ defaults:
 - **Document the replacement**: before archiving, record a short pointer in the
   README to the active replacement repository or shared durable notes if one
   exists.
+
+## 18. 1Password is the source of truth for secrets
+
+Store API keys, tokens, and other secret values in 1Password. Deploy-time and
+runtime reads come from that vault.
+
+- **1Password holds the secret values**: treat 1Password as the source of truth.
+  Do not paste secret values into docs, issues, pull requests, or chat.
+- **Cloudflare Worker secrets are injected at deploy time**: when deploying a
+  Worker, inject secrets from the 1Password source of truth into the Worker
+  secret store. Leave those values out of the repository.
+- **Committed `.env` files hold non-secret config only**: a `.env` file that is
+  committed may contain only values that are safe in git, such as public URLs
+  and feature flags.
+- **`.env.example` is placeholders only**: list variable names and placeholder
+  values in `.env.example` so operators know what to set locally.

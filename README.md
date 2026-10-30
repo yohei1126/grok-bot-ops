@@ -23,8 +23,8 @@ Operators who:
   and cross-domain signals, decisions, weekly progress docs, human tasks in
   the task app, agent jobs in the private job hub, schedules in the calendar,
   deliverables and publishing, issue-first coding, cost and ops proposals,
-  retiring finished bots, preferring public repositories, and archiving unused
-  repositories.
+  retiring finished bots, preferring public repositories, archiving unused
+  repositories, and storing secrets in 1Password.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
   Antigravity (`agy` CLI and Remote Control), and the local workstation to stay
@@ -32,11 +32,12 @@ Operators who:
   saturate local workstation compute, and how to propose spend caps and
   routine timing changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
-  across actors, tools, and execution environments, defines who assigns work to
-  whom over which named channel, separates human tasks in the task app from bot
-  jobs in a private job hub with handoff visibility conventions, and provides a
-  pre-launch routing checklist that includes card-style confirmation for heavy
-  launches.
+  across actors, tools, and execution environments, clarifies daily commander
+  versus progress bot roles, defines who assigns work to whom over which named
+  channel, separates human tasks in the task app from bot jobs in a private
+  job hub with handoff visibility conventions, defines assign-and-accept
+  boundaries with event-driven completion, and provides a pre-launch routing
+  checklist that includes card-style confirmation for heavy launches.
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
   prepare a registered workstation, enforce fixed checkout roots (`~/agy-work`
   for `agy` and `~/agent-work` for local `agent`) and cloud-versus-local coding
