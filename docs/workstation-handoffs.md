@@ -21,28 +21,19 @@ confirmation over growing Allow lists (see
 Complete five one-time setup steps on the registered local workstation before
 wiring Grok Bot to `agy` or `agent` (`cursor-agent`):
 
-1. **Install the CLI binaries on `PATH`**: install `agy` (running `agy install`
-   if needed) and `agent` (or `cursor-agent`) so both interactive shells and
-   non-interactive automation runners can resolve them.
-2. **Complete one interactive login per tool**: run `agy` and `agent` once in a
-   local terminal and finish their authentication prompts. Headless runs
-   (`agy -p` and `agent -p`) rely on stored credentials and fail if the
-   workstation has never logged in.
+1. **Install the CLI binaries on `PATH`**: install `agy` (`agy install`) and
+   `agent` (or `cursor-agent`) for shell and automation runners.
+2. **Complete one interactive login per tool**: log in once interactively with
+   `agy` and `agent`. Headless runs rely on stored credentials.
 3. **Start the Remote Control daemon when mobile review is needed**: run
-   `agy remote-control start` (and check with `agy remote-control status`) when
-   the operator wants to paste briefs or approve tool calls from a phone or
-   remote browser. Stop it with `agy remote-control stop` when remote access is
-   no longer needed.
-4. **Configure scoped tool and command permissions**: edit the CLI settings
-   (such as `permissions.allow` in Antigravity CLI `settings.json` or session
-   `--settings`) to allow only the specific tools and commands that unattended
-   runs require. Scope write permissions to the fixed checkout root for each
-   CLI (`~/agy-work` for `agy` and `~/agent-work` for `agent`). In headless
-   print mode, tools that would normally ask for interactive confirmation are
-   soft-denied unless allowed in advance.
-5. **Register the workstation for Grok local execution**: connect the
-   workstation to Grok's local execution bridge and restrict command approvals
-   to the fixed checkout roots (`~/agy-work` and `~/agent-work`).
+   `agy remote-control start` to review briefs or approve calls remotely. Stop
+   it with `agy remote-control stop` when done.
+4. **Configure scoped tool and command permissions**: configure CLI settings
+   (`permissions.allow`) to permit required unattended tools. Scope writes to
+   the fixed checkout roots (`~/agy-work` and `~/agent-work`). Headless runs
+   soft-deny unconfirmed tools.
+5. **Register the workstation for Grok local execution**: connect Grok's local
+   execution bridge and restrict command approvals to the fixed checkout roots.
 
 ### Fixed checkout roots
 
@@ -73,8 +64,8 @@ according to whether the work requires local machine access (see
 and
 [Match each role and surface to the right workload](cast-and-routing.md#2-match-each-role-and-surface-to-the-right-workload)):
 
-- **Repository coding (features, bug fixes, refactors)**: prefer **Cursor cloud
-  coding agents** on a fresh remote branch over local `agent -p`.
+- **Repository coding (features, bug fixes, refactors, and PR hygiene)**: prefer
+  **Cursor cloud coding agents** on a fresh remote branch over local `agent -p`.
 - **Local `agent -p` (`~/agent-work/<repo>`)**: use only when the task **must**
   run on the registered workstation, such as local hardware validation,
   local-only files, or headless local tooling that cloud agents cannot reach.
@@ -85,6 +76,33 @@ and
   (media pipelines, audio, offline inference, large data transforms, and heavy
   builds) and guidance on saturating Mac CPU and Metal capacity, see
   [Run eligible heavy workloads locally and saturate workstation capacity](tooling-and-cost.md#6-run-eligible-heavy-workloads-locally-and-saturate-workstation-capacity).
+
+### Docs and deck prose lane (non-negotiable)
+
+Document drafting, rewrite, and review stay on workstation `agy` (subscription
+or Gemini auth lane) under `~/agy-work/<repo>`. This lane covers:
+
+- repository documentation Markdown
+- md-deck and slide deck body Markdown, such as customer proposals, Q&A decks,
+  and other prose-heavy decks
+- domain writing that loads Japanese or English writing skills
+
+Cursor cloud coding agents are not a substitute for this prose work, even when:
+
+- a previous pull request for the same files was opened by a cloud agent
+- the Mac local Shell session waits for an approval card
+- a soft-deny stopped an `agy` run
+
+When a Mac Shell command pauses on an approval card, leave the approval for the
+operator, relaunch `agy` after allow, or stop and report. Never reply to a
+cloud agent or open a new cloud agent to finish the prose. A pending local
+approval is not a lane change.
+
+Cursor cloud remains appropriate for repository code and mechanical pull request
+hygiene (CI pins, workflow YAML, non-prose conflict resolution, allow-list
+updates, and helper scripts). Opening or updating a draft pull request URL
+after `agy` authored the Markdown is acceptable when that step is pure `gh` or
+git plumbing.
 
 ### Prefer agy for docs; Grok draft exception-only
 
@@ -130,15 +148,8 @@ agy -p --project ~/agy-work/<repo> < /path/to/agy-inbox/current-brief.txt
 cd ~/agent-work/<repo> && agent -p < /path/to/cursor-inbox/current-brief.txt
 ```
 
-Useful flags from `agy --help` for scripted runs:
-
-- `-p` or `--print`: run a single prompt non-interactively and print the response.
-- `--project <project>` and `--add-dir <dir>`: scope the session or attach extra directories.
-- `--mode <mode>`: set execution mode (`accept-edits`, `auto`, or `plan`).
-- `--model <model>` and `--effort <level>`: select the model and reasoning effort.
-- `--print-timeout <duration>`: set a maximum runtime.
-- `--output-format <format>`: emit `text`, `json`, or `stream-json`.
-- `--sandbox`: enable terminal restrictions for tightly scoped tasks.
+Useful flags for scripted runs include `-p` (`--print`), `--project`, `--add-dir`,
+`--mode`, `--model`, `--effort`, `--print-timeout`, `--output-format`, and `--sandbox`.
 
 Prefer scoped `permissions.allow` rules in settings over
 `--dangerously-skip-permissions`. Test a new workflow once and add narrow allow
@@ -307,18 +318,14 @@ request noise.
 
 Reject fragile shortcuts that bypass tool isolation or human review:
 
-- **Do not browser-automate the Remote Control UI**: driving the Remote Control
-  web interface with a browser automation agent breaks when the UI changes.
-  Use Path A (`agy -p`) or Path C (`/path/to/agy-inbox/`) for automated runs,
-  and keep Remote Control (Path B) for a human operator.
+- **Do not browser-automate the Remote Control UI**: browser automation of
+  Remote Control is fragile. Use Path A (`agy -p`) or Path C
+  (`/path/to/agy-inbox/`) for automation, keeping Path B for a human operator.
 - **Do not launch heavy jobs from the phone**: mobile chats are for short
-  prompts, triage, and approvals. Start long builds, batch evaluations, and
-  multi-file refactors on the workstation where power, network, and logs are
-  stable.
+  prompts, triage, and approvals. Start builds and refactors on the workstation.
 - **Do not keep machine learning or bulk regeneration loops inside Grok Bot**:
-  iterative training, large document comparisons, and repeated generation loops
-  consume shared cloud tokens rapidly. Run those loops on the workstation and
-  send only final metrics or output paths back to Grok.
+  iterative training, document comparisons, and bulk drafting loops burn cloud
+  tokens rapidly. Run them locally and send final metrics or paths to Grok.
 - **Do not treat `--dangerously-skip-permissions` as a default**: bypassing all
   permission checks in `agy` or `agent` removes safety boundaries for shell
   commands and file deletions. Use scoped allow rules and review them during the
@@ -336,13 +343,9 @@ every new command is a weak primary control.
 
 ### Prefer a named choice card
 
-When Grok Bot (or another orchestrator) is ready to start local work, present a
-short card naming the deliverable, proposed lane, and one-sentence reason:
-
-- run with `agy`
-- run with `agent` (or `cursor-agent`)
-- queue an agent job in the private job hub, or a human task in the task app
-- cancel
+When Grok Bot (or another orchestrator) prepares local work, present a short
+card naming the deliverable, proposed lane, and one-sentence reason: run with
+`agy`, run with `agent`, queue an agent job or human task, or cancel.
 
 ### Keep Allow lists narrow
 
@@ -473,25 +476,18 @@ mid-run.
 Configure briefs and permissions for unattended Print mode (`agy -p`) with four
 constraints in mind:
 
-- **Path-scoped `write_file` and `trustedWorkspaces` are necessary and still
-  limited**: scoping `write_file(~/agy-work)` and `trustedWorkspaces` is
-  required for `agy -p`, and those settings still do not authorize every tool
-  alias or shell command. Because Print mode cannot show an interactive
-  confirmation dialog, any action that requires confirmation is soft-denied, or
-  fails with `unknown_command` or `unsupported_tool: write_file`.
-- **Interactive review modes soft-deny in Print mode**: settings such as
-  `toolPermission=request-review` (or equivalent interactive review policies)
-  are incompatible with unattended `agy -p` runs for those tools, because
-  headless Print mode soft-denies instead of prompting the operator.
-- **Prefer allow-listed commands in docs-lane briefs**: write docs-lane briefs
-  around commands already in the workstation allow list: `git`, `gh`, `cp`,
-  `wc`, `mkdir`, `ls`, `cat`, and the allow-listed `git` and `gh` subcommands.
-  Avoid `npm` or `npx` lint commands unless the exact allow-listed command
-  string is named in the brief before launch. Issue one `argv`-style command per
-  `RunCommand` call with no `&&`, `||`, `;`, `|`, `$()`, backticks, or unquoted
-  globs (see
+- **Path-scoped permissions remain limited**: `write_file(~/agy-work)` and
+  `trustedWorkspaces` are required for `agy -p`, but do not authorize every tool
+  alias or shell command. Actions needing interactive confirmation are soft-denied.
+- **Interactive review modes soft-deny in Print mode**: policies such as
+  `toolPermission=request-review` cause soft-denials because headless runs
+  cannot prompt the operator.
+- **Prefer allow-listed commands in docs-lane briefs**: center briefs on
+  commands already in the workstation allow list (`git`, `gh`, `cp`, `wc`,
+  `mkdir`, `ls`, `cat`). Avoid `npm` or `npx` lint commands unless the exact
+  command string is allow-listed in advance. Run one `argv`-style command per
+  `RunCommand` call without shell chaining (see
   [Issue one command per tool call in headless CLI handoffs](#issue-one-command-per-tool-call-in-headless-cli-handoffs)).
-- **Review allow-list changes offline after a stop**: on `soft-deny`,
-  `unknown_command`, or `unsupported_tool`, stop the run and return the exact
-  command or tool and the failure reason. The operator or the cost/ops bot
-  reviews any `permissions.allow` change offline and re-runs the brief afterward.
+- **Review allow-list changes offline after a stop**: on `soft-deny` or
+  unsupported tool errors, stop and report the exact command and reason. Review
+  and update allow rules offline before re-running.

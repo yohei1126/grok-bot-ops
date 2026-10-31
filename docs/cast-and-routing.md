@@ -121,6 +121,18 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
    inter-bot coordination, and short research queries. Keep GPU-heavy workloads
    and long iterative compute loops off the Grok box.
 
+Enforce strict boundaries between prose authorship and repository coding:
+
+- **Document and deck-body authorship**: route repository Markdown docs,
+  md-deck slide body prose, customer-facing proposals, and Q&A decks to `agy`
+  under `~/agy-work/<repo>`.
+- **Code and mechanical PR hygiene**: route features, bug fixes, refactors, CI
+  pins, and script plumbing to Cursor cloud coding agents (or local `agent`
+  when workstation-bound).
+- **Never switch lanes on approval wait**: never change lanes mid-task solely
+  because a Mac local Shell command is waiting for an approval card. Wait for
+  operator review, relaunch `agy` after allow, or stop and report.
+
 ## 3. Track human tasks in the task app and agent jobs in a private job hub
 
 Keep human work in the operator's task app and agent jobs in a private job hub,
