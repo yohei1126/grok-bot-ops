@@ -30,10 +30,11 @@ Operators who:
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
   Antigravity (`agy` CLI and Remote Control), the local workstation, and
-  GitHub Actions CI to stay within plan pools, how to keep CI lean, how to
-  minimize cloud token spend, how to route and saturate local workstation
-  compute, and how to propose spend caps, lane shifts, and routine timing
-  changes.
+  GitHub Actions CI to stay within plan pools, how to enforce on-demand hard
+  stops, how to keep CI lean, how to minimize cloud token spend, how to route
+  and saturate local workstation compute, how to audit monthly spend with dual
+  attribution and overnight routine checks, and how to propose spend caps, lane
+  shifts, and routine timing changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
   across actors, tools, and execution environments, clarifies daily commander
   versus progress bot roles (with Drive weekly Docs as the progress source of

@@ -146,6 +146,27 @@ Align each task with its best cost lane to protect quotas:
   purpose-limited CI. Useful verification stays while redundant checks and
   vanity jobs are pruned.
 
+### Enforce hard stops and pace weekly usage
+
+Treat all subsequent bot and IDE work as metered as soon as the included
+shared pool is exhausted for the current weekly or billing window. Do not
+continue long agentic loops on the bot product after included exhaustion
+without explicit operator approval for that metered spend.
+
+When included usage is exhausted before the next reset, apply these preferred
+responses:
+
+- Pause non-urgent scheduled routines and long-running sidebar bots.
+- Shift heavy drafting and coding loops to subscription-authenticated Mac
+  `agy`, local workstation compute, or included Cursor cloud lanes.
+- Maintain a hard monthly on-demand spend cap in billing settings so top-ups
+  halt predictably instead of running unbounded.
+
+Spread included usage across the week rather than burning most of the pool in a
+few dense days and sliding into on-demand spend. To audit when exhaustion
+occurred and trace overage across products and bots, see
+[Run dual attribution during monthly audits](#9-run-dual-attribution-during-monthly-audits).
+
 ## 5. Minimize cloud token spend while maximizing useful outcomes
 
 Select cost-effective models and write focused briefs to get the most value out
@@ -270,3 +291,46 @@ The operator decides which proposals to adopt:
    concrete events. Avoid overnight routines that accumulate unread output.
 4. **Prune redundant CI workflows**: propose leaner triggers, remove duplicate
    lint passes, or tighten test matrices through the monthly audit.
+
+## 9. Run dual attribution during monthly audits
+
+Reconstruct monthly tooling and overage spend with two complementary sources.
+A product-level billing CSV attributes usage to an account principal without
+bot identifiers. An in-app share breakdown shows relative bot share but does
+not record when included capacity ended.
+
+Operators need both data sources for an effective review:
+
+1. **Product-level billing and usage export (CSV)**: records event timestamps,
+   product categories (such as bot product versus IDE product), capacity state
+   (included allocation versus on-demand or overage), token fields when
+   available, and contracted spend. This export identifies the date when
+   included capacity was exhausted and how much on-demand spend accrued per day
+   and per product.
+2. **In-app bot and routine share report**: shows which bots and scheduled
+   routines drove the highest share of bot product usage during a recent
+   window. This report reveals which specific roles consumed capacity.
+
+A typical billing CSV attributes spend to a user principal only and provides no
+bot ID or agent ID column. Never claim bot-level costs from the billing CSV
+alone. Match heavy on-demand spend dates from the CSV with top consumers from
+the in-app bot-share report. Do not invent per-bot dollar allocations from the
+billing export.
+
+### Audit overnight and off-hours scheduled routines
+
+Review scheduled routines that fire in overnight or early-morning local hours
+when nobody is available to inspect or act on the result. Recurring tasks during
+off hours accumulate on-demand spend quickly if an included pool was exhausted
+earlier in the cycle.
+
+If the billing export shows on-demand charges concentrated in overnight or
+early-morning windows, apply these preferred mitigations:
+
+- Pause the routine until the next reset.
+- Reschedule recurring jobs to waking hours when the operator can review output.
+- Convert recurring polling loops to event-driven triggers (`routines` skill
+  patterns) so idle status checks do not burn metered usage.
+
+Distinguish rare tasks that must run overnight from convenience schedules that
+can wait for daytime execution.
