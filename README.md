@@ -25,6 +25,7 @@ Operators who:
   deliverables and publishing, issue-first coding, cost and ops proposals,
   retiring finished bots, preferring public repositories, archiving unused
   repositories, and storing secrets in 1Password.
+- [`docs/secrets-local-injection.md`](docs/secrets-local-injection.md) covers Mac LLM API-key injection with `op run`.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
   Antigravity (`agy` CLI and Remote Control), the local workstation, and

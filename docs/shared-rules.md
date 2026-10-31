@@ -395,3 +395,10 @@ runtime reads come from that vault.
   and feature flags.
 - **`.env.example` is placeholders only**: list variable names and placeholder
   values in `.env.example` so operators know what to set locally.
+- **Local workstation inject uses `op run`**: inject LLM API keys on a Mac
+  from 1Password with `op run` and an `op://` template. Keep secret values out
+  of plaintext `.env` files. If a local file already held a real key, delete
+  the value and rotate that key. Use a 1Password Service Account only for
+  unattended automation. Grok Bot Vault holds bot-side browser-fill data. The
+  procedure and store split are in
+  [Inject local LLM API keys with 1Password](secrets-local-injection.md).
