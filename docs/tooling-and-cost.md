@@ -38,7 +38,12 @@ pool:
    separate Google or Gemini authentication lane. Prefer `agy` (defaulting to
    Gemini 3.8 Flash) whenever that lane has quota. It runs either in the
    interactive TUI (`agy`), through Remote Control (`agy remote-control`), or
-   in headless print mode (`agy -p`).
+   in headless print mode (`agy -p`). Treat md-deck body prose and
+   customer-facing Markdown proposals the same as repository docs: keep them on
+   workstation `agy` under `~/agy-work/<repo>`, not Cursor cloud. Do not switch
+   to Cursor cloud because workstation local execution is waiting for approval.
+   Direct Grok drafting remains an exception-only fallback after `agy`
+   soft-deny or 429 quota exhaustion with explicit operator approval.
 4. **Local workstation hardware**: runs Apple Silicon Metal and MPS workloads,
    local model inference, heavy batch processing, large local disk I/O, local
    test suites, and local CLI workers (`agy` and `agent`). Prefer running heavy
@@ -125,7 +130,12 @@ Align each task with its best cost lane to protect quotas:
   cloud coding agents within included Cursor pools.
 - Route document drafting, prose reviews, and documentation maintenance to
   Antigravity CLI (`agy`) on its separate Gemini authentication lane whenever
-  that lane has quota.
+  that lane has quota. Treat md-deck body prose and customer-facing Markdown
+  proposals the same as repository docs: keep them on `agy` under
+  `~/agy-work/<repo>`, not Cursor cloud, and not direct Grok drafting except
+  after soft-deny or 429 quota exhaustion with explicit operator approval.
+  Never switch to Cursor cloud because workstation local execution is waiting
+  for an approval card.
 - Route tasks requiring local GPU (Apple Silicon Metal or MPS), intensive disk
   I/O, or offline inference to the registered local workstation, preventing
   cloud LLM token burn on non-LLM compute.

@@ -73,27 +73,32 @@ design review or cross-domain triage.
 
 ## 5. Code and documents use different workers
 
-- Code changes (features, fixes, refactors, follow-up fixes): prefer a fresh
-  Cursor cloud coding agent (or subagent) on a remote branch for each pull
-  request or separate coding task. Give it a self-contained brief with the
-  goal, constraints, full URLs or paths, and how to tell the work is done. Do
-  not keep reusing one long agent that carries a huge history. Use the local
-  Cursor Agent CLI (`agent -p`) only when the work must run on the registered
-  workstation (local hardware, local-only files, or headless local tooling that
-  cloud agents cannot reach), and run it only under `~/agent-work/<repo>`
-  (`mkdir -p ~/agent-work`).
+- Code changes (features, fixes, refactors, follow-up fixes, CI pins, and PR
+  hygiene): prefer a fresh Cursor cloud coding agent (or subagent) on a remote
+  branch for each pull request or separate coding task. Give it a self-contained
+  brief with the goal, constraints, full URLs or paths, and how to tell the work
+  is done. Do not keep reusing one long agent that carries a huge history. Use
+  the local Cursor Agent CLI (`agent -p`) only when the work must run on the
+  registered workstation (local hardware, local-only files, or headless local
+  tooling that cloud agents cannot reach), and run it only under
+  `~/agent-work/<repo>` (`mkdir -p ~/agent-work`).
 - Documents, articles, and decks: a document worker drafts the whole piece,
-  and a coding agent only commits the approved text into the repo. For
-  repository documentation writing and review on the local workstation, run
-  Antigravity CLI (`agy`) only under `~/agy-work/<repo>` (never under
-  `~/work/...`; see
-  [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
+  and a coding agent only commits the approved text into the repo. Document
+  drafting and rewrite stay on workstation `agy` under `~/agy-work/<repo>`,
+  including repository Markdown docs, md-deck slide body prose,
+  customer-facing proposals, and Q&A decks (never under `~/work/...`; see
+  [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots) and
+  [Docs and deck prose lane](workstation-handoffs.md#docs-and-deck-prose-lane-non-negotiable)).
   Prefer `agy` (defaulting to Gemini 3.8 Flash, `gemini-3.8-flash-medium`) for
   docs drafting and review; Grok drafting docs is an exception-only fallback
   after soft-deny or 429 quota exhaustion with operator approval (see
   [Default agy model](workstation-handoffs.md#default-agy-model-gemini-38-flash)
   and
   [Prefer agy for docs; Grok draft exception-only](workstation-handoffs.md#prefer-agy-for-docs-grok-draft-exception-only)).
+- Never change lanes mid-task solely because of a pending local-approval card.
+  When a Mac local Shell command waits on an approval card, wait for operator
+  confirmation, relaunch `agy` after allow, or stop and report. Do not escape
+  to Cursor cloud to finish prose drafting.
 
 Do not ask a long-lived domain bot to own every commit for a PR. Do not ask a
 coding agent to write a full article in the repo without a draft approved

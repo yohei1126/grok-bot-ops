@@ -48,6 +48,7 @@ Operators who:
   (`agent` or `cursor-agent`), structure self-contained briefs, enforce
   one-writer parallel-execution controls, and prefer operator-facing choice
   cards over growing fine-grained Allow lists (including
+  [docs and deck prose lane discipline](docs/workstation-handoffs.md#docs-and-deck-prose-lane-non-negotiable),
   [local approval prompt reduction](docs/workstation-handoffs.md#reduce-local-approval-prompts),
   [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling),
   and the phase-batched wrapper scripts in
