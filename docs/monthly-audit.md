@@ -76,9 +76,10 @@ research to one-off agents, and prune redundant CI workflows.
 - [ ] Confirm that each routine still has a purpose lasting about a month or
   more, or mark it for deletion.
 - [ ] Make sure routines do not read other bots' transcripts. They read shared
-  durable notes and weekly progress documents (collaborative docs under a
-  dated folder). Optional shared workspace status files may feed only a
-  progress-bot rollup. They are not the canonical weekly-review source.
+  durable notes and weekly progress documents (collaborative docs in Drive under
+  a dated folder as the source of truth). Optional status files under
+  `/home/box/status/<slug>.md` serve as auxiliary input only. Missing or stale
+  files are not defects.
 - [ ] Check that bot-to-bot messages default to low (deferred) priority unless
   the operator requires otherwise.
 - [ ] Check that cross-domain facts go to the responsible domain bot at low
@@ -111,8 +112,8 @@ reason, for the operator to approve.
   actually operate.
 - [ ] Note practices that drifted. Examples: a coding agent writing whole
   articles, rooms per PR, transcript mining, reusing one long coding agent,
-  routing every topic through a central bot, treating status files as the
-  weekly-review source of truth, or a bot publishing or merging without the
+  routing every topic through a central bot, treating status files instead of
+  Drive docs as the weekly-review source of truth, or a bot publishing or merging without the
   operator.
 - [ ] Draft generalized wording fixes only. Leave out personal schedules,
   cities, employers, and family references.
@@ -129,8 +130,9 @@ Proposal: a short PR against this docs repo or your fork that updates
   same agent continued only for an ongoing hardware or local machine session.
 - [ ] The bot that heard an operator decision wrote it into shared durable
   notes. Decisions were not relayed through a chain of bots.
-- [ ] The weekly review used collaborative progress docs under a dated folder.
-  Workspace status files, if any, served only as optional rollup input.
+- [ ] The weekly review used collaborative progress docs in Drive as the source
+  of truth. Workspace status files under `/home/box/status/<slug>.md` served only
+  as optional auxiliary input without chasing stale files.
 - [ ] Human tasks live in the task app (Todoist or an equivalent). Agent jobs
   live in the private job hub, with lane (`agy`, `agent`, `orchestrator-bot`,
   `cloud-coding`) and status (`running`, `waiting`) labels, a lane or

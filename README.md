@@ -20,11 +20,12 @@ Operators who:
   rules. They cover where ops rules live (shared durable notes and this repo,
   not Agent Skills), when to create bots, talking to the responsible bot,
   group rooms, fresh cloud coding agents versus document workers, priorities
-  and cross-domain signals, decisions, weekly progress docs, human tasks in
-  the task app, agent jobs in the private job hub, schedules in the calendar,
-  deliverables and publishing, issue-first coding, cost and ops proposals,
-  retiring finished bots, preferring public repositories, archiving unused
-  repositories, and storing secrets in 1Password.
+  and cross-domain signals, decisions, Drive weekly Doc as the weekly progress
+  source of truth with optional status files, human tasks in the task app,
+  agent jobs in the private job hub, schedules in the calendar, deliverables
+  and publishing, issue-first coding, cost and ops proposals, retiring finished
+  bots, preferring public repositories, archiving unused repositories, and
+  storing secrets in 1Password.
 - [`docs/secrets-local-injection.md`](docs/secrets-local-injection.md) covers Mac LLM API-key injection with `op run`.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),
@@ -35,11 +36,13 @@ Operators who:
   changes.
 - [`docs/cast-and-routing.md`](docs/cast-and-routing.md) maps the full cast
   across actors, tools, and execution environments, clarifies daily commander
-  versus progress bot roles, defines who assigns work to whom over which named
-  channel, separates human tasks in the task app from bot jobs in a private
-  job hub with handoff visibility conventions, defines assign-and-accept
-  boundaries with event-driven completion, and provides a pre-launch routing
-  checklist that includes card-style confirmation for heavy launches.
+  versus progress bot roles (with Drive weekly Docs as the progress source of
+  truth and status files as optional auxiliary notes), defines who assigns work
+  to whom over which named channel, separates human tasks in the task app from
+  bot jobs in a private job hub with handoff visibility conventions, defines
+  assign-and-accept boundaries with event-driven completion, and provides a
+  pre-launch routing checklist that includes card-style confirmation for heavy
+  launches.
 - [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md) covers how to
   prepare a registered workstation, enforce fixed checkout roots (`~/agy-work`
   for `agy` and `~/agent-work` for local `agent`) and cloud-versus-local coding

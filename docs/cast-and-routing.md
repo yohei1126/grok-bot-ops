@@ -27,9 +27,10 @@ surface before assigning work:
 - **Cost/ops bot (daily commander)**: routes tasks to execution lanes, prepares
   briefs, requests launch confirmation, accepts completion signals, and manages
   peer handoffs. It links daily orchestration directly with spend oversight.
-- **Progress bot (weekly aggregator)**: aggregates weekly notes and status files
-  into an operator digest. It does not manage daily task assignments or poll
-  workers.
+- **Progress bot (weekly aggregator)**: aggregates weekly progress from the
+  Drive weekly Google Doc into an operator digest. Status files under
+  `/home/box/status/<slug>.md` are optional auxiliary notes. The progress bot
+  does not manage daily task assignments or poll workers.
 - **Execution environments and devices**:
   - **Grok cloud computer ("box")**: the hosted cloud environment where Grok
     Bot runs connectors, scheduled routines, and short research tasks.
@@ -73,10 +74,14 @@ a separate commander role:
   handoffs. Combining commander duties with cost tracking keeps lane routing
   aligned with plan limits. Do not create a separate commander bot when a
   cost/ops bot already manages lanes and spend.
-- **Progress bot for weekly rollups**: aggregates weekly notes and workspace
-  status files into an operator digest. It does not handle daily task
-  assignments, receive completion pings, or poll workers. Optional status files
-  and weekly notes provide sufficient context for its digest.
+- **Progress bot for weekly rollups**: aggregates weekly progress into an
+  operator digest (such as a Monday routine digest). The Drive weekly Google Doc
+  is the single source of truth for these digests. The progress bot prefers the
+  Drive Doc and does not chase stale or missing status files. Files under
+  `/home/box/status/<slug>.md` are optional auxiliary notes, and missing or
+  stale files are not defects. The progress bot does not handle daily task
+  assignments, receive completion pings, or poll workers. Personal and family
+  details stay out of work-bot digests.
 
 ## 2. Match each role and surface to the right workload
 
@@ -368,7 +373,8 @@ Verify every item before launching a handoff:
 
 - [ ] **Assign dispatch to the daily commander**: confirm the cost/ops bot
   manages lane selection and dispatch. Keep the progress bot focused on weekly
-  aggregation. Do not create an extra commander bot.
+  aggregation using the Drive weekly Google Doc as the source of truth, treating
+  status files as optional notes. Do not create an extra commander bot.
 - [ ] **Match the job type to the right lane**: route standard repository
   coding to Cursor cloud coding agents; use local `agent -p` (under
   `~/agent-work/<repo>`) only when the task must run on the workstation (local

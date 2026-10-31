@@ -37,7 +37,7 @@ more, such as a product area, a recurring ops lane, or a writing stream.
 - Fill in a real description: what the bot owns, what it does *not* own, and
   where its durable notes live.
 - Point it at the dated folder that holds its weekly progress note (see
-  [Weekly progress](#9-weekly-progress-lives-in-collaborative-docs)). A shared
+  [Weekly progress](#9-weekly-progress-source-of-truth)). A shared
   workspace status file is optional.
 
 Use a one-off chat or cloud agent when the work is a single PR, a one-time
@@ -162,26 +162,35 @@ Routines must not read other bots' transcripts.
 - Relaying "what Bot A said last Tuesday" through other bots is fragile and
   expensive. Write it down once.
 
-## 9. Weekly progress lives in collaborative docs
+## 9. Weekly progress source of truth
 
-For the operator's weekly review, each long-lived work bot writes a short
-progress note as a collaborative document under a dated folder in a shared
-drive or an equivalent collaborative docs suite.
+The Drive weekly Google Doc is the single source of truth for weekly progress
+digests (such as Monday rollups) and operator reviews.
 
-That note is the canonical source for the weekly review. Keep it short:
-current focus, blockers, and next step. A dated folder name such as
-`YYYY-MM-DD` is enough. Do not record Drive folder IDs in work notes or in
-this repo.
+Each long-lived work bot writes its weekly progress note into the collaborative
+weekly document under a dated folder in Google Drive (for example,
+`YYYY-MM-DD`). Keep entries short: current focus, blockers, and next steps. Do
+not record Drive folder IDs in work notes or in this repository.
 
-Shared workspace status files are optional input to the progress bot's
-rollup. They are not the canonical source for the review.
+Follow these rules for weekly progress tracking:
 
-- Keep personal and family information out of work progress docs and out of
-  other work bots.
-- Progress docs and status files are operator-facing hygiene. They do not
-  replace issues and pull requests.
-- When a bot is retired, archive or remove its progress doc and any status
-  file so the progress bot stops aggregating it (see
+- **Drive weekly Google Doc is the source of truth**: the progress bot uses the
+  Drive weekly Doc as the authoritative record when preparing weekly digests.
+- **Status files are optional auxiliary notes**: files under
+  `/home/box/status/<slug>.md` are optional supplementary notes. Missing or
+  stale status files are not gaps or defects.
+- **Progress bot prefers the Drive Doc**: the progress bot prioritizes the
+  collaborative document and does not chase stale status files. It may use
+  status files as a secondary supplement when available.
+- **Keep family information out of work-bot digests**: personal and family
+  updates stay out of work progress documents, digests, and status files.
+- **Hygiene over task tracking**: progress documents and status files provide
+  operator visibility. They do not replace repository issues or pull requests,
+  and they never serve as an execution queue (see
+  [`cast-and-routing.md`](cast-and-routing.md#daily-commander-versus-progress-bot)).
+- **Retirement cleanup**: when a bot is retired, remove or archive its section
+  in the weekly progress doc and remove its status file so the progress bot stops
+  aggregating it (see
   [Retire finished rooms and bots](#15-retire-finished-single-purpose-rooms-and-bots)).
 
 ## 10. Human tasks in the task app, agent jobs in the private job hub, schedules in the calendar
