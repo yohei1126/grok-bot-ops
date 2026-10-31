@@ -16,11 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        # v4.2.2. The repository requires a full commit SHA.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run markdownlint-cli2
-        # Pins action v24.2.0 → markdownlint-cli2 v0.23.2 / markdownlint v0.41.1
-        uses: DavidAnson/markdownlint-cli2-action@v24.2.0
-        with:
-          globs: |
-            **/*.md
+        # markdownlint-cli2 0.23.2, the CLI bundled in
+        # DavidAnson/markdownlint-cli2-action v24.2.0 (21c1be1b93ad9ed58fa840aacc3f279cde2a72ff).
+        # That action is listed on the Marketplace but its owner is not a
+        # verified creator, so the allowlist rejects it even at a full SHA.
+        # Globs and rules come from .markdownlint-cli2.yaml.
+        run: npx --yes markdownlint-cli2@0.23.2
