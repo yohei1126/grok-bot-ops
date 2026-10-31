@@ -45,6 +45,17 @@ subscription LLM pools and GitHub Actions spend. Steps 2 through 4 are sections
 - [ ] Review GitHub Actions usage trend (minutes and artifact storage
   direction: up, flat, or down). Do not paste invoices, dollar amounts, or plan
   tier names into this repo, weekly progress docs, or work-bot status files.
+- [ ] Check when included subscription capacity was exhausted and on-demand
+  spend began. Confirm that bot and IDE activity respected hard-stop posture
+  and halted long agentic loops on metered pools unless explicitly approved
+  (see
+  [`tooling-and-cost.md`](tooling-and-cost.md#enforce-hard-stops-and-pace-weekly-usage)).
+- [ ] Reconcile spend with dual attribution. Cross-reference the product-level
+  billing export (CSV) with the in-app bot and routine share report. Because
+  the billing CSV attributes to user principals without bot identifiers,
+  correlate heavy on-demand dates with bot-share activity without inventing
+  per-bot dollar splits (see
+  [`tooling-and-cost.md`](tooling-and-cost.md#9-run-dual-attribution-during-monthly-audits)).
 - [ ] Flag unusually expensive threads or bots by role or domain label, not by
   personal identifiers.
 - [ ] Flag wasteful workflows by purpose (such as duplicate lint runs, unused
@@ -75,6 +86,12 @@ research to one-off agents, and prune redundant CI workflows.
   their owners.
 - [ ] Confirm that each routine still has a purpose lasting about a month or
   more, or mark it for deletion.
+- [ ] Audit scheduled routines that run in overnight or early-morning local
+  hours when nobody can act on results. When billing exports show on-demand
+  spend in those windows, pause the routines, reschedule them to waking hours,
+  or convert idle polling to event triggers. Distinguish rare routines that must
+  run overnight from convenience schedules (see
+  [`tooling-and-cost.md`](tooling-and-cost.md#audit-overnight-and-off-hours-scheduled-routines)).
 - [ ] Make sure routines do not read other bots' transcripts. They read shared
   durable notes and weekly progress documents (collaborative docs in Drive under
   a dated folder as the source of truth). Optional status files under

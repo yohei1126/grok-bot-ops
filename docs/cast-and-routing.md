@@ -7,7 +7,7 @@ Use the same generic labels as [`shared-rules.md`](shared-rules.md): operator,
 domain bot (`Domain｜Role`), progress bot, cost/ops bot, document worker, cloud
 coding agent, and shared durable notes.
 
-For plan pools, spend caps, and surface cost lanes, see
+For plan pools, spend caps, on-demand hard stops, and surface cost lanes, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For workstation CLI setup,
 `agy` and `agent` handoff paths, parallel-writer control, and card-style launch
 confirmation, see [`workstation-handoffs.md`](workstation-handoffs.md).
