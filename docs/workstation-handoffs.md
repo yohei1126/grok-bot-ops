@@ -75,8 +75,8 @@ and
   local-only files, or local tooling). The agent CLI is primary for general
   coding and verification.
 - **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: secondary tool used for
-  document drafting, repository documentation updates, and prose reviews on the
-  Google or Gemini lane. Do not use `agy` to verify code.
+  document drafting, docs updates, and prose reviews on the Google or Gemini
+  lane. Do not use `agy` to verify code or audit security posture.
 - **Heavy local compute and hardware saturation**: for non-training workloads
   (media pipelines, audio, offline inference, large data transforms, and heavy
   builds) and guidance on saturating Mac CPU and Metal capacity, see
@@ -86,11 +86,13 @@ and
 
 Document drafting, rewrite, and review stay on workstation `agy` (subscription
 or Gemini auth lane) under `~/agy-work/<repo>`. This lane covers repository
-documentation Markdown, md-deck and slide deck body Markdown (such as customer
-proposals and Q&A decks), and domain writing with writing skills.
+documentation Markdown, md-deck slide prose, and writing-skill drafts.
 
-Do not use `agy` for code verification, builds, or smoke checks. Route those to
-local `agent -p` under `~/agent-work/<repo>`.
+Do not use `agy` for code verification, builds, smoke checks, or security audit
+inspections. Route code verification and smoke passes to local `agent -p` under
+`~/agent-work/<repo>`. Security audits follow partial `agy` rules where the
+audit body and verification stay off `agy` (see
+[`security-audit-lanes.md`](security-audit-lanes.md)).
 
 Cursor cloud coding agents are not a substitute for this prose work, even when a
 previous pull request was opened by a cloud agent, the Mac shell waits on an
