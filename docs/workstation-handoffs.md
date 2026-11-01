@@ -11,9 +11,8 @@ coding agent, and shared durable notes.
 For surface cost lanes and spend caps, see
 [`tooling-and-cost.md`](tooling-and-cost.md). For commander scope, assignment
 channels, event-driven completion, and human-task versus private-job-hub
-routing, see
-[`cast-and-routing.md`](cast-and-routing.md). Prefer card-style launch
-confirmation over growing Allow lists (see
+routing, see [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style
+launch confirmation over growing Allow lists (see
 [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
 
 ## 1. Prepare the workstation for Antigravity and Cursor CLI handoffs
@@ -58,20 +57,26 @@ disk:
 
 ### When to use Cursor cloud coding agents versus local `agent`
 
-Route repository coding and documentation across cloud and workstation lanes
-according to whether the work requires local machine access (see
+Route repository coding, verification, and documentation across cloud and
+workstation lanes according to whether the work requires local machine access
+(see
 [Code and documents](shared-rules.md#5-code-and-documents-use-different-workers)
 and
 [Match each role and surface to the right workload](cast-and-routing.md#2-match-each-role-and-surface-to-the-right-workload)):
 
 - **Repository coding (features, bug fixes, refactors, and PR hygiene)**: prefer
   **Cursor cloud coding agents** on a fresh remote branch over local `agent -p`.
-- **Local `agent -p` (`~/agent-work/<repo>`)**: use only when the task **must**
-  run on the registered workstation, such as local hardware validation,
-  local-only files, or headless local tooling that cloud agents cannot reach.
-- **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: use for document
-  drafting, repository documentation updates, and prose reviews on the Google
-  or Gemini authentication lane.
+- **Mac pre-release and local smoke verification**: use local **`agent -p`**
+  under `~/agent-work/<repo>` for build execution, unit and integration tests
+  that require the workstation, CLI smoke passes, and local database or runtime
+  checks (such as Neo4j). Do not use `agy` for code verification or smoke runs.
+- **Local `agent -p` (`~/agent-work/<repo>`)**: use when the task must run on the
+  registered workstation (Mac pre-release smoke, local hardware tests,
+  local-only files, or local tooling). The agent CLI is primary for general
+  coding and verification.
+- **Antigravity CLI (`agy` under `~/agy-work/<repo>`)**: secondary tool used for
+  document drafting, repository documentation updates, and prose reviews on the
+  Google or Gemini lane. Do not use `agy` to verify code.
 - **Heavy local compute and hardware saturation**: for non-training workloads
   (media pipelines, audio, offline inference, large data transforms, and heavy
   builds) and guidance on saturating Mac CPU and Metal capacity, see
@@ -80,18 +85,16 @@ and
 ### Docs and deck prose lane (non-negotiable)
 
 Document drafting, rewrite, and review stay on workstation `agy` (subscription
-or Gemini auth lane) under `~/agy-work/<repo>`. This lane covers:
+or Gemini auth lane) under `~/agy-work/<repo>`. This lane covers repository
+documentation Markdown, md-deck and slide deck body Markdown (such as customer
+proposals and Q&A decks), and domain writing with writing skills.
 
-- repository documentation Markdown
-- md-deck and slide deck body Markdown, such as customer proposals, Q&A decks,
-  and other prose-heavy decks
-- domain writing that loads Japanese or English writing skills
+Do not use `agy` for code verification, builds, or smoke checks. Route those to
+local `agent -p` under `~/agent-work/<repo>`.
 
-Cursor cloud coding agents are not a substitute for this prose work, even when:
-
-- a previous pull request for the same files was opened by a cloud agent
-- the Mac local Shell session waits for an approval card
-- a soft-deny stopped an `agy` run
+Cursor cloud coding agents are not a substitute for this prose work, even when a
+previous pull request was opened by a cloud agent, the Mac shell waits on an
+approval card, or a soft-deny stopped an `agy` run.
 
 When a Mac Shell command pauses on an approval card, leave the approval for the
 operator, relaunch `agy` after allow, or stop and report. Never reply to a

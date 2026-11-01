@@ -79,8 +79,8 @@ design review or cross-domain triage.
   brief with the goal, constraints, full URLs or paths, and how to tell the work
   is done. Do not keep reusing one long agent that carries a huge history. Use
   the local Cursor Agent CLI (`agent -p`) only when the work must run on the
-  registered workstation (local hardware, local-only files, or headless local
-  tooling that cloud agents cannot reach), and run it only under
+  registered workstation (Mac pre-release smoke, local runtime checks, local
+  hardware, local-only files, or headless local tooling), and run it only under
   `~/agent-work/<repo>` (`mkdir -p ~/agent-work`).
 - Documents, articles, and decks: a document worker drafts the whole piece,
   and a coding agent only commits the approved text into the repo. Document
@@ -89,9 +89,10 @@ design review or cross-domain triage.
   customer-facing proposals, and Q&A decks (never under `~/work/...`; see
   [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots) and
   [Docs and deck prose lane](workstation-handoffs.md#docs-and-deck-prose-lane-non-negotiable)).
-  Prefer `agy` (defaulting to Gemini 3.8 Flash, `gemini-3.8-flash-medium`) for
-  docs drafting and review; Grok drafting docs is an exception-only fallback
-  after soft-deny or 429 quota exhaustion with operator approval (see
+  Do not use `agy` for code or smoke verification. Prefer `agy` (defaulting to
+  Gemini 3.8 Flash, `gemini-3.8-flash-medium`) for docs drafting and review;
+  Grok drafting docs is an exception-only fallback after soft-deny or 429 quota
+  exhaustion with operator approval (see
   [Default agy model](workstation-handoffs.md#default-agy-model-gemini-38-flash)
   and
   [Prefer agy for docs; Grok draft exception-only](workstation-handoffs.md#prefer-agy-for-docs-grok-draft-exception-only)).
