@@ -137,8 +137,9 @@ Enforce strict boundaries between prose authorship and repository coding:
 
 - **Document and deck-body authorship**: route repository Markdown docs,
   md-deck slide body prose, customer-facing proposals, and Q&A decks to `agy`
-  under `~/agy-work/<repo>`. Do not send code verification or smoke runs to
-  `agy`.
+  under `~/agy-work/<repo>`. Do not send code verification, smoke runs, or
+  security audit inspection bodies to `agy` (see
+  [`security-audit-lanes.md`](security-audit-lanes.md)).
 - **Code, verification, and mechanical PR hygiene**: route features, bug fixes,
   refactors, CI pins, and script plumbing to Cursor cloud coding agents (or
   local `agent -p` when workstation-bound, including Mac pre-release smoke and

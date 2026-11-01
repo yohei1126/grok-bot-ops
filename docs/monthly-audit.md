@@ -12,6 +12,12 @@ audit's PR merges.
 The audit proposes changes. The operator chooses what to apply and then
 instructs the bots.
 
+This checklist covers operations cost, subscription capacity, routine
+inventories, and shared-rule drift. Domain security audits (repository settings,
+authentication, secrets surfaces, and threat models) are separate routines that
+follow the partial `agy` routing rules in
+[`security-audit-lanes.md`](security-audit-lanes.md).
+
 When the audit leads to a PR, the diff must stay generalized. Leave out
 personal facts, billing amounts, customer names, and bot display names that
 identify an individual.

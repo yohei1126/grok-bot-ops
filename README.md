@@ -67,6 +67,10 @@ Operators who:
   monthly-audit PR; after that PR merges, update the operator's private shared
   assistant notes; tag one `YYMMDD` GitHub Release for the cycle (not for
   mid-cycle PRs).
+- [`docs/security-audit-lanes.md`](docs/security-audit-lanes.md) encodes the
+  operator routing for security audits, enforcing partial `agy` rules where
+  weekly threat news prose and post-audit summaries use `agy` while the audit
+  body, live infrastructure defense, and credential handling stay off `agy`.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) holds all contribution rules: how to
   propose changes by pull request, the English prose review every PR needs,
   and the generic-examples policy.
