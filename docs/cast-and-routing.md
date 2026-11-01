@@ -23,7 +23,9 @@ surface before assigning work:
 - **Grok Bot (sidebar bots and orchestrator surface)**: includes long-lived
   domain bots (`Domain｜Role`), the progress bot, the cost/ops bot, and
   short-lived one-off chats. Grok Bot provides conversational UI and multi-bot
-  coordination.
+  coordination. All bots follow the fleet-wide
+  [operator chat voice](shared-rules.md#19-operator-chat-voice) rule in Japanese
+  and English.
 - **Cost/ops bot (daily commander)**: routes tasks to execution lanes, prepares
   briefs, requests launch confirmation, accepts completion signals, and manages
   peer handoffs. It links daily orchestration directly with spend oversight.
