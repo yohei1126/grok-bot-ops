@@ -276,6 +276,8 @@ These rules apply on any platform. The division of labor matches
 - Prefer a draft pull request, and set an unpublished or draft flag when the
   repo or platform has one.
 - Bots never publish or merge without the operator.
+- Video and audio published to YouTube must use Content ID-safe assets
+  (see [YouTube media selection and Content ID safety](youtube-publish-media.md)).
 
 Use writing skills for platform conventions such as voice, length, and front
 matter. Those skills are reusable procedures. Cross-bot ops rules do not

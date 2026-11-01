@@ -57,6 +57,10 @@ Operators who:
   [headless `agy` soft-deny handling](docs/workstation-handoffs.md#headless-agy-soft-deny-handling),
   and the phase-batched wrapper scripts in
   [`scripts/README.md`](scripts/README.md)).
+- [`docs/youtube-publish-media.md`](docs/youtube-publish-media.md) defines
+  asset rules and an operator checklist for YouTube video publication,
+  enforcing Content ID clearance and noting that stock-site licenses do not
+  guarantee safe YouTube audio or visual tracks.
 - [`docs/monthly-audit.md`](docs/monthly-audit.md) is the checklist for the
   monthly ops cycle: review usage across LLM subscriptions and GitHub Actions,
   routines, idle bots, rule drift, and cross-bot practice; open the
