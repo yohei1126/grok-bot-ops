@@ -118,7 +118,9 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
    transforms, container builds), local test suites, and local CLI workers
    (`agy` and `agent`). Enforce the one-writer rule across local checkouts (see
    [Control parallel `agy` and `agent` runs](workstation-handoffs.md#4-control-parallel-agy-and-agent-runs-to-prevent-branch-conflicts))
-   and return only short summaries, metrics, or output paths to Grok.
+   and return only short summaries, metrics, or output paths to Grok. For media
+   prepared for YouTube upload, follow
+   [YouTube media selection and Content ID safety](youtube-publish-media.md).
 5. **Phone**: handles short instructions, triage, and human approvals. Do not
    use the phone as a launch surface for long training runs, bulk regeneration
    jobs, or unreviewed multi-file refactors.

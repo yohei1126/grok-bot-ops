@@ -12,7 +12,8 @@ to English Markdown.
    [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md),
    [`docs/cast-and-routing.md`](docs/cast-and-routing.md),
    [`docs/workstation-handoffs.md`](docs/workstation-handoffs.md),
-   [`docs/secrets-local-injection.md`](docs/secrets-local-injection.md), or
+   [`docs/secrets-local-injection.md`](docs/secrets-local-injection.md),
+   [`docs/youtube-publish-media.md`](docs/youtube-publish-media.md), or
    [`docs/monthly-audit.md`](docs/monthly-audit.md).
 3. Keep the change generalized: useful to other operators and not tied to one
    person's setup.
