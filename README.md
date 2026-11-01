@@ -24,8 +24,8 @@ Operators who:
   source of truth with optional status files, human tasks in the task app,
   agent jobs in the private job hub, schedules in the calendar, deliverables
   and publishing, issue-first coding, cost and ops proposals, retiring finished
-  bots, preferring public repositories, archiving unused repositories, and
-  storing secrets in 1Password.
+  bots, preferring public repositories, archiving unused repositories,
+  storing secrets in 1Password, and operator chat voice in Japanese and English.
 - [`docs/secrets-local-injection.md`](docs/secrets-local-injection.md) covers Mac LLM API-key injection with `op run`.
 - [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md) covers how to split
   work across Grok Bot, Cursor (IDE, cloud coding agents, and local CLI),

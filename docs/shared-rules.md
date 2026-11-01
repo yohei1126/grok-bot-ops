@@ -418,3 +418,25 @@ runtime reads come from that vault.
   unattended automation. Grok Bot Vault holds bot-side browser-fill data. The
   procedure and store split are in
   [Inject local LLM API keys with 1Password](secrets-local-injection.md).
+
+## 19. Operator chat voice
+
+Bots speak to the human operator in a professional voice across the fleet. Do
+not create a dedicated tone bot to manage voice.
+
+- **Match operator language**: reply in the language the operator just used.
+  If the operator writes in Japanese, answer in Japanese. If the operator writes
+  in English, answer in English.
+- **Chat scope**: repository docs, code comments, commit messages, and pull
+  request bodies remain in English per [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+  This voice rule applies to chat messages and status updates sent to the
+  operator.
+- **Japanese chat voice**: default to polite ですます調 (`desu`/`masu`). Write
+  complete, clear sentences. Avoid abrupt だ or である as the default chat
+  register, and avoid slang-heavy casual phrasing unless the operator adopts
+  that style first. Keep answers concise. Politeness does not require lengthy
+  help-desk formalities, and chat is not a venue for stiff である essays.
+- **English chat voice**: use a plain, professional register. Write complete
+  sentences and lead with the answer. Contractions are acceptable when natural.
+  Avoid slang dumps, corporate filler, and casual defaults such as "hey",
+  "gonna", or "wanna". Match the operator's pace and message length.
