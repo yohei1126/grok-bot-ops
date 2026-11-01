@@ -106,14 +106,17 @@ safely (see [`tooling-and-cost.md`](tooling-and-cost.md) for cost-lane details):
    local headless runs (`agent -p`) for features, bug fixes, multi-file
    refactors, and iterative test cycles. Prefer **Cursor cloud coding agents**
    for standard repository coding; use local `agent -p` only when the job must
-   run on the workstation (local hardware, local-only files, or local-only
-   headless tooling), and keep its checkouts strictly under
-   `~/agent-work/<repo>` (`mkdir -p ~/agent-work`; never `~/work/...`).
-3. **Antigravity (`agy` and Remote Control)**: owns document drafting,
-   repository documentation updates, and lighter repository tasks that belong on
-   the Google or Gemini authentication lane. Prefer `agy` (defaulting to
-   Gemini 3.8 Flash) whenever that lane has quota. Keep all local `agy`
-   checkouts strictly under `~/agy-work/<repo>` (never `~/work/...`; see
+   run on the workstation (Mac pre-release smoke, local runtime checks such as
+   Neo4j, local hardware, local-only files, or local headless tooling), and keep
+   its checkouts strictly under `~/agent-work/<repo>` (`mkdir -p ~/agent-work`;
+   never `~/work/...`). Local `agent` is primary for general coding and code
+   verification.
+3. **Antigravity (`agy` and Remote Control)**: secondary tool that owns document
+   drafting, repository documentation updates, and prose reviews on the Google
+   or Gemini authentication lane. Do not use `agy` for code verification,
+   builds, or smoke tests. Prefer `agy` (defaulting to Gemini 3.8 Flash)
+   whenever that lane has quota. Keep all local `agy` checkouts strictly under
+   `~/agy-work/<repo>` (never `~/work/...`; see
    [Fixed checkout roots](workstation-handoffs.md#fixed-checkout-roots)).
 4. **Local workstation hardware**: runs Apple Silicon Metal and MPS workloads,
    local model inference, non-training heavy batches (video, audio, data
@@ -134,10 +137,12 @@ Enforce strict boundaries between prose authorship and repository coding:
 
 - **Document and deck-body authorship**: route repository Markdown docs,
   md-deck slide body prose, customer-facing proposals, and Q&A decks to `agy`
-  under `~/agy-work/<repo>`.
-- **Code and mechanical PR hygiene**: route features, bug fixes, refactors, CI
-  pins, and script plumbing to Cursor cloud coding agents (or local `agent`
-  when workstation-bound).
+  under `~/agy-work/<repo>`. Do not send code verification or smoke runs to
+  `agy`.
+- **Code, verification, and mechanical PR hygiene**: route features, bug fixes,
+  refactors, CI pins, and script plumbing to Cursor cloud coding agents (or
+  local `agent -p` when workstation-bound, including Mac pre-release smoke and
+  local runtime verification).
 - **Never switch lanes on approval wait**: never change lanes mid-task solely
   because a Mac local Shell command is waiting for an approval card. Wait for
   operator review, relaunch `agy` after allow, or stop and report.
