@@ -441,3 +441,11 @@ not create a dedicated tone bot to manage voice.
   sentences and lead with the answer. Contractions are acceptable when natural.
   Avoid slang dumps, corporate filler, and casual defaults such as "hey",
   "gonna", or "wanna". Match the operator's pace and message length.
+
+## Lane routing and cost docs
+
+Quota groups, coding lane order, Japanese writing, and OpenCode thrift live in
+[`docs/agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md),
+[`docs/zenn-ja-writing-lane.md`](zenn-ja-writing-lane.md), and
+[`docs/opencode-thrift.md`](opencode-thrift.md). Cost reporting is in
+[`docs/tooling-and-cost.md`](tooling-and-cost.md#weekly-progress-cost-section).

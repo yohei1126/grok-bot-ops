@@ -87,3 +87,16 @@ dependency risk.
 
 Track security remediations through dedicated issues and coding pull requests
 instead of folding them into the monthly operations audit cycle.
+
+## Keep security gates thrifty
+
+- **Dependabot**: act only on alerts that have a fixed version, and only on
+  repositories that are not archived.
+- **OpenCode keys**: reference API keys in config as `{env:NAME}` placeholders.
+  Never write a literal key into a file (see
+  [`docs/secrets-local-injection.md`](secrets-local-injection.md)).
+- **Must-to-diff gate**: the security domain bot owns the check that every Must
+  item in an issue maps to a change in the diff before merge.
+
+Lane routing for the coding work itself:
+[`docs/agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md).
