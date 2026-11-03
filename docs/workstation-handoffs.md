@@ -496,3 +496,7 @@ constraints in mind:
 - **Review allow-list changes offline after a stop**: on `soft-deny` or
   unsupported tool errors, stop and report the exact command and reason. Review
   and update allow rules offline before re-running.
+
+See also: [`docs/agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md),
+[`docs/zenn-ja-writing-lane.md`](zenn-ja-writing-lane.md),
+[`docs/opencode-thrift.md`](opencode-thrift.md).

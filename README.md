@@ -112,3 +112,14 @@ npx --yes markdownlint-cli2@0.23.2
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+## Lane and cost topic docs
+
+- [`docs/agy-quota-and-coding-lanes.md`](docs/agy-quota-and-coding-lanes.md):
+  `agy` quota groups and coding lane order.
+- [`docs/zenn-ja-writing-lane.md`](docs/zenn-ja-writing-lane.md): Japanese
+  article writing with one `write_file`-only Flash launch.
+- [`docs/opencode-thrift.md`](docs/opencode-thrift.md): OpenCode job shape and
+  no-poll rules.
+- [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md#weekly-progress-cost-section):
+  weekly progress cost section.
