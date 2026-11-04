@@ -369,6 +369,8 @@ dump hook, runs `--agy-cmd` (default `agy -p ok`), and always restores the
 original bytes. Run the tests with
 `python3 -m unittest scripts/quota/test_quota_dump.py`.
 
-> The `agy` and Cursor field mapping follows the documented `remaining_fraction`
-> and `reset_time` names. Confirm it against one real payload before relying on
-> it for a digest.
+> The `agy` mapping is verified against a real `agy` 1.5.0 `statusLine` payload
+> (`quota.<pool>.remaining_fraction` and `reset_time`). The first payload after
+> start-up has no `quota` block, so capture waits for a later one. Run one full
+> turn in `agy` while the hook is active. The Cursor / Grok mapping is still
+> unverified.

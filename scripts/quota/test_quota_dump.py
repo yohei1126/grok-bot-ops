@@ -32,6 +32,14 @@ class QuotaSchema(unittest.TestCase):
         self.assertEqual(agy["gemini-weekly"]["reset_time"], "2026-11-10T00:00:00Z")
         self.assertEqual(agy["gemini-weekly"]["plan_tier"], "ai-pro")
 
+    def test_real_agy_payload_shape(self):
+        r = run("--agy-payload", str(HERE / "fixtures/agy-payload.real.json"), "--json")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        agy = {x["pool_id"]: x for x in json.loads(r.stdout)["records"] if x["agent_id"] == "agy"}
+        self.assertEqual({k: v["status"] for k, v in agy.items()}, {k: "ok" for k in agy})
+        self.assertEqual(len(agy), 5)
+        self.assertEqual(agy["3p-weekly"]["remaining_fraction"], 0.204)
+
     def test_fireworks_and_goat_never_invent_numbers(self):
         doc = json.loads(run("--json").stdout)
         by = {r["agent_id"]: r for r in doc["records"]}

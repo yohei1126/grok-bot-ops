@@ -83,17 +83,17 @@ def reset_time(node: dict, captured: dt.datetime) -> str | None:
     return None
 
 
-def walk_pools(obj, path=()):
+def walk_pools(obj, path=(), quota_only=False):
     """Yield (key, dict) for every dict carrying a recognised fraction field."""
     if isinstance(obj, dict):
-        if fractions(obj) != (None, None):
+        if fractions(obj) != (None, None) and not (quota_only and "context_window" in path):
             name = str(obj.get("pool_id") or obj.get("id") or obj.get("name") or (path[-1] if path else ""))
             yield name, obj
         for k, v in obj.items():
-            yield from walk_pools(v, path + (str(k),))
+            yield from walk_pools(v, path + (str(k),), quota_only)
     elif isinstance(obj, list):
         for v in obj:
-            yield from walk_pools(v, path)
+            yield from walk_pools(v, path, quota_only)
 
 
 def record(agent, pool, kind, source, captured, node=None, plan_tier=None, note=None) -> dict:
@@ -152,26 +152,38 @@ def goat_records(captured) -> list[dict]:
                    note="flat monthly lane; no usage API, not a weekly pool")]
 
 
-def agy_capture(timeout: float, agy_cmd: list[str]) -> dict:
+def agy_capture(timeout: float, agy_cmd: list[str], save_raw: str | None = None) -> dict:
     """Temporarily point statusLine at a dump hook, then always restore settings."""
     original = SETTINGS.read_bytes() if SETTINGS.exists() else None
     existed = original is not None
     tmp = Path(tempfile.mkdtemp(prefix="quota-dump-"))
     dump = tmp / "payload.json"
     hook = tmp / "hook.sh"
-    hook.write_text(f'#!/bin/sh\ncat > "{dump}.part" && mv -f "{dump}.part" "{dump}"\necho quota-dump\n')
+    hook.write_text(f'#!/bin/sh\ncat >> "{dump}"; echo >> "{dump}"\necho quota-dump\n')
     hook.chmod(0o700)
     try:
         cfg = json.loads(original) if original else {}
         cfg["statusLine"] = {"type": "command", "command": str(hook), "enabled": True, "padding": 0}
         SETTINGS.write_text(json.dumps(cfg, indent=2))
-        subprocess.Popen(agy_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if agy_cmd and agy_cmd != ["none"]:
+            subprocess.Popen(agy_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            print("hook installed; start `agy` in another terminal and run one turn", file=sys.stderr)
         deadline = time.time() + timeout
-        while time.time() < deadline and not dump.exists():
+        payloads: list[dict] = []
+        best = None
+        while time.time() < deadline and best is None:
             time.sleep(0.5)
-        if not dump.exists():
-            raise TimeoutError("no statusLine payload captured before timeout")
-        return json.loads(dump.read_text())
+            if dump.exists():
+                payloads = [json.loads(x) for x in dump.read_text().splitlines() if x.strip()]
+                rich = [x for x in payloads if any(True for _ in walk_pools(x, quota_only=True))]
+                best = rich[-1] if rich else None
+        if save_raw and payloads:
+            Path(save_raw).write_text(json.dumps(
+                [{**x, "email": "REDACTED"} if "email" in x else x for x in payloads], indent=2))
+        if best is None:
+            raise TimeoutError(f"no payload with quota fields before timeout ({len(payloads)} payloads seen)")
+        return best
     finally:
         try:
             if existed:
@@ -216,7 +228,7 @@ def build(args) -> dict:
     recs: list[dict] = []
     if args.agy_payload or args.agy_capture:
         if args.agy_capture:
-            payload = agy_capture(args.timeout, args.agy_cmd.split())
+            payload = agy_capture(args.timeout, args.agy_cmd.split(), args.save_raw)
             src = "agy-statusline-hook"
         else:
             payload = json.loads(Path(args.agy_payload).read_text())
@@ -234,7 +246,8 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--agy-payload", help="saved agy statusLine JSON payload")
     p.add_argument("--agy-capture", action="store_true", help="temporary statusLine hook, then restore")
-    p.add_argument("--agy-cmd", default="agy -p ok", help="command that makes agy emit a statusLine payload")
+    p.add_argument("--agy-cmd", default="agy -p ok", help="command that makes agy emit a statusLine payload, or `none` to start agy yourself")
+    p.add_argument("--save-raw", help="with --agy-capture, also save the raw payload (may hold paths)")
     p.add_argument("--timeout", type=float, default=60.0)
     p.add_argument("--cursor-json", help="saved Cursor / Grok plan usage JSON")
     p.add_argument("--fireworks-remaining-usd", type=float)
