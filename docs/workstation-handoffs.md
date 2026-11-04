@@ -14,6 +14,8 @@ channels, event-driven completion, and human-task versus private-job-hub
 routing, see [`cast-and-routing.md`](cast-and-routing.md). Prefer card-style
 launch confirmation over growing Allow lists (see
 [Prefer card-style launch confirmation](#6-prefer-card-style-launch-confirmation-over-growing-allow-lists)).
+After a handoff, collect and report per
+[Collect agy handoffs in one Mac shell](#7-collect-agy-handoffs-in-one-mac-shell-and-keep-reporting-thin).
 
 ## 1. Prepare the workstation for Antigravity and Cursor CLI handoffs
 
@@ -244,7 +246,9 @@ Split verification, git, and pull request steps into separate tool calls using
 commands already in the workstation allow list (see
 [Headless agy soft-deny handling](#headless-agy-soft-deny-handling)): `wc -l`,
 `git status`, `git diff`, `git add`, `git commit`, `git push`, and
-`gh pr create --draft`.
+`gh pr create --draft`. These git steps apply to `agent -p`. Docs briefs for
+`agy` stay `write_file`-only, and Grok Bot runs git and the draft PR at collect
+(see [Collect agy handoffs in one Mac shell](#7-collect-agy-handoffs-in-one-mac-shell-and-keep-reporting-thin)).
 
 ## 4. Control parallel `agy` and `agent` runs to prevent branch conflicts
 
@@ -487,15 +491,51 @@ constraints in mind:
 - **Interactive review modes soft-deny in Print mode**: policies such as
   `toolPermission=request-review` cause soft-denials because headless runs
   cannot prompt the operator.
-- **Prefer allow-listed commands in docs-lane briefs**: center briefs on
-  commands already in the workstation allow list (`git`, `gh`, `cp`, `wc`,
-  `mkdir`, `ls`, `cat`). Avoid `npm` or `npx` lint commands unless the exact
-  command string is allow-listed in advance. Run one `argv`-style command per
-  `RunCommand` call without shell chaining (see
+- **Keep docs-lane briefs `write_file`-only**: do not ask `agy` to run git,
+  `gh`, shell commands, or linters (including `npm` or `npx` lint). Grok Bot
+  runs git and the draft PR at collect (see
+  [Collect agy handoffs in one Mac shell](#7-collect-agy-handoffs-in-one-mac-shell-and-keep-reporting-thin)).
+  If a worker must run a command, use one already in the allow list. Run one
+  `argv`-style command per `RunCommand` call without shell chaining (see
   [Issue one command per tool call in headless CLI handoffs](#issue-one-command-per-tool-call-in-headless-cli-handoffs)).
 - **Review allow-list changes offline after a stop**: on `soft-deny` or
   unsupported tool errors, stop and report the exact command and reason. Review
   and update allow rules offline before re-running.
+
+## 7. Collect agy handoffs in one Mac shell and keep reporting thin
+
+Retrospective source:
+[edgesentry/agent-ops#25](https://github.com/edgesentry/agent-ops/pull/25).
+
+### Keep these splits
+
+- **`agy` is `write_file`-only.** Briefs for `agy` docs work never ask it to
+  run git, `gh`, shell commands, or linters. `agy` writes the files; Grok Bot
+  owns git and the draft pull request.
+- **Grok Bot owns git and the draft PR.** After the handoff, Grok Bot runs the
+  collect step: status, add, commit, push, and `gh pr create --draft` (or a
+  follow-up commit on the open draft PR).
+- **`.agy-facts/` stays out of commits.** Stage explicit paths; never add
+  `.agy-facts/`.
+- **End-to-end runs are not accuracy evaluation.** An e2e pass shows the
+  pipeline ran. It does not measure answer quality. Report them separately.
+
+### Rules
+
+1. **One Epic comment after an Issue digest.** When an Issue digest posts to the
+   hub and the work has an Epic, leave one comment on the Epic that states the
+   phase and the scope now on `main`. In the same pass, fix stale owner paths
+   (for example `yohei1126/...` links that moved to `edgesentry/...`).
+2. **Collect includes commit and push.** Collect under `~/agy-work/<repo>` after
+   a handoff means commit and push too, with `.agy-facts/` excluded. Keep
+   Ask-first for destructive git operations, outbound sends, and deletes outside
+   the project directory.
+3. **One Mac shell for collect, then a one-line report.** Run collect as one
+   workstation `Shell` call (status → add → commit → push → `gh pr`). Send one
+   line to the operator and the ops channel with the PR URL. Skip mid-job chat.
+   Coding goes to spare `agy` Claude headroom (see
+   [`agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md#coding-lane-order));
+   Grok Bot does collect and final judgment.
 
 See also: [`docs/agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md),
 [`docs/zenn-ja-writing-lane.md`](zenn-ja-writing-lane.md),
