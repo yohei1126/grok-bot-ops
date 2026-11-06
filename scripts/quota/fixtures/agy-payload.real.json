@@ -1,0 +1,34 @@
+{
+  "product": "antigravity",
+  "version": "1.5.0",
+  "model": {
+    "id": "Gemini 3.8 Flash (Medium)"
+  },
+  "quota": {
+    "3p-5h": {
+      "remaining_fraction": 0.588376,
+      "reset_time": "2026-11-05T02:21:38Z",
+      "reset_in_seconds": 13425
+    },
+    "3p-weekly": {
+      "remaining_fraction": 0.2039876,
+      "reset_time": "2026-11-10T11:58:58Z",
+      "reset_in_seconds": 480065
+    },
+    "gemini-5h": {
+      "remaining_fraction": 0.9778411,
+      "reset_time": "2026-11-05T03:27:35Z",
+      "reset_in_seconds": 17382
+    },
+    "gemini-argon-wtu-weekly": {
+      "remaining_fraction": 0.95837295,
+      "reset_time": "2026-11-10T04:03:01Z",
+      "reset_in_seconds": 451508
+    },
+    "gemini-weekly": {
+      "remaining_fraction": 0.79459137,
+      "reset_time": "2026-11-05T08:55:24Z",
+      "reset_in_seconds": 37051
+    }
+  }
+}

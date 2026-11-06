@@ -335,6 +335,46 @@ early-morning windows, apply these preferred mitigations:
 Distinguish rare tasks that must run overnight from convenience schedules that
 can wait for daytime execution.
 
+## Dump weekly capacity with one schema
+
+[`scripts/quota/quota_dump.py`](../scripts/quota/quota_dump.py) emits the same
+versioned JSON for every coding lane, so digests and handoffs stop relying on
+pasted `/usage` output. It reads no API keys. You supply files produced with your
+own authentication.
+
+```bash
+python3 scripts/quota/quota_dump.py --agy-payload agy.json --cursor-json plan.json
+python3 scripts/quota/quota_dump.py --agy-capture --out quota.json
+```
+
+By default it prints one line. Add `--json` for the full document or `--out FILE`
+to save it. Exit code 2 means the schema is incomplete. Exit code 3 means the
+`agy` settings restore failed.
+
+| Lane | Pool ids | Kind |
+| --- | --- | --- |
+| `agy` | `gemini-weekly`, `gemini-5h`, `3p-weekly`, `3p-5h`, `gemini-argon-wtu-weekly` | weekly / 5h |
+| `cursor-grok` | pools found in the plan usage JSON | weekly |
+| `opencode-fireworks` | `fireworks-credits` | carry (not weekly) |
+| `box-goat` | `goat-flat-monthly` | flat (not weekly) |
+
+Each record has `agent_id`, `pool_id`, `kind`, `status`, `remaining_fraction`,
+`used_fraction`, `reset_time` and `captured_at` (ISO UTC), `plan_tier` and
+`source`. Fireworks and GOAT stay `status: unknown` with null fractions unless you
+pass `--fireworks-remaining-usd` and `--fireworks-budget-usd`. The script never
+invents numbers.
+
+`--agy-capture` backs up `settings.json`, points `statusLine` at a temporary
+dump hook, runs `--agy-cmd` (default `agy -p ok`), and always restores the
+original bytes. Run the tests with
+`python3 -m unittest scripts/quota/test_quota_dump.py`.
+
+> The `agy` mapping is verified against a real `agy` 1.5.0 `statusLine` payload
+> (`quota.<pool>.remaining_fraction` and `reset_time`). The first payload after
+> start-up has no `quota` block, so capture waits for a later one. Run one full
+> turn in `agy` while the hook is active. The Cursor / Grok mapping is still
+> unverified.
+
 ## Weekly progress cost section
 
 Weekly progress digests may include a short cost section that states how spare

@@ -1,0 +1,11 @@
+{
+  "plan_tier": "ai-pro",
+  "model": "mock-model",
+  "quota": {
+    "gemini-weekly": {"remaining_fraction": 0.62, "reset_time": "2026-11-10T00:00:00Z"},
+    "gemini-5h": {"remaining_fraction": 0.9, "reset_in_seconds": 3600},
+    "3p-weekly": {"used_percentage": 40, "reset_time": "2026-11-10T00:00:00Z"},
+    "3p-5h": {"remaining_fraction": 1.0, "reset_in_seconds": 18000},
+    "gemini-argon-wtu-weekly": {"remaining_percentage": 25, "reset_time": "2026-11-12T00:00:00Z"}
+  }
+}
