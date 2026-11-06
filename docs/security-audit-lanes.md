@@ -88,6 +88,57 @@ dependency risk.
 Track security remediations through dedicated issues and coding pull requests
 instead of folding them into the monthly operations audit cycle.
 
+## Read weekly security alerts through workstation gh
+
+Weekly scans of Dependabot, code-scanning, and secret-scanning alerts must read
+the alert APIs through the workstation `gh` login. Do not use the bot box
+token for these reads, and do not widen it to make them pass.
+
+- **Why**: the box personal access token still returns `403` ("Resource not
+  accessible by personal access token") on the alert endpoints. The
+  workstation `gh` OAuth session reads them without error.
+- **Scopes observed on the workstation session**: `gist`, `read:org`, `repo`,
+  `workflow`. `gh auth status` and the `X-Oauth-Scopes` response header show
+  the current list.
+- **Endpoints**: `repos/{owner}/{repo}/dependabot/alerts`,
+  `repos/{owner}/{repo}/code-scanning/alerts`, and
+  `repos/{owner}/{repo}/secret-scanning/alerts`.
+- **Routine wiring**: the weekly security routine prompt names the workstation
+  as the source of truth and targets it by machine ID. Any ad-hoc script or
+  subagent that runs in the box default environment will hit the same `403`.
+- **Availability**: the weekly scan depends on the workstation being awake and
+  online. If it is not, record the scan as skipped. Do not fall back to the
+  box token.
+
+A spot check confirmed the workstation session can read Dependabot alerts: a
+repository with alerts enabled and none open returned zero, and a positive
+control repository returned a non-zero count. Record HTTP status for
+code-scanning and secret-scanning reads in the pull request or issue that
+changes this routing.
+
+## Keep the AWS Serverless MCP pinned and read-only
+
+The AWS Serverless MCP server has a known advisory
+([GHSA-r6mm-377j-qg8m](https://github.com/advisories/GHSA-r6mm-377j-qg8m),
+CVE-2026-116635). Run version `0.2.1` or later with write access off.
+
+- **Pin the version**: launch `awslabs.aws-serverless-mcp-server@0.2.1`. Do
+  not use `@latest`.
+- **Keep write access off**: do not pass `--allow-write` (or `--enable-write`)
+  unless a task needs it and the operator approves.
+- **Marketplace refresh can undo the pin**: a plugin marketplace refresh may
+  rewrite the plugin's cached `.mcp.json` and restore an unpinned version with
+  write access. Editing that cached file is not durable.
+- **Prefer a local override**: define the server in a local MCP configuration
+  that the plugin refresh does not own, with the pinned version and no write
+  flag. If you cannot, re-pin after every plugin refresh.
+- **Verify after a refresh or cold reconnect**: check the active MCP
+  configuration and the running server's arguments for the pinned version and
+  the absence of the write flag. Do this before closing any issue that tracks
+  the advisory.
+- **Prune old wheels**: remove the vulnerable `0.2.0` wheel from the package
+  cache on any host that still holds it, so cached resolution cannot load it.
+
 ## Keep security gates thrifty
 
 - **Dependabot**: act only on alerts that have a fixed version, and only on
