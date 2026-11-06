@@ -1,6 +1,10 @@
+# RETRO comment template
+
+Copy from the `## RETRO` heading through the end into the Issue comment.
+
 ## RETRO
 
-Source PR: <url>
+Source PR: `https://example.com/owner/repo/pull/0`
 
 ### What was wasted
 

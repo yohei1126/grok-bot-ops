@@ -28,7 +28,7 @@ a second Issue.
 | Field | Contract |
 | --- | --- |
 | Marker | The comment starts with `## RETRO` as its first line |
-| Source PR link | A `Source PR: <url>` line directly under the marker |
+| Source PR link | A `Source PR: URL` line directly under the marker |
 | Max length | 1,500 characters for the whole comment |
 | Scrub list | All five items below must pass |
 | Owner | An operator bot routine, scheduled or event driven. CI never writes memory |
