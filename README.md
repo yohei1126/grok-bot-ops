@@ -76,6 +76,10 @@ Operators who:
   and the generic-examples policy.
 - [`AGENTS.md`](AGENTS.md) points coding agents and bots at `CONTRIBUTING.md`
   and states the topic-file and 500-line split rule for `docs/`.
+- [`templates/agent-ops-hub/`](templates/agent-ops-hub/README.md) holds
+  scrubbed public templates for a private job hub: a Worker webhook relay, a
+  Mac launcher pattern, and label, secrets, and GitHub App stubs. It carries
+  placeholders only, never live values.
 
 ## How to use it
 
@@ -112,3 +116,14 @@ npx --yes markdownlint-cli2@0.23.2
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+## Lane and cost topic docs
+
+- [`docs/agy-quota-and-coding-lanes.md`](docs/agy-quota-and-coding-lanes.md):
+  `agy` quota groups and coding lane order.
+- [`docs/zenn-ja-writing-lane.md`](docs/zenn-ja-writing-lane.md): Japanese
+  article writing with one `write_file`-only Flash launch.
+- [`docs/opencode-thrift.md`](docs/opencode-thrift.md): OpenCode job shape and
+  no-poll rules.
+- [`docs/tooling-and-cost.md`](docs/tooling-and-cost.md#weekly-progress-cost-section):
+  weekly progress cost section.

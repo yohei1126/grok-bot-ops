@@ -374,3 +374,14 @@ original bytes. Run the tests with
 > start-up has no `quota` block, so capture waits for a later one. Run one full
 > turn in `agy` while the hook is active. The Cursor / Grok mapping is still
 > unverified.
+
+## Weekly progress cost section
+
+Weekly progress digests may include a short cost section that states how spare
+capacity was or will be allocated: spare `agy` pool headroom, remaining
+Fireworks OpenCode capacity, and the always-on box coding model. Name pools and
+lanes, not people or accounts.
+
+Routing and lane order live in
+[`docs/agy-quota-and-coding-lanes.md`](agy-quota-and-coding-lanes.md). Job
+shape for OpenCode lives in [`docs/opencode-thrift.md`](opencode-thrift.md).
